@@ -1,14 +1,10 @@
-import { fetchBuildings, fetchBuildingBySlug } from "@/lib/monday";
+import { fetchBuildingBySlug } from "@/lib/monday";
 import { notFound } from "next/navigation";
 import BuildingDetailClient from "./BuildingDetailClient";
 
+// Render on-demand instead of pre-building all pages (faster build)
 export const revalidate = 900;
-
-// Generate static pages for all buildings at build time
-export async function generateStaticParams() {
-  const buildings = await fetchBuildings();
-  return buildings.map((b) => ({ slug: b.slug }));
-}
+export const dynamicParams = true;
 
 // Dynamic metadata for SEO
 export async function generateMetadata({ params }) {
