@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
+:root {
+  --navy: #0a1f5c;
+  --navy-light: #1a3278;
+  --navy-dark: #061440;
+  --gold: #c9a84c;
+  --gold-light: #e2c87e;
+  --gold-subtle: #f5edd4;
+  --bg: #f7f8fa;
+  --border: #e8ebf0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  color: var(--navy);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Outfit", sans-serif;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d0d4de; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #b0b6c4; }
+
+/* ─── Map pin styles (used by Leaflet) ────────────────────────────── */
+.rb-marker { background: none !important; border: none !important; }
+.rb-pin {
+  background: var(--navy);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 24px;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: "Outfit", sans-serif;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(10, 31, 92, 0.25);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+.rb-pin-active {
+  background: var(--gold) !important;
+  color: var(--navy) !important;
+  transform: scale(1.12);
+  box-shadow: 0 4px 16px rgba(201, 168, 76, 0.4);
+  border-color: var(--gold);
+}
+
+/* ─── Range slider ────────────────────────────────────────────────── */
+input[type="range"] {
+  -webkit-appearance: none;
+  height: 4px;
+  background: linear-gradient(to right, var(--navy), var(--gold));
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--navy);
+  border: 3px solid #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(10, 31, 92, 0.2);
+}
+
+/* ─── Animations ──────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-in { animation: fadeIn 0.3s ease; }
+.animate-slide-up { animation: slideUp 0.3s ease; }
+
+/* ─── Leaflet overrides ───────────────────────────────────────────── */
+.leaflet-control-zoom a {
+  background: #fff !important;
+  color: var(--navy) !important;
+  border: 1px solid var(--border) !important;
+  font-weight: 700 !important;
+}
