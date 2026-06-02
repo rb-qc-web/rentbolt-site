@@ -563,7 +563,7 @@ export default function SearchClient({ buildings, totalCount }) {
         .rb-ssplit {
           flex: 1;
           display: grid;
-          grid-template-columns: 460px 1fr;
+          grid-template-columns: 680px 1fr;
           overflow: hidden;
           min-height: 0;
         }
@@ -596,6 +596,12 @@ export default function SearchClient({ buildings, totalCount }) {
         }
         .rb-slist-items {
           padding: 12px;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+        .rb-slist-items .rb-scard {
+          margin-bottom: 0;
         }
         .rb-scard {
           display: block;
