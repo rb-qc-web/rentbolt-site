@@ -1,16 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { brand, meta } from "@/lib/brand";
+import { brand } from "@/lib/brand";
 
 const CITIES = ["Montréal", "Gatineau", "Ottawa", "Kitchener-Waterloo", "London", "Hamilton"];
 const UNIT_TYPES = ["Studio", "1 Bedroom", "2 Bedrooms", "3 Bedrooms", "4+ Bedrooms", "Loft", "Townhouse"];
 const MUST_HAVES = ["Parking", "In-suite laundry", "Balcony", "AC", "Dishwasher", "Gym", "Pool", "Storage", "EV charging", "Concierge", "Elevator", "Rooftop"];
+const PET_TYPES = ["Cat", "Small Dog (<25 lbs)", "Large Dog (>25 lbs)"];
+
+const BUDGET_MIN = 500;
+const BUDGET_MAX = 5000;
+const BUDGET_STEP = 50;
 
 const INITIAL = {
-  city: "", unitTypes: [], budgetMin: "", budgetMax: "",
+  city: "", unitTypes: [], budgetMin: 800, budgetMax: 2500,
   moveInDate: "", flexible: false, furnished: "", pets: "",
-  mustHaves: [], name: "", email: "", phone: "",
+  petTypes: [], mustHaves: [], notes: "", name: "", email: "", phone: "",
 };
 
 function Bolt() {
@@ -30,15 +35,11 @@ function Bolt() {
 
 function Toggle({ checked, onChange }) {
   return (
-    <button
-      type="button"
-      onClick={() => onChange(!checked)}
-      style={{
-        position: "relative", display: "inline-flex", alignItems: "center",
-        width: 44, height: 24, borderRadius: 12, border: "none", cursor: "pointer",
-        background: checked ? brand.navy : "#D1D5DB", transition: "background 0.2s", flexShrink: 0,
-      }}
-    >
+    <button type="button" onClick={() => onChange(!checked)} style={{
+      position: "relative", display: "inline-flex", alignItems: "center",
+      width: 44, height: 24, borderRadius: 12, border: "none", cursor: "pointer",
+      background: checked ? brand.navy : "#D1D5DB", transition: "background 0.2s", flexShrink: 0,
+    }}>
       <span style={{
         position: "absolute", left: checked ? 22 : 2,
         width: 20, height: 20, borderRadius: "50%", background: "#fff",
@@ -87,6 +88,77 @@ function Field({ label, required, hint, children }) {
   );
 }
 
+function BudgetSlider({ min, max, onMinChange, onMaxChange }) {
+  const pct = (v) => ((v - BUDGET_MIN) / (BUDGET_MAX - BUDGET_MIN)) * 100;
+  const fmt = (v) => v >= BUDGET_MAX ? "$5,000+" : `$${v.toLocaleString()}`;
+
+  const trackStyle = {
+    position: "relative", height: 6, borderRadius: 3,
+    background: `linear-gradient(to right, #E2E5EC ${pct(min)}%, ${brand.navy} ${pct(min)}%, ${brand.navy} ${pct(max)}%, #E2E5EC ${pct(max)}%)`,
+    margin: "12px 0",
+  };
+
+  const sliderBase = {
+    position: "absolute", top: "50%", transform: "translateY(-50%)",
+    width: "100%", height: 6, opacity: 0, cursor: "pointer",
+    WebkitAppearance: "none", appearance: "none", margin: 0,
+  };
+
+  return (
+    <div>
+      {/* Labels */}
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+        <span style={{ fontSize: 13, color: "#8B92A5" }}>Min</span>
+        <span style={{ fontSize: 15, fontWeight: 800, color: brand.navy }}>
+          {fmt(min)} — {fmt(max)}
+        </span>
+        <span style={{ fontSize: 13, color: "#8B92A5" }}>Max</span>
+      </div>
+
+      {/* Track + overlapping range inputs */}
+      <div style={{ position: "relative", height: 28, display: "flex", alignItems: "center" }}>
+        <div style={{ ...trackStyle, width: "100%" }} />
+        <input
+          type="range" min={BUDGET_MIN} max={BUDGET_MAX} step={BUDGET_STEP}
+          value={min}
+          onChange={e => { const v = Math.min(Number(e.target.value), max - BUDGET_STEP); onMinChange(v); }}
+          style={{ ...sliderBase, pointerEvents: "auto", zIndex: min > BUDGET_MAX - 200 ? 5 : 3 }}
+        />
+        <input
+          type="range" min={BUDGET_MIN} max={BUDGET_MAX} step={BUDGET_STEP}
+          value={max}
+          onChange={e => { const v = Math.max(Number(e.target.value), min + BUDGET_STEP); onMaxChange(v); }}
+          style={{ ...sliderBase, pointerEvents: "auto", zIndex: 4 }}
+        />
+      </div>
+
+      <p style={{ fontSize: 12, color: "#8B92A5", marginTop: 8, fontStyle: "italic" }}>
+        We'll do our best to respect it 🙏
+      </p>
+
+      {/* Slider thumb styles via injected CSS */}
+      <style>{`
+        input[type=range]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 22px; height: 22px; border-radius: 50%;
+          background: ${brand.navy};
+          border: 3px solid #fff;
+          box-shadow: 0 2px 6px rgba(10,31,92,0.25);
+          cursor: pointer;
+          pointer-events: all;
+        }
+        input[type=range]::-moz-range-thumb {
+          width: 22px; height: 22px; border-radius: 50%;
+          background: ${brand.navy};
+          border: 3px solid #fff;
+          box-shadow: 0 2px 6px rgba(10,31,92,0.25);
+          cursor: pointer;
+        }
+      `}</style>
+    </div>
+  );
+}
+
 const inputStyle = {
   width: "100%", padding: "12px 16px", borderRadius: 12, fontSize: 14, fontWeight: 500,
   border: "1.5px solid #E2E5EC", outline: "none", fontFamily: "inherit",
@@ -122,26 +194,17 @@ export default function FindAPlaceClient() {
       }}>
         <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
           <Bolt />
-          <span style={{ fontWeight: 800, fontSize: 20, color: brand.navy, letterSpacing: "-0.5px" }}>
-            RENT<span style={{ color: brand.navy }}>BOLT</span>
-          </span>
+          <span style={{ fontWeight: 800, fontSize: 20, color: brand.navy, letterSpacing: "-0.5px" }}>RENTBOLT</span>
         </a>
-        <a href="/" style={{
-          fontSize: 13, fontWeight: 600, color: "#5A6278", textDecoration: "none",
-          display: "flex", alignItems: "center", gap: 6,
-        }}>
+        <a href="/" style={{ fontSize: 13, fontWeight: 600, color: "#5A6278", textDecoration: "none" }}>
           ← Back to listings
         </a>
       </header>
 
-      {/* PAGE */}
       <main style={{ minHeight: "100vh", background: "#F7F8FA", paddingBottom: 80 }}>
-
-        {submitted ? (
-          <SuccessState name={form.name} />
-        ) : (
+        {submitted ? <SuccessState name={form.name} /> : (
           <>
-            {/* HERO BANNER */}
+            {/* HERO */}
             <div style={{
               background: `linear-gradient(135deg, ${brand.navyDark} 0%, ${brand.navy} 60%, #1A3278 100%)`,
               color: "#fff", padding: "56px 32px 52px", textAlign: "center",
@@ -164,13 +227,12 @@ export default function FindAPlaceClient() {
                 overflow: "hidden", marginTop: -24, position: "relative",
               }}>
 
-                {/* SECTION: Where */}
+                {/* WHERE & WHAT */}
                 <Section title="Where & What" icon="📍">
-                  <Field label="Which city?" required>
+                  <Field label="Where do you want to live?" required>
                     <div style={{ position: "relative" }}>
                       <select
-                        value={form.city}
-                        onChange={e => set("city", e.target.value)}
+                        value={form.city} onChange={e => set("city", e.target.value)}
                         style={{ ...inputStyle, appearance: "none", paddingRight: 40, cursor: "pointer" }}
                       >
                         <option value="">Select a city…</option>
@@ -191,41 +253,25 @@ export default function FindAPlaceClient() {
 
                 <Divider />
 
-                {/* SECTION: Budget */}
+                {/* BUDGET */}
                 <Section title="Budget" icon="💰">
                   <Field label="Monthly budget range">
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                      <div style={{ position: "relative" }}>
-                        <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#8B92A5", fontWeight: 600, fontSize: 14 }}>$</span>
-                        <input
-                          type="number" placeholder="Min"
-                          value={form.budgetMin} onChange={e => set("budgetMin", e.target.value)}
-                          onFocus={() => setFocused("min")} onBlur={() => setFocused(null)}
-                          style={{ ...inputStyle, paddingLeft: 28, borderColor: focused === "min" ? brand.navy : "#E2E5EC" }}
-                        />
-                      </div>
-                      <div style={{ position: "relative" }}>
-                        <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#8B92A5", fontWeight: 600, fontSize: 14 }}>$</span>
-                        <input
-                          type="number" placeholder="Max"
-                          value={form.budgetMax} onChange={e => set("budgetMax", e.target.value)}
-                          onFocus={() => setFocused("max")} onBlur={() => setFocused(null)}
-                          style={{ ...inputStyle, paddingLeft: 28, borderColor: focused === "max" ? brand.navy : "#E2E5EC" }}
-                        />
-                      </div>
-                    </div>
+                    <BudgetSlider
+                      min={form.budgetMin} max={form.budgetMax}
+                      onMinChange={v => set("budgetMin", v)}
+                      onMaxChange={v => set("budgetMax", v)}
+                    />
                   </Field>
                 </Section>
 
                 <Divider />
 
-                {/* SECTION: Move-in */}
-                <Section title="Move-in" icon="📅">
+                {/* MOVE-IN */}
+                <Section title="Desired move-in date" icon="📅">
                   <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
                     <div style={{ flex: 1, minWidth: 180 }}>
                       <input
-                        type="date"
-                        value={form.moveInDate}
+                        type="date" value={form.moveInDate}
                         onChange={e => set("moveInDate", e.target.value)}
                         disabled={form.flexible}
                         onFocus={() => setFocused("date")} onBlur={() => setFocused(null)}
@@ -246,7 +292,7 @@ export default function FindAPlaceClient() {
 
                 <Divider />
 
-                {/* SECTION: Preferences */}
+                {/* PREFERENCES */}
                 <Section title="Preferences" icon="✨">
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
                     <Field label="Furnished?">
@@ -256,6 +302,7 @@ export default function FindAPlaceClient() {
                         ))}
                       </div>
                     </Field>
+
                     <Field label="Pets?">
                       <div style={{ display: "flex", gap: 8 }}>
                         {["Yes", "No"].map(o => (
@@ -264,6 +311,23 @@ export default function FindAPlaceClient() {
                       </div>
                     </Field>
                   </div>
+
+                  {/* Pet type follow-up */}
+                  {form.pets === "Yes" && (
+                    <div style={{
+                      background: "#F7F8FA", borderRadius: 12, padding: "16px 20px",
+                      border: "1.5px solid #E2E5EC", display: "flex", flexDirection: "column", gap: 10,
+                    }}>
+                      <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: brand.navy }}>
+                        What kind of pet? <span style={{ fontWeight: 400, color: "#8B92A5" }}>(pick all that apply)</span>
+                      </p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {PET_TYPES.map(p => (
+                          <Pill key={p} label={p} active={form.petTypes.includes(p)} onClick={() => toggleArr("petTypes", p)} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <Field label="Must-haves" hint="(pick all that apply)">
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -276,7 +340,27 @@ export default function FindAPlaceClient() {
 
                 <Divider />
 
-                {/* SECTION: Contact */}
+                {/* ANYTHING ELSE */}
+                <Section title="Anything else?" icon="💬">
+                  <Field label="Additional notes" hint="(optional)">
+                    <textarea
+                      placeholder="e.g. I need a quiet building, close to a metro station, ground floor preferred…"
+                      value={form.notes}
+                      onChange={e => set("notes", e.target.value)}
+                      onFocus={() => setFocused("notes")} onBlur={() => setFocused(null)}
+                      rows={4}
+                      style={{
+                        ...inputStyle,
+                        borderColor: focused === "notes" ? brand.navy : "#E2E5EC",
+                        resize: "vertical", lineHeight: 1.6,
+                      }}
+                    />
+                  </Field>
+                </Section>
+
+                <Divider />
+
+                {/* CONTACT */}
                 <Section title="Your info" icon="👤">
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     <input
@@ -303,8 +387,7 @@ export default function FindAPlaceClient() {
                 {/* SUBMIT */}
                 <div style={{ padding: "24px 32px 32px" }}>
                   <button
-                    type="button"
-                    onClick={handleSubmit}
+                    type="button" onClick={handleSubmit}
                     disabled={!canSubmit || submitting}
                     style={{
                       width: "100%", padding: "16px 24px", borderRadius: 14, border: "none",
@@ -315,7 +398,6 @@ export default function FindAPlaceClient() {
                         : "#C5CBE0",
                       color: "#fff",
                       boxShadow: canSubmit && !submitting ? "0 6px 24px rgba(10,31,92,0.25)" : "none",
-                      transform: canSubmit && !submitting ? "translateY(0)" : "none",
                     }}
                   >
                     {submitting ? "Sending…" : "Find My Place →"}
@@ -333,7 +415,6 @@ export default function FindAPlaceClient() {
         )}
       </main>
 
-      {/* FOOTER */}
       <footer style={{
         background: brand.navyDark, color: "rgba(255,255,255,0.5)",
         textAlign: "center", padding: "24px 32px", fontSize: 13,
@@ -370,10 +451,8 @@ function SuccessState({ name }) {
       <div style={{
         width: 80, height: 80, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
         background: `linear-gradient(135deg, ${brand.navyDark} 0%, ${brand.navy} 100%)`,
-        fontSize: 36,
-      }}>
-        ✓
-      </div>
+        fontSize: 36, color: brand.gold,
+      }}>✓</div>
       <div>
         <h2 style={{ fontSize: 28, fontWeight: 800, color: brand.navy, margin: "0 0 12px" }}>
           You're on the list, {first}!
