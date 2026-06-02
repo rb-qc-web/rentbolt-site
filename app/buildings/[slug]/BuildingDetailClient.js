@@ -361,6 +361,13 @@ export default function BuildingDetailClient({ building }) {
           color: var(--navy) !important;
           font-weight: 700 !important;
           padding: 10px 22px !important;
+          border: none !important;
+          border-radius: 8px !important;
+          font-size: inherit !important;
+          font-family: inherit !important;
+          cursor: pointer !important;
+          display: inline-flex !important;
+          align-items: center !important;
         }
         .bd-nav-cta:hover { background: var(--gold-bright) !important; }
 

@@ -70,6 +70,14 @@ button { font-family: inherit; cursor: pointer; }
   color: var(--navy) !important;
   font-weight: 700 !important;
   padding: 11px 22px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  text-decoration: none !important;
 }
 .rb-nav-cta:hover { background: var(--gold-bright) !important; transform: translateY(-1px); }
 

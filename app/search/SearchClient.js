@@ -372,6 +372,11 @@ export default function SearchClient({ buildings, totalCount }) {
           border-radius: 100px;
           text-decoration: none;
           transition: all 0.2s;
+          border: none;
+          font-family: inherit;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
         }
         .rb-snav-cta:hover {
           background: var(--gold-bright);
