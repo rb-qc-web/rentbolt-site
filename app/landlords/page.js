@@ -177,7 +177,7 @@ function PartnershipForm() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="lp-grid-form">
         <input placeholder="Full name *" value={form.name} onChange={e => set("name", e.target.value)}
           onFocus={() => setFocused("name")} onBlur={() => setFocused(null)}
           style={{ ...inputStyle, borderColor: focused === "name" ? navy : border }} />
@@ -185,7 +185,7 @@ function PartnershipForm() {
           onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
           style={{ ...inputStyle, borderColor: focused === "email" ? navy : border }} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="lp-grid-form">
         <input type="tel" placeholder="Phone" value={form.phone} onChange={e => set("phone", e.target.value)}
           onFocus={() => setFocused("phone")} onBlur={() => setFocused(null)}
           style={{ ...inputStyle, borderColor: focused === "phone" ? navy : border }} />
@@ -193,7 +193,7 @@ function PartnershipForm() {
           onFocus={() => setFocused("company")} onBlur={() => setFocused(null)}
           style={{ ...inputStyle, borderColor: focused === "company" ? navy : border }} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="lp-grid-form">
         <div style={{ position: "relative" }}>
           <select value={form.city} onChange={e => set("city", e.target.value)}
             style={{ ...inputStyle, appearance: "none", paddingRight: 36, cursor: "pointer", color: form.city ? navy : textMute }}>
@@ -279,7 +279,7 @@ export default function LandlordsPage() {
         background: `linear-gradient(135deg, ${navyDark} 0%, ${navy} 55%, #1A3278 100%)`,
         color: "#fff", padding: "90px 32px 100px",
       }}>
-        <div style={{ maxWidth: 960, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }} className="lp-grid-2">
           <div>
             <p style={{ fontSize: 12, fontWeight: 700, color: gold, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 16 }}>
               Property Developers, Owners, & Managers
@@ -336,7 +336,7 @@ export default function LandlordsPage() {
 
       {/* ── STATS ── */}
       <section style={{ background: "#fff", borderBottom: `1px solid ${border}`, padding: "44px 32px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, textAlign: "center" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, textAlign: "center" }} className="lp-grid-4">
           {STATS.map((s, i) => (
             <div key={s.label} style={{ padding: "0 24px", borderRight: i < STATS.length - 1 ? `1px solid ${border}` : "none" }}>
               <div style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 800, color: navy, letterSpacing: "-1px", lineHeight: 1 }}>{s.value}</div>
@@ -348,7 +348,7 @@ export default function LandlordsPage() {
 
       {/* ── WHO WE WORK WITH ── */}
       <section style={{ background: bg, padding: "80px 32px" }}>
-        <div style={{ maxWidth: 960, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }} className="lp-grid-2">
           <div>
             <p style={{ fontSize: 12, fontWeight: 700, color: gold, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 14 }}>
               Who we work with
@@ -409,7 +409,7 @@ export default function LandlordsPage() {
               We built the leasing infrastructure so you don't have to maintain it.
             </p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }} className="lp-grid-3">
             {WHY.map(item => (
               <div key={item.title} style={{ background: bg, borderRadius: 16, padding: "28px 24px", border: "1.5px solid #ECEEF3" }}>
                 <div style={{ fontSize: 28, marginBottom: 14 }}>{item.icon}</div>
@@ -430,7 +430,7 @@ export default function LandlordsPage() {
               How the partnership works
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, position: "relative" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, position: "relative" }} className="lp-grid-steps">
             {HOW.map((step, i) => (
               <div key={step.step} style={{ textAlign: "center", padding: "0 20px", position: "relative" }}>
                 {i < HOW.length - 1 && (
@@ -470,7 +470,7 @@ export default function LandlordsPage() {
 
       {/* ── CONTACT ── */}
       <section id="contact" style={{ background: bg, padding: "80px 32px" }}>
-        <div style={{ maxWidth: 960, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "start" }}>
+        <div style={{ maxWidth: 960, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "start" }} className="lp-grid-2">
           <div style={{ paddingTop: 8 }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: gold, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 16 }}>Let's talk</p>
             <h2 style={{ fontSize: "clamp(26px, 4vw, 40px)", fontWeight: 800, color: navy, margin: "0 0 18px", lineHeight: 1.15, letterSpacing: "-0.5px" }}>
@@ -509,7 +509,7 @@ export default function LandlordsPage() {
       {/* ── FOOTER ── */}
       <footer style={{ background: navyDark, color: "rgba(255,255,255,0.5)", padding: "48px 32px 28px" }}>
         <div style={{ maxWidth: 960, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 48, marginBottom: 40 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 48, marginBottom: 40 }} className="lp-grid-footer">
             <div>
               <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", marginBottom: 16 }}>
                 <Bolt />
@@ -547,6 +547,49 @@ export default function LandlordsPage() {
           </div>
         </div>
       </footer>
+    
+      <style>{`
+        @media (max-width: 768px) {
+          .lp-grid-2, .lp-grid-3, .lp-grid-footer {
+            grid-template-columns: 1fr !important;
+            gap: 32px !important;
+          }
+          .lp-grid-4 {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 24px !important;
+          }
+          .lp-grid-4 > div {
+            border-right: none !important;
+            border-bottom: 1px solid #E8EBF0;
+            padding-bottom: 20px !important;
+          }
+          .lp-grid-4 > div:nth-child(odd) {
+            border-right: 1px solid #E8EBF0 !important;
+          }
+          .lp-grid-steps {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 32px !important;
+          }
+          .lp-grid-steps > div > div[style*="position: absolute"] {
+            display: none !important;
+          }
+          .lp-grid-form {
+            grid-template-columns: 1fr !important;
+          }
+          .rb-hamburger { display: flex !important; }
+          nav { display: none !important; }
+          section { padding-left: 20px !important; padding-right: 20px !important; }
+          section[style*='90px'] { padding-top: 60px !important; padding-bottom: 60px !important; }
+        }
+        @media (max-width: 480px) {
+          .lp-grid-4 {
+            grid-template-columns: 1fr !important;
+          }
+          .lp-grid-steps {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </>
   );
 }
