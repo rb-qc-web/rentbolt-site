@@ -9,7 +9,7 @@ import FindAPlaceModal from "./FindAPlaceModal";
 
 const NAV_LINKS = [
   { href: "/", label: "Find a Home" },
-  { href: "/landlords", label: "Landlords" },
+  { href: "/landlords", label: "Partnership" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
