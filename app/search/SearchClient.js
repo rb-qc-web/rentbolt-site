@@ -130,10 +130,15 @@ export default function SearchClient({ buildings, totalCount }) {
     if (!mapLoaded || !mapInstanceRef.current) return;
     const map = mapInstanceRef.current;
 
-    Promise.all([
-      import("leaflet"),
-      import("leaflet.markercluster"),
-    ]).then(([{ default: L }]) => {
+    import("leaflet").then(({ default: L }) => {
+      const loadCluster = () => new Promise((resolve) => {
+        if (L.MarkerClusterGroup) return resolve();
+        const s = document.createElement("script");
+        s.src = "https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js";
+        s.onload = resolve;
+        document.head.appendChild(s);
+      });
+      loadCluster().then(() => {
       // Close popup on map click
       map.on("click", () => { setMapPopup(null); setActiveId(null); });
 
@@ -211,6 +216,7 @@ export default function SearchClient({ buildings, totalCount }) {
         const bounds = L.latLngBounds(filtered.map(b => [b.lat, b.lng]));
         map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13 });
       }
+      }); // end loadCluster
     });
   }, [filtered, activeId, hoverId, mapLoaded]);
 
