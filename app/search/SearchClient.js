@@ -356,9 +356,7 @@ export default function SearchClient({ buildings, totalCount }) {
                   <div className="rb-scard-body">
                     <div className="rb-scard-meta">
                       <div className="rb-scard-city">{b.city}{b.area ? ` · ${b.area}` : ""}</div>
-                      {b.vacantCount > 0 && (
-                        <div className="rb-scard-vacant">● {b.vacantCount} available</div>
-                      )}
+  
                     </div>
                     <h3 className="rb-scard-name">{b.name}</h3>
                     {b.address && <div className="rb-scard-addr">{b.address}</div>}
@@ -425,7 +423,7 @@ export default function SearchClient({ buildings, totalCount }) {
                   </div>
                   <div style={{ fontSize: 12, color: "#5A6278", marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <span>{formatBeds(b.bedrooms)}</span>
-                    {b.vacantCount > 0 && <span style={{ color: "#16a34a", fontWeight: 600 }}>● {b.vacantCount} available</span>}
+                    
                   </div>
                   <a href={`/buildings/${b.slug}`} style={{
                     display: "block", textAlign: "center", padding: "8px 12px",

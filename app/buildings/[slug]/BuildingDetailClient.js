@@ -115,12 +115,7 @@ export default function BuildingDetailClient({ building }) {
           <div className="bd-left">
             {/* KEY FACTS */}
             <div className="bd-facts">
-              {building.vacantCount > 0 && (
-                <div className="bd-fact">
-                  <div className="bd-fact-label">Available units</div>
-                  <div className="bd-fact-value">{building.vacantCount}</div>
-                </div>
-              )}
+
               {bedsLabel && (
                 <div className="bd-fact">
                   <div className="bd-fact-label">Unit types</div>
@@ -156,7 +151,7 @@ export default function BuildingDetailClient({ building }) {
                 <h2>Amenities</h2>
                 <div className="bd-pills">
                   {(building.amenitiesList?.length > 0 ? building.amenitiesList : building.amenities).map((a, i) => (
-                    <span key={i} className="bd-pill">✓ {a}</span>
+                    <span key={i} className="bd-pill bd-pill-amenity"><span className="bd-pill-icon">✦</span>{a}</span>
                   ))}
                 </div>
               </div>
@@ -168,7 +163,7 @@ export default function BuildingDetailClient({ building }) {
                 <h2>Appliances</h2>
                 <div className="bd-pills">
                   {building.appliancesList.map((a, i) => (
-                    <span key={i} className="bd-pill bd-pill-blue">⚡ {a}</span>
+                    <span key={i} className="bd-pill bd-pill-blue"><span className="bd-pill-icon">◈</span>{a}</span>
                   ))}
                 </div>
               </div>
@@ -180,13 +175,13 @@ export default function BuildingDetailClient({ building }) {
               {building.inclusionsList?.length > 0 ? (
                 <div className="bd-pills">
                   {building.inclusionsList.map((inc, i) => (
-                    <span key={i} className="bd-pill bd-pill-gold">● {inc}</span>
+                    <span key={i} className="bd-pill bd-pill-gold"><span className="bd-pill-icon">◆</span>{inc}</span>
                   ))}
                 </div>
               ) : (
                 <div className="bd-pills">
                   {inclusions.map((inc, i) => (
-                    <span key={i} className="bd-pill bd-pill-gold">● {inc}</span>
+                    <span key={i} className="bd-pill bd-pill-gold"><span className="bd-pill-icon">◆</span>{inc}</span>
                   ))}
                   {inclusions.length === 0 && <span style={{color:"var(--text-mute)",fontSize:14}}>Not specified</span>}
                 </div>
@@ -582,23 +577,54 @@ export default function BuildingDetailClient({ building }) {
         .bd-pill {
           display: inline-flex;
           align-items: center;
-          padding: 7px 14px;
+          gap: 6px;
+          padding: 8px 16px;
           border-radius: 100px;
           font-size: 13px;
           font-weight: 600;
-          background: var(--bg-soft);
+          background: #F7F8FA;
           color: var(--navy);
-          border: 1.5px solid var(--border);
+          border: 1.5px solid #E2E5EC;
+          transition: border-color 0.15s, background 0.15s;
+        }
+        .bd-pill:hover {
+          border-color: var(--navy);
+          background: #fff;
+        }
+        .bd-pill-icon {
+          font-size: 10px;
+          opacity: 0.6;
+          line-height: 1;
+        }
+        .bd-pill-amenity {
+          background: #F0F4FF;
+          border-color: #C8D4F0;
+          color: var(--navy);
+        }
+        .bd-pill-amenity .bd-pill-icon {
+          color: var(--navy);
+          opacity: 0.5;
+          font-size: 9px;
         }
         .bd-pill-gold {
-          background: rgba(201,168,76,0.1);
-          border-color: rgba(201,168,76,0.35);
-          color: #7a5f1a;
+          background: rgba(201,168,76,0.08);
+          border-color: rgba(201,168,76,0.3);
+          color: #6B4F10;
+        }
+        .bd-pill-gold .bd-pill-icon {
+          color: #C9A84C;
+          font-size: 8px;
+          opacity: 1;
         }
         .bd-pill-blue {
-          background: rgba(10,31,92,0.06);
-          border-color: rgba(10,31,92,0.15);
+          background: rgba(10,31,92,0.04);
+          border-color: rgba(10,31,92,0.12);
           color: var(--navy);
+        }
+        .bd-pill-blue .bd-pill-icon {
+          color: var(--navy);
+          opacity: 0.4;
+          font-size: 9px;
         }
         .bd-tags {
           list-style: none;
