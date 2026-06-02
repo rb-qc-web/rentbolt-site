@@ -22,6 +22,61 @@ function formatBedsLong(beds) {
   return beds.map(b => b === 0 ? "Studios" : b === 4 ? "4+ Bedrooms" : `${b} Bedroom${b > 1 ? "s" : ""}`).join(" · ");
 }
 
+// Emoji maps for rich pill display
+const AMENITY_ICONS = {
+  "gym": "🏋️", "fitness": "🏋️", "fitness center": "🏋️",
+  "pool": "🏊", "swimming": "🏊",
+  "rooftop": "🌇", "rooftop terrace": "🌇",
+  "concierge": "🛎️",
+  "parking": "🚗", "garage": "🚗",
+  "storage": "📦", "storage lockers": "📦",
+  "lounge": "🛋️", "lounge area": "🛋️",
+  "party room": "🎉", "party": "🎉",
+  "game room": "🎮", "games": "🎮",
+  "kids": "🧒", "kids playroom": "🧒", "playground": "🧒",
+  "bbq": "🔥", "terrace": "🌿",
+  "bike": "🚲", "bicycle": "🚲",
+  "spa": "🧖", "sauna": "🧖",
+  "theatre": "🎬", "theater": "🎬", "movie": "🎬",
+  "coworking": "💻", "business center": "💻",
+  "visitor parking": "🅿️",
+  "elevator": "🛗",
+  "security": "🔒", "doorman": "🔒",
+  "ev charging": "⚡", "ev": "⚡",
+};
+
+const APPLIANCE_ICONS = {
+  "fridge": "🧊", "refrigerator": "🧊",
+  "stove": "🍳", "oven": "🍳", "range": "🍳",
+  "dishwasher": "🫧",
+  "microwave": "📡",
+  "washer": "🫧", "dryer": "🫧",
+  "laundry in building": "👕", "laundry in unit": "👕", "laundry": "👕",
+  "air conditioning": "❄️", "ac": "❄️", "a/c": "❄️",
+  "balcony": "🌿",
+};
+
+const INCLUSION_ICONS = {
+  "heating": "🔥",
+  "hot water": "💧", "water": "💧",
+  "electricity": "⚡",
+  "internet": "📶", "wifi": "📶",
+  "cable": "📺",
+  "pet friendly": "🐾", "pets": "🐾",
+  "furnished": "🛋️",
+  "parking": "🚗",
+  "hydro": "⚡",
+  "gas": "🔥",
+};
+
+function getIcon(name, map) {
+  const key = name.toLowerCase();
+  for (const [k, v] of Object.entries(map)) {
+    if (key.includes(k)) return v;
+  }
+  return null;
+}
+
 export default function BuildingDetailClient({ building }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -148,11 +203,12 @@ export default function BuildingDetailClient({ building }) {
             {/* AMENITIES — structured pills (Toronto) or legacy list */}
             {(building.amenitiesList?.length > 0 || building.amenities?.length > 0) && (
               <div className="bd-section">
-                <h2>Amenities</h2>
+                <h2>🏢 Amenities</h2>
                 <div className="bd-pills">
-                  {(building.amenitiesList?.length > 0 ? building.amenitiesList : building.amenities).map((a, i) => (
-                    <span key={i} className="bd-pill bd-pill-amenity"><span className="bd-pill-icon">✦</span>{a}</span>
-                  ))}
+                  {(building.amenitiesList?.length > 0 ? building.amenitiesList : building.amenities).map((a, i) => {
+                    const icon = getIcon(a, AMENITY_ICONS);
+                    return <span key={i} className="bd-pill bd-pill-amenity">{icon && <span className="bd-pill-emoji">{icon}</span>}{a}</span>;
+                  })}
                 </div>
               </div>
             )}
@@ -160,29 +216,32 @@ export default function BuildingDetailClient({ building }) {
             {/* APPLIANCES — Toronto only */}
             {building.appliancesList?.length > 0 && (
               <div className="bd-section">
-                <h2>Appliances</h2>
+                <h2>🔌 Appliances</h2>
                 <div className="bd-pills">
-                  {building.appliancesList.map((a, i) => (
-                    <span key={i} className="bd-pill bd-pill-blue"><span className="bd-pill-icon">◈</span>{a}</span>
-                  ))}
+                  {building.appliancesList.map((a, i) => {
+                    const icon = getIcon(a, APPLIANCE_ICONS);
+                    return <span key={i} className="bd-pill bd-pill-blue">{icon && <span className="bd-pill-emoji">{icon}</span>}{a}</span>;
+                  })}
                 </div>
               </div>
             )}
 
             {/* INCLUSIONS — Toronto structured or legacy */}
             <div className="bd-section">
-              <h2>What's included</h2>
+              <h2>✅ What's included</h2>
               {building.inclusionsList?.length > 0 ? (
                 <div className="bd-pills">
-                  {building.inclusionsList.map((inc, i) => (
-                    <span key={i} className="bd-pill bd-pill-gold"><span className="bd-pill-icon">◆</span>{inc}</span>
-                  ))}
+                  {building.inclusionsList.map((inc, i) => {
+                    const icon = getIcon(inc, INCLUSION_ICONS);
+                    return <span key={i} className="bd-pill bd-pill-gold">{icon && <span className="bd-pill-emoji">{icon}</span>}{inc}</span>;
+                  })}
                 </div>
               ) : (
                 <div className="bd-pills">
-                  {inclusions.map((inc, i) => (
-                    <span key={i} className="bd-pill bd-pill-gold"><span className="bd-pill-icon">◆</span>{inc}</span>
-                  ))}
+                  {inclusions.map((inc, i) => {
+                    const icon = getIcon(inc, INCLUSION_ICONS);
+                    return <span key={i} className="bd-pill bd-pill-gold">{icon && <span className="bd-pill-emoji">{icon}</span>}{inc}</span>;
+                  })}
                   {inclusions.length === 0 && <span style={{color:"var(--text-mute)",fontSize:14}}>Not specified</span>}
                 </div>
               )}
@@ -572,28 +631,30 @@ export default function BuildingDetailClient({ building }) {
         .bd-pills {
           display: flex;
           flex-wrap: wrap;
-          gap: 8px;
+          gap: 10px;
         }
         .bd-pill {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          padding: 8px 16px;
+          gap: 8px;
+          padding: 10px 18px;
           border-radius: 100px;
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 600;
           background: #F7F8FA;
           color: var(--navy);
           border: 1.5px solid #E2E5EC;
-          transition: border-color 0.15s, background 0.15s;
+          transition: all 0.15s;
+          line-height: 1;
         }
         .bd-pill:hover {
           border-color: var(--navy);
           background: #fff;
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(10,31,92,0.08);
         }
-        .bd-pill-icon {
-          font-size: 10px;
-          opacity: 0.6;
+        .bd-pill-emoji {
+          font-size: 16px;
           line-height: 1;
         }
         .bd-pill-amenity {
@@ -601,30 +662,15 @@ export default function BuildingDetailClient({ building }) {
           border-color: #C8D4F0;
           color: var(--navy);
         }
-        .bd-pill-amenity .bd-pill-icon {
-          color: var(--navy);
-          opacity: 0.5;
-          font-size: 9px;
-        }
         .bd-pill-gold {
           background: rgba(201,168,76,0.08);
           border-color: rgba(201,168,76,0.3);
           color: #6B4F10;
         }
-        .bd-pill-gold .bd-pill-icon {
-          color: #C9A84C;
-          font-size: 8px;
-          opacity: 1;
-        }
         .bd-pill-blue {
-          background: rgba(10,31,92,0.04);
-          border-color: rgba(10,31,92,0.12);
+          background: #F5F7FF;
+          border-color: #D0D8F0;
           color: var(--navy);
-        }
-        .bd-pill-blue .bd-pill-icon {
-          color: var(--navy);
-          opacity: 0.4;
-          font-size: 9px;
         }
         .bd-tags {
           list-style: none;
