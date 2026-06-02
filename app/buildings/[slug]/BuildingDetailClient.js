@@ -139,8 +139,9 @@ export default function BuildingDetailClient({ building }) {
               </div>
             </div>
 
-            {/* DESCRIPTION */}
-            {building.description && building.description.trim() && (
+            {/* DESCRIPTION — shown only if no structured data */}
+            {building.description && building.description.trim() &&
+             !building.amenitiesList?.length && !building.appliancesList?.length && !building.inclusionsList?.length && (
               <div className="bd-section">
                 <h2>About this building</h2>
                 <div className="bd-prose">
@@ -149,45 +150,69 @@ export default function BuildingDetailClient({ building }) {
               </div>
             )}
 
-            {/* AMENITIES */}
-            {building.amenities && building.amenities.length > 0 && (
+            {/* AMENITIES — structured pills (Toronto) or legacy list */}
+            {(building.amenitiesList?.length > 0 || building.amenities?.length > 0) && (
               <div className="bd-section">
                 <h2>Amenities</h2>
-                <ul className="bd-tags">
-                  {building.amenities.map((a, i) => <li key={i}>{a}</li>)}
-                </ul>
+                <div className="bd-pills">
+                  {(building.amenitiesList?.length > 0 ? building.amenitiesList : building.amenities).map((a, i) => (
+                    <span key={i} className="bd-pill">✓ {a}</span>
+                  ))}
+                </div>
               </div>
             )}
 
-            {/* INCLUSIONS + PARKING + PETS */}
+            {/* APPLIANCES — Toronto only */}
+            {building.appliancesList?.length > 0 && (
+              <div className="bd-section">
+                <h2>Appliances</h2>
+                <div className="bd-pills">
+                  {building.appliancesList.map((a, i) => (
+                    <span key={i} className="bd-pill bd-pill-blue">⚡ {a}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* INCLUSIONS — Toronto structured or legacy */}
             <div className="bd-section">
               <h2>What's included</h2>
-              <div className="bd-incl-grid">
-                <div className="bd-incl">
-                  <div className="bd-incl-label">Inclusions</div>
-                  <div className="bd-incl-value">
-                    {inclusions.length > 0 ? inclusions.join(", ") : "—"}
-                  </div>
+              {building.inclusionsList?.length > 0 ? (
+                <div className="bd-pills">
+                  {building.inclusionsList.map((inc, i) => (
+                    <span key={i} className="bd-pill bd-pill-gold">● {inc}</span>
+                  ))}
                 </div>
-                {building.parking && (
-                  <div className="bd-incl">
-                    <div className="bd-incl-label">Parking</div>
-                    <div className="bd-incl-value">{building.parking}</div>
-                  </div>
-                )}
-                {building.pets && (
-                  <div className="bd-incl">
-                    <div className="bd-incl-label">Pets</div>
-                    <div className="bd-incl-value">{building.pets}</div>
-                  </div>
-                )}
-                {building.isFurnished && (
-                  <div className="bd-incl">
-                    <div className="bd-incl-label">Furnishing</div>
-                    <div className="bd-incl-value">Furnished units available</div>
-                  </div>
-                )}
-              </div>
+              ) : (
+                <div className="bd-pills">
+                  {inclusions.map((inc, i) => (
+                    <span key={i} className="bd-pill bd-pill-gold">● {inc}</span>
+                  ))}
+                  {inclusions.length === 0 && <span style={{color:"var(--text-mute)",fontSize:14}}>Not specified</span>}
+                </div>
+              )}
+              {(building.parking || building.pets || building.isFurnished) && (
+                <div className="bd-incl-grid" style={{marginTop:16}}>
+                  {building.parking && (
+                    <div className="bd-incl">
+                      <div className="bd-incl-label">Parking</div>
+                      <div className="bd-incl-value">{building.parking}</div>
+                    </div>
+                  )}
+                  {building.pets && (
+                    <div className="bd-incl">
+                      <div className="bd-incl-label">Pets</div>
+                      <div className="bd-incl-value">{building.pets}</div>
+                    </div>
+                  )}
+                  {building.isFurnished && (
+                    <div className="bd-incl">
+                      <div className="bd-incl-label">Furnishing</div>
+                      <div className="bd-incl-value">Furnished units available</div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -548,6 +573,33 @@ export default function BuildingDetailClient({ building }) {
         }
         .bd-prose p:last-child { margin-bottom: 0; }
 
+
+        .bd-pills {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .bd-pill {
+          display: inline-flex;
+          align-items: center;
+          padding: 7px 14px;
+          border-radius: 100px;
+          font-size: 13px;
+          font-weight: 600;
+          background: var(--bg-soft);
+          color: var(--navy);
+          border: 1.5px solid var(--border);
+        }
+        .bd-pill-gold {
+          background: rgba(201,168,76,0.1);
+          border-color: rgba(201,168,76,0.35);
+          color: #7a5f1a;
+        }
+        .bd-pill-blue {
+          background: rgba(10,31,92,0.06);
+          border-color: rgba(10,31,92,0.15);
+          color: var(--navy);
+        }
         .bd-tags {
           list-style: none;
           display: flex;
