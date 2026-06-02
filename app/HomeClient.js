@@ -81,7 +81,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
         <nav className="rb-nav">
           <a href="#properties">Properties</a>
           <a href="#how">How it works</a>
-          <a href="#landlords">For landlords</a>
+          <a href="/landlords">Partnership</a>
           <a href="/contact">Contact</a>
           <a href="/find-a-place" className="rb-nav-cta">Find a Place</a>
         </nav>
@@ -328,7 +328,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             </ul>
           </div>
           <div className="rb-fcol">
-            <h4>Landlords</h4>
+            <h4>Partnership</h4>
             <ul>
               <li><a href="/landlords">Our services</a></li>
               <li><a href="https://calendly.com/rentwithbolt/discoverycall">Discovery call</a></li>

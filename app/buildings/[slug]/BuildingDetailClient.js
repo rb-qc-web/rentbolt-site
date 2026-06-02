@@ -64,7 +64,7 @@ export default function BuildingDetailClient({ building }) {
         </a>
         <nav className="bd-nav">
           <a href="/search">Search</a>
-          <a href="/#landlords">For landlords</a>
+          <a href="/landlords">Partnership</a>
           <a href="/find-a-place" className="bd-nav-cta">Find a Place</a>
         </nav>
       </header>
@@ -308,7 +308,7 @@ export default function BuildingDetailClient({ building }) {
           <div className="bd-footer-links">
             <a href="/">Home</a>
             <a href="/search">Search</a>
-            <a href="/#landlords">For landlords</a>
+            <a href="/landlords">Partnership</a>
             <a href="mailto:hello@rentbolt.ca">hello@rentbolt.ca</a>
             <a href="tel:+14387937514">(438) 793-7514</a>
           </div>
