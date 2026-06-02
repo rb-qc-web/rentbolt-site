@@ -59,8 +59,8 @@ export default function HomeClient({ buildings = [], cities = [] }) {
   }, []);
 
   const displayBuildings = activeCity === "All cities"
-    ? buildings.slice(0, 6)
-    : buildings.filter(b => b.city === activeCity).slice(0, 6);
+    ? buildings.slice(0, 12)
+    : buildings.filter(b => b.city === activeCity).slice(0, 12);
 
   // City listing counts
   const cityCounts = buildings.reduce((acc, b) => {
@@ -213,27 +213,36 @@ export default function HomeClient({ buildings = [], cities = [] }) {
                 Loading buildings...
               </p>
             ) : (
-              displayBuildings.map(b => (
-                <a key={b.id} href={`/buildings/${b.slug}`} className="rb-pcard">
-                  <div className="rb-pimg">
-                    {b.tag && <div className="rb-ptag">{b.tag}</div>}
-                    <img src={b.photoUrl || FALLBACK_IMG} alt={b.name} />
-                  </div>
-                  <div className="rb-pbody">
-                    <div className="rb-ploc">{b.city}, {b.region}</div>
-                    <h3>{b.name}</h3>
-                    <div className="rb-pspecs">
-                      {b.bedrooms && b.bedrooms.length > 0 && <span>{formatBeds(b.bedrooms)}</span>}
+              displayBuildings.map(b => {
+                const imgSrc = b.photoUrl && b.photoUrl.startsWith("http") ? b.photoUrl : FALLBACK_IMG;
+                const locDisplay = b.area ? `${b.area} · ${b.city}` : `${b.city}, ${b.region}`;
+                return (
+                  <a key={b.id} href={`/buildings/${b.slug}`} className="rb-pcard">
+                    <div className="rb-pimg">
+                      {b.tag && <div className="rb-ptag">{b.tag}</div>}
+                      <img
+                        src={imgSrc}
+                        alt={b.name}
+                        onError={(e) => { e.currentTarget.src = FALLBACK_IMG; }}
+                      />
                     </div>
-                    <div className="rb-pfoot">
-                      <div className="rb-pprice">
-                        {b.startingPrice > 0 ? <>${b.startingPrice.toLocaleString()}<small>/mo</small></> : <>Contact for pricing</>}
+                    <div className="rb-pbody">
+                      <div className="rb-ploc">{locDisplay}</div>
+                      <h3>{b.name}</h3>
+                      <div className="rb-pspecs">
+                        {b.bedrooms && b.bedrooms.length > 0 && <span>{formatBeds(b.bedrooms)}</span>}
+                        {b.isFurnished && <span>Furnished</span>}
                       </div>
-                      <div className="rb-parrow">→</div>
+                      <div className="rb-pfoot">
+                        <div className="rb-pprice">
+                          {b.startingPrice > 0 ? <>From ${b.startingPrice.toLocaleString()}<small>/mo</small></> : <>Contact for pricing</>}
+                        </div>
+                        <div className="rb-parrow">→</div>
+                      </div>
                     </div>
-                  </div>
-                </a>
-              ))
+                  </a>
+                );
+              })
             )}
           </div>
 
