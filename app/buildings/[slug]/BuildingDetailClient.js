@@ -170,24 +170,37 @@ export default function BuildingDetailClient({ building }) {
           <div className="bd-left">
             {/* KEY FACTS */}
             <div className="bd-facts">
-
-              {bedsLabel && (
-                <div className="bd-fact">
-                  <div className="bd-fact-label">Unit types</div>
-                  <div className="bd-fact-value">{bedsLabel}</div>
-                </div>
-              )}
               {building.area && (
                 <div className="bd-fact">
-                  <div className="bd-fact-label">Neighborhood</div>
+                  <div className="bd-fact-label">Neighbourhood</div>
                   <div className="bd-fact-value">{building.area}</div>
                 </div>
               )}
               <div className="bd-fact">
                 <div className="bd-fact-label">Status</div>
-                <div className="bd-fact-value">{building.statusText === "Lease-Up" ? "Now leasing" : "Available"}</div>
+                <div className="bd-fact-value bd-fact-status">{building.statusText === "Lease-Up" ? "Now leasing" : "Available"}</div>
               </div>
             </div>
+
+            {/* PRICING TABLE */}
+            {building.unitPrices?.length > 0 && (
+              <div className="bd-section">
+                <h2>💰 Pricing</h2>
+                <div className="bd-pricing">
+                  {building.unitPrices.map((u, i) => (
+                    <div key={i} className="bd-price-row">
+                      <div className="bd-price-type">{u.type}</div>
+                      <div className="bd-price-val">
+                        {u.price
+                          ? <><span className="bd-price-from">from</span> <strong>${u.price.toLocaleString()}</strong><span className="bd-price-mo">/mo</span></>
+                          : <span className="bd-price-contact">Contact for price</span>
+                        }
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* DESCRIPTION — shown only if no structured data */}
             {building.description && building.description.trim() &&
@@ -598,6 +611,56 @@ export default function BuildingDetailClient({ building }) {
           font-weight: 700;
           color: var(--navy);
           letter-spacing: -0.01em;
+        }
+
+        .bd-fact-status { color: #16a34a !important; }
+
+        .bd-pricing {
+          border: 1.5px solid var(--border);
+          border-radius: 16px;
+          overflow: hidden;
+        }
+        .bd-price-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 16px 20px;
+          border-bottom: 1px solid var(--border);
+          transition: background 0.15s;
+        }
+        .bd-price-row:last-child { border-bottom: none; }
+        .bd-price-row:hover { background: var(--bg-soft); }
+        .bd-price-type {
+          font-size: 15px;
+          font-weight: 700;
+          color: var(--navy);
+        }
+        .bd-price-val {
+          font-size: 15px;
+          color: var(--navy);
+          display: flex;
+          align-items: baseline;
+          gap: 4px;
+        }
+        .bd-price-val strong {
+          font-size: 20px;
+          font-weight: 800;
+          letter-spacing: -0.03em;
+        }
+        .bd-price-from {
+          font-size: 12px;
+          color: var(--text-mute);
+          font-weight: 500;
+        }
+        .bd-price-mo {
+          font-size: 13px;
+          color: var(--text-mute);
+          font-weight: 500;
+        }
+        .bd-price-contact {
+          font-size: 13px;
+          color: var(--text-mute);
+          font-style: italic;
         }
 
         .bd-section {

@@ -364,6 +364,9 @@ export default function SearchClient({ buildings, totalCount }) {
                       <span>{formatBeds(b.bedrooms)}</span>
                       {b.isFurnished && <span>Furnished</span>}
                     </div>
+                  {b.startingPrice > 0 && (
+                    <div className="rb-scard-price">from ${b.startingPrice.toLocaleString()}/mo</div>
+                  )}
                   </div>
                 </a>
               ))}
@@ -711,6 +714,13 @@ export default function SearchClient({ buildings, totalCount }) {
           color: var(--gold-dark, var(--gold));
           text-transform: uppercase;
           letter-spacing: 0.08em;
+        }
+        .rb-scard-price {
+          font-size: 13px;
+          font-weight: 800;
+          color: var(--navy);
+          margin-top: 8px;
+          letter-spacing: -0.02em;
         }
         .rb-scard-vacant {
           font-size: 11px;
