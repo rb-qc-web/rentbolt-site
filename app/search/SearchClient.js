@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import FindAPlaceModal from "@/components/FindAPlaceModal";
 
 function Bolt() {
   return (
@@ -49,6 +50,7 @@ export default function SearchClient({ buildings, totalCount }) {
   const [activeId, setActiveId] = useState(null);
   const [hoverId, setHoverId] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -209,7 +211,7 @@ export default function SearchClient({ buildings, totalCount }) {
         </a>
         <div className="rb-sheader-actions">
           <a href="/" className="rb-sback">← Home</a>
-          <a href="https://calendly.com/rentwithbolt/discoverycall" className="rb-snav-cta">Book a visit</a>
+          <button onClick={() => setModalOpen(true)} className="rb-snav-cta">Find a Place</button>
         </div>
       </header>
 
@@ -656,6 +658,8 @@ export default function SearchClient({ buildings, totalCount }) {
           .rb-sheader { padding: 12px 16px; }
         }
       `}</style>
+
+      <FindAPlaceModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 }

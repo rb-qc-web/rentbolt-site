@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import FindAPlaceModal from "@/components/FindAPlaceModal";
 
 function Bolt() {
   return (
@@ -44,6 +45,7 @@ function formatBeds(beds) {
 export default function HomeClient({ buildings = [], cities = [] }) {
   const [scrolled, setScrolled] = useState(false);
   const [activeCity, setActiveCity] = useState("All cities");
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -81,7 +83,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
           <a href="#how">How it works</a>
           <a href="#landlords">For landlords</a>
           <a href="/contact">Contact</a>
-          <a href="https://calendly.com/rentwithbolt/discoverycall" className="rb-nav-cta">Book a visit</a>
+          <button onClick={() => setModalOpen(true)} className="rb-nav-cta">Find a Place</button>
         </nav>
       </header>
 
@@ -322,7 +324,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
               <li><a href="#properties">Browse apartments</a></li>
               <li><a href="#how">How it works</a></li>
               <li><a href="#cities">Cities</a></li>
-              <li><a href="https://calendly.com/rentwithbolt/discoverycall">Book a visit</a></li>
+              <li><button onClick={() => setModalOpen(true)} style={{background:"none",border:"none",padding:0,color:"inherit",fontSize:"inherit",cursor:"pointer",textDecoration:"underline"}}>Find a Place</button></li>
             </ul>
           </div>
           <div className="rb-fcol">
@@ -352,6 +354,8 @@ export default function HomeClient({ buildings = [], cities = [] }) {
           </div>
         </div>
       </footer>
+
+      <FindAPlaceModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import FindAPlaceModal from "@/components/FindAPlaceModal";
 
 function Bolt() {
   return (
@@ -22,6 +23,7 @@ function formatBedsLong(beds) {
 }
 
 export default function BuildingDetailClient({ building }) {
+  const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({
     name: "", email: "", phone: "", visitType: "in-person", moveIn: "", message: ""
   });
@@ -63,7 +65,7 @@ export default function BuildingDetailClient({ building }) {
         <nav className="bd-nav">
           <a href="/search">Search</a>
           <a href="/#landlords">For landlords</a>
-          <a href="https://calendly.com/rentwithbolt/discoverycall" className="bd-nav-cta">Book a visit</a>
+          <button onClick={() => setModalOpen(true)} className="bd-nav-cta">Find a Place</button>
         </nav>
       </header>
 
@@ -793,6 +795,8 @@ export default function BuildingDetailClient({ building }) {
           .bd-footer-inner { grid-template-columns: 1fr; gap: 32px; }
         }
       `}</style>
+
+      <FindAPlaceModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </>
   );
 }
