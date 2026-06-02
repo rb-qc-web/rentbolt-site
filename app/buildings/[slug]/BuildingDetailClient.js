@@ -182,31 +182,29 @@ export default function BuildingDetailClient({ building }) {
               </div>
             </div>
 
-            {/* PRICING TABLE */}
-            {building.unitPrices?.length > 0 && (
+            {/* PRICING — compact grid */}
+            {building.unitPrices?.filter(u => u.price).length > 0 && (
               <div className="bd-section">
                 <h2>💰 Pricing</h2>
-                <div className="bd-pricing">
-                  {building.unitPrices.map((u, i) => (
-                    <div key={i} className="bd-price-row">
-                      <div className="bd-price-type">{u.type}</div>
-                      <div className="bd-price-val">
-                        {u.price
-                          ? <><span className="bd-price-from">from</span> <strong>${u.price.toLocaleString()}</strong><span className="bd-price-mo">/mo</span></>
-                          : <span className="bd-price-contact">Contact for price</span>
-                        }
-                      </div>
+                <div className="bd-price-grid">
+                  {building.unitPrices.filter(u => u.price).map((u, i) => (
+                    <div key={i} className="bd-price-card">
+                      <div className="bd-price-card-type">{u.type}</div>
+                      <div className="bd-price-card-val">${u.price.toLocaleString()}</div>
+                      <div className="bd-price-card-mo">/ month</div>
                     </div>
                   ))}
                 </div>
+                {building.unitPrices.some(u => !u.price) && (
+                  <p className="bd-price-note">Some unit types available — contact us for pricing</p>
+                )}
               </div>
             )}
 
-            {/* DESCRIPTION — shown only if no structured data */}
-            {building.description && building.description.trim() &&
-             !building.amenitiesList?.length && !building.appliancesList?.length && !building.inclusionsList?.length && (
+            {/* DESCRIPTION */}
+            {building.description && building.description.trim() && (
               <div className="bd-section">
-                <h2>About this building</h2>
+                <h2>📋 About this building</h2>
                 <div className="bd-prose">
                   {building.description.split("\n").filter(Boolean).map((p, i) => <p key={i}>{p}</p>)}
                 </div>
@@ -615,51 +613,49 @@ export default function BuildingDetailClient({ building }) {
 
         .bd-fact-status { color: #16a34a !important; }
 
-        .bd-pricing {
+        .bd-price-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+          gap: 12px;
+        }
+        .bd-price-card {
+          background: var(--bg-soft);
           border: 1.5px solid var(--border);
-          border-radius: 16px;
-          overflow: hidden;
+          border-radius: 14px;
+          padding: 16px;
+          text-align: center;
+          transition: all 0.15s;
         }
-        .bd-price-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 16px 20px;
-          border-bottom: 1px solid var(--border);
-          transition: background 0.15s;
+        .bd-price-card:hover {
+          border-color: var(--navy);
+          background: #fff;
+          box-shadow: 0 4px 12px rgba(10,31,92,0.08);
         }
-        .bd-price-row:last-child { border-bottom: none; }
-        .bd-price-row:hover { background: var(--bg-soft); }
-        .bd-price-type {
-          font-size: 15px;
-          font-weight: 700;
-          color: var(--navy);
-        }
-        .bd-price-val {
-          font-size: 15px;
-          color: var(--navy);
-          display: flex;
-          align-items: baseline;
-          gap: 4px;
-        }
-        .bd-price-val strong {
-          font-size: 20px;
-          font-weight: 800;
-          letter-spacing: -0.03em;
-        }
-        .bd-price-from {
+        .bd-price-card-type {
           font-size: 12px;
+          font-weight: 700;
           color: var(--text-mute);
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          margin-bottom: 8px;
+        }
+        .bd-price-card-val {
+          font-size: 22px;
+          font-weight: 800;
+          color: var(--navy);
+          letter-spacing: -0.03em;
+          line-height: 1;
+        }
+        .bd-price-card-mo {
+          font-size: 11px;
+          color: var(--text-mute);
+          margin-top: 4px;
           font-weight: 500;
         }
-        .bd-price-mo {
+        .bd-price-note {
           font-size: 13px;
           color: var(--text-mute);
-          font-weight: 500;
-        }
-        .bd-price-contact {
-          font-size: 13px;
-          color: var(--text-mute);
+          margin-top: 12px;
           font-style: italic;
         }
 
