@@ -99,40 +99,32 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             Browse thousands of apartments, rooms and homes for rent across Montreal, Toronto, Ottawa and more — managed by your favourite rental agents.
           </p>
 
-          <form className="rb-search" onSubmit={(e) => { e.preventDefault(); document.getElementById("properties")?.scrollIntoView({ behavior: "smooth" }); }}>
-            <div className="rb-search-field">
+          <form className="rb-search" onSubmit={(e) => {
+            e.preventDefault();
+            const city = e.target.city.value;
+            window.location.href = city ? `/search?city=${encodeURIComponent(city)}` : "/search";
+          }}>
+            <div className="rb-search-field" style={{flex: 1}}>
               <label>📍 City</label>
-              <select>
-                <option>All cities</option>
-                <option>Montreal</option>
-                <option>Toronto</option>
-                <option>Ottawa</option>
-                <option>London</option>
-                <option>Kitchener-Waterloo</option>
-              </select>
-            </div>
-            <div className="rb-search-field">
-              <label>🛏️ Bedrooms</label>
-              <select>
-                <option>Any</option>
-                <option>Studio</option>
-                <option>1 Bedroom</option>
-                <option>2 Bedrooms</option>
-                <option>3+ Bedrooms</option>
-              </select>
-            </div>
-            <div className="rb-search-field">
-              <label>💰 Max price</label>
-              <select>
-                <option>No limit</option>
-                <option>Under $1,500</option>
-                <option>Under $2,000</option>
-                <option>Under $2,500</option>
-                <option>Under $3,000</option>
+              <select name="city">
+                <option value="">All cities</option>
+                <option value="Montreal">Montreal</option>
+                <option value="Toronto">Toronto</option>
+                <option value="Ottawa">Ottawa</option>
+                <option value="London">London</option>
+                <option value="Kitchener-Waterloo">Kitchener-Waterloo</option>
+                <option value="Hamilton">Hamilton</option>
+                <option value="Gatineau">Gatineau</option>
               </select>
             </div>
             <button className="rb-search-btn" type="submit" aria-label="Search">→</button>
           </form>
+          <p style={{marginTop: "16px", fontSize: "14px", color: "rgba(255,255,255,0.55)"}}>
+            Not sure where yet?{" "}
+            <a href="/find-a-place" style={{color: "rgba(255,255,255,0.85)", fontWeight: 600, textDecoration: "underline", textUnderlineOffset: "3px"}}>
+              Tell us what you're looking for →
+            </a>
+          </p>
 
           <div className="rb-hero-stats">
             <div className="rb-stat">

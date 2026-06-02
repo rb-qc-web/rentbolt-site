@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 
 function Bolt() {
@@ -44,7 +45,13 @@ function formatBeds(beds) {
 }
 
 export default function SearchClient({ buildings, totalCount }) {
-  const [city, setCity] = useState("All cities");
+  const searchParams = useSearchParams();
+  const [city, setCity] = useState(() => {
+    const param = typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("city")
+      : null;
+    return param || "All cities";
+  });
   const [bed, setBed] = useState(-1);
   const [search, setSearch] = useState("");
   const [activeId, setActiveId] = useState(null);
