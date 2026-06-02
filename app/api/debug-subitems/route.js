@@ -2,10 +2,9 @@ export async function GET() {
   const apiKey = process.env.MONDAY_API_KEY;
   if (!apiKey) return Response.json({ error: "No API key" }, { status: 500 });
 
-  // Fetch first item from Toronto board + its subitems with all column values
   const query = `{
     boards(ids: [18402583974]) {
-      items_page(limit: 1) {
+      items_page(limit: 50) {
         items {
           id name
           subitems {
@@ -24,5 +23,8 @@ export async function GET() {
     cache: "no-store",
   });
   const data = await res.json();
-  return Response.json(data?.data?.boards?.[0]?.items_page?.items?.[0] || {});
+  const items = data?.data?.boards?.[0]?.items_page?.items || [];
+  // Return first item that has subitems
+  const withSubs = items.find(i => i.subitems?.length > 0);
+  return Response.json(withSubs || { message: "No items with subitems found", total: items.length });
 }
