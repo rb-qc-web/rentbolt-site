@@ -294,31 +294,44 @@ export default function SearchClient({ buildings, totalCount }) {
           ) : (
             <div className="rb-slist-items">
               {filtered.map(b => (
-                <div
+                <a
                   key={b.id}
                   id={`card-${b.id}`}
+                  href={`/buildings/${b.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`rb-scard${activeId === b.id ? " active" : ""}`}
-                  onClick={() => handleCardClick(b)}
+                  onClick={(e) => { e.preventDefault(); handleCardClick(b); window.open(`/buildings/${b.slug}`, "_blank"); }}
                   onMouseEnter={() => setHoverId(b.id)}
                   onMouseLeave={() => setHoverId(null)}
                 >
-                  <div className="rb-scard-meta">
-                    <div className="rb-scard-city">{b.city}{b.area ? ` · ${b.area}` : ""}</div>
-                    {b.tag && <div className="rb-scard-tag">{b.tag}</div>}
+                  {/* Photo strip */}
+                  {b.photo ? (
+                    <div className="rb-scard-photo">
+                      <img src={b.photo} alt={b.name} />
+                      {b.tag && <div className="rb-scard-tag rb-scard-tag-photo">{b.tag}</div>}
+                    </div>
+                  ) : (
+                    <div className="rb-scard-photo rb-scard-photo-empty">
+                      <span>🏢</span>
+                      {b.tag && <div className="rb-scard-tag rb-scard-tag-photo">{b.tag}</div>}
+                    </div>
+                  )}
+                  <div className="rb-scard-body">
+                    <div className="rb-scard-meta">
+                      <div className="rb-scard-city">{b.city}{b.area ? ` · ${b.area}` : ""}</div>
+                      {b.vacantCount > 0 && (
+                        <div className="rb-scard-vacant">● {b.vacantCount} available</div>
+                      )}
+                    </div>
+                    <h3 className="rb-scard-name">{b.name}</h3>
+                    {b.address && <div className="rb-scard-addr">{b.address}</div>}
+                    <div className="rb-scard-specs">
+                      <span>{formatBeds(b.bedrooms)}</span>
+                      {b.isFurnished && <span>Furnished</span>}
+                    </div>
                   </div>
-                  <h3 className="rb-scard-name">{b.name}</h3>
-                  {b.address && <div className="rb-scard-addr">{b.address}</div>}
-                  <div className="rb-scard-specs">
-                    <span>{formatBeds(b.bedrooms)}</span>
-                    {b.vacantCount > 0 && <span>{b.vacantCount} vacant</span>}
-                    {b.isFurnished && <span>Furnished</span>}
-                  </div>
-                  <div className="rb-scard-footer">
-                    <a href={`/buildings/${b.slug}`} className="rb-scard-link" onClick={(e) => e.stopPropagation()}>
-                      View building →
-                    </a>
-                  </div>
-                </div>
+                </a>
               ))}
             </div>
           )}
@@ -585,32 +598,48 @@ export default function SearchClient({ buildings, totalCount }) {
           padding: 12px;
         }
         .rb-scard {
-          padding: 18px 16px;
-          border-radius: 14px;
+          display: block;
+          text-decoration: none;
+          border-radius: 16px;
           cursor: pointer;
-          transition: all 0.2s;
-          border: 1px solid transparent;
-          margin-bottom: 6px;
+          transition: all 0.18s;
+          border: 1.5px solid var(--border);
+          margin-bottom: 10px;
+          overflow: hidden;
+          background: #fff;
         }
         .rb-scard:hover {
-          background: var(--bg-soft);
+          border-color: var(--navy);
+          box-shadow: 0 4px 20px rgba(10,31,92,0.1);
+          transform: translateY(-1px);
         }
         .rb-scard.active {
-          background: var(--gold-soft);
           border-color: var(--gold);
+          box-shadow: 0 4px 20px rgba(201,168,76,0.2);
         }
-        .rb-scard-meta {
+        .rb-scard-photo {
+          width: 100%;
+          height: 130px;
+          overflow: hidden;
+          position: relative;
+          background: var(--bg-soft);
+        }
+        .rb-scard-photo img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+          transition: transform 0.3s;
+        }
+        .rb-scard:hover .rb-scard-photo img {
+          transform: scale(1.04);
+        }
+        .rb-scard-photo-empty {
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          margin-bottom: 6px;
-        }
-        .rb-scard-city {
-          font-size: 11px;
-          font-weight: 700;
-          color: var(--gold-dark, var(--gold));
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
+          justify-content: center;
+          font-size: 32px;
+          background: linear-gradient(135deg, #F0F2F7 0%, #E8EBF0 100%);
         }
         .rb-scard-tag {
           font-size: 10px;
@@ -622,12 +651,38 @@ export default function SearchClient({ buildings, totalCount }) {
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
+        .rb-scard-tag-photo {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+        }
+        .rb-scard-body {
+          padding: 14px 16px 16px;
+        }
+        .rb-scard-meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 5px;
+        }
+        .rb-scard-city {
+          font-size: 11px;
+          font-weight: 700;
+          color: var(--gold-dark, var(--gold));
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+        .rb-scard-vacant {
+          font-size: 11px;
+          font-weight: 700;
+          color: #16a34a;
+        }
         .rb-scard-name {
           font-size: 16px;
-          font-weight: 700;
+          font-weight: 800;
           color: var(--navy);
-          margin-bottom: 4px;
-          letter-spacing: -0.01em;
+          margin-bottom: 3px;
+          letter-spacing: -0.02em;
           line-height: 1.25;
         }
         .rb-scard-addr {
@@ -638,9 +693,8 @@ export default function SearchClient({ buildings, totalCount }) {
         }
         .rb-scard-specs {
           display: flex;
-          gap: 10px;
+          gap: 6px;
           flex-wrap: wrap;
-          margin-bottom: 10px;
         }
         .rb-scard-specs span {
           font-size: 11px;
@@ -650,24 +704,6 @@ export default function SearchClient({ buildings, totalCount }) {
           background: var(--bg-soft);
           border-radius: 100px;
         }
-        .rb-scard.active .rb-scard-specs span {
-          background: rgba(255,255,255,0.7);
-        }
-        .rb-scard-footer {
-          padding-top: 10px;
-          border-top: 1px solid var(--border);
-        }
-        .rb-scard.active .rb-scard-footer {
-          border-top-color: rgba(201,168,76,0.3);
-        }
-        .rb-scard-link {
-          color: var(--navy);
-          font-size: 12px;
-          font-weight: 700;
-          text-decoration: none;
-          transition: color 0.2s;
-        }
-        .rb-scard-link:hover { color: var(--gold); }
 
         .rb-sempty {
           padding: 60px 32px;
