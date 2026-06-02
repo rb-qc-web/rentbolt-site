@@ -63,6 +63,7 @@ export default function SearchClient({ buildings, totalCount }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
+  const clusterRef = useRef(null);
   const listRef = useRef(null);
 
   // Filter buildings
@@ -129,14 +130,44 @@ export default function SearchClient({ buildings, totalCount }) {
     if (!mapLoaded || !mapInstanceRef.current) return;
     const map = mapInstanceRef.current;
 
-    import("leaflet").then(({ default: L }) => {
+    Promise.all([
+      import("leaflet"),
+      import("leaflet.markercluster"),
+    ]).then(([{ default: L }]) => {
       // Close popup on map click
       map.on("click", () => { setMapPopup(null); setActiveId(null); });
-      // Remove old markers
-      Object.values(markersRef.current).forEach(m => map.removeLayer(m));
+
+      // Remove old cluster group
+      if (clusterRef.current) {
+        map.removeLayer(clusterRef.current);
+        clusterRef.current = null;
+      }
       markersRef.current = {};
 
-      // Add new markers
+      // Create cluster group styled to RentBolt palette
+      const cluster = L.markerClusterGroup({
+        maxClusterRadius: 48,
+        showCoverageOnHover: false,
+        spiderfyOnMaxZoom: true,
+        iconCreateFunction: (c) => {
+          const count = c.getChildCount();
+          const size = count >= 20 ? 52 : count >= 10 ? 44 : 36;
+          return L.divIcon({
+            html: `<div style="
+              width:${size}px;height:${size}px;border-radius:50%;
+              background:#0A1F5C;border:3px solid #C9A84C;
+              color:#fff;font-size:${size >= 52 ? 15 : 13}px;font-weight:800;
+              display:flex;align-items:center;justify-content:center;
+              box-shadow:0 4px 16px rgba(10,31,92,0.35);
+              font-family:inherit;
+            ">${count}</div>`,
+            className: "",
+            iconSize: [size, size],
+          });
+        },
+      });
+
+      // Add markers to cluster
       filtered.forEach(b => {
         const isActive = b.id === activeId;
         const isHover = b.id === hoverId;
@@ -154,7 +185,6 @@ export default function SearchClient({ buildings, totalCount }) {
             transform:rotate(-45deg);
             box-shadow:0 4px 12px rgba(0,0,0,0.2);
             display:flex;align-items:center;justify-content:center;
-            transition:all 0.2s;
             cursor:pointer;
           "><div style="transform:rotate(45deg);color:white;font-size:13px;">📍</div></div>`,
           iconSize: [pinSize, pinSize],
@@ -162,21 +192,21 @@ export default function SearchClient({ buildings, totalCount }) {
         });
 
         const marker = L.marker([b.lat, b.lng], { icon })
-          .addTo(map)
           .on("click", (e) => {
             setActiveId(b.id);
-            // Get pixel position of pin on map container
-            const mapContainer = map.getContainer();
-            const rect = mapContainer.getBoundingClientRect();
             const point = map.latLngToContainerPoint([b.lat, b.lng]);
             setMapPopup({ building: b, x: point.x, y: point.y });
             L.DomEvent.stopPropagation(e);
           });
 
+        cluster.addLayer(marker);
         markersRef.current[b.id] = marker;
       });
 
-      // Auto-fit bounds when filters change (but only when there's variety)
+      map.addLayer(cluster);
+      clusterRef.current = cluster;
+
+      // Auto-fit bounds when filters change
       if (filtered.length > 0 && filtered.length < buildings.length) {
         const bounds = L.latLngBounds(filtered.map(b => [b.lat, b.lng]));
         map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13 });
