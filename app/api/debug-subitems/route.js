@@ -12,35 +12,15 @@ export async function GET() {
     return res.json();
   };
 
-  // Step 1: get the Towns on Danforth item ID
-  const itemsData = await call(`{
-    boards(ids: [18402583974]) {
-      items_page(limit: 100) {
-        items { id name }
-      }
-    }
-  }`);
-
-  const items = itemsData?.data?.boards?.[0]?.items_page?.items || [];
-  const target = items.find(i => i.name.toLowerCase().includes("towns") || i.name.toLowerCase().includes("danforth"))
-    || items[0];
-
-  if (!target) return Response.json({ error: "No items found", raw: itemsData });
-
-  // Step 2: fetch subitems for that specific item via items query
   const subData = await call(`{
-    items(ids: [${target.id}]) {
+    items(ids: [11427147050]) {
       id name
       subitems {
         id name
-        column_values { id title text value type }
+        column_values { id text value type }
       }
     }
   }`);
 
-  return Response.json({
-    parent: target,
-    subitemsResult: subData?.data?.items?.[0] || null,
-    errors: subData?.errors || null,
-  });
+  return Response.json(subData?.data?.items?.[0] || { errors: subData?.errors });
 }
