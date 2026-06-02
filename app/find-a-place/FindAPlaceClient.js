@@ -166,6 +166,7 @@ const inputStyle = {
 };
 
 export default function FindAPlaceClient() {
+  const [mobileMenu, setMobileMenu] = useState(false);
   const [form, setForm] = useState(INITIAL);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -199,7 +200,17 @@ export default function FindAPlaceClient() {
         <a href="/" style={{ fontSize: 13, fontWeight: 600, color: "#5A6278", textDecoration: "none" }}>
           ← Back to listings
         </a>
+        <button className="rb-hamburger" onClick={() => setMobileMenu(m => !m)} aria-label="Menu">
+          <span className={`rb-ham-icon${mobileMenu ? " open" : ""}`}><span/><span/><span/></span>
+        </button>
       </header>
+      {mobileMenu && (
+        <div className="rb-mobile-drawer">
+          <a href="/" onClick={() => setMobileMenu(false)}>Home</a>
+          <a href="/landlords" onClick={() => setMobileMenu(false)}>Partnership</a>
+          <a href="/contact" onClick={() => setMobileMenu(false)}>Contact</a>
+        </div>
+      )}
 
       <main style={{ minHeight: "100vh", background: "#F7F8FA", paddingBottom: 80 }}>
         {submitted ? <SuccessState name={form.name} /> : (

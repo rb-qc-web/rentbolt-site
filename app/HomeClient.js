@@ -46,6 +46,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
   const [scrolled, setScrolled] = useState(false);
   const [activeCity, setActiveCity] = useState("All cities");
   const [modalOpen, setModalOpen] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -85,7 +86,23 @@ export default function HomeClient({ buildings = [], cities = [] }) {
           <a href="/contact">Contact</a>
           <a href="/find-a-place" className="rb-nav-cta">Find a Place</a>
         </nav>
+        {/* Hamburger */}
+        <button className="rb-hamburger" onClick={() => setMobileMenu(m => !m)} aria-label="Menu">
+          <span className={`rb-ham-icon${mobileMenu ? " open" : ""}`}>
+            <span/><span/><span/>
+          </span>
+        </button>
       </header>
+      {/* Mobile drawer */}
+      {mobileMenu && (
+        <div className="rb-mobile-drawer">
+          <a href="#properties" onClick={() => setMobileMenu(false)}>Properties</a>
+          <a href="#how" onClick={() => setMobileMenu(false)}>How it works</a>
+          <a href="/landlords" onClick={() => setMobileMenu(false)}>Partnership</a>
+          <a href="/contact" onClick={() => setMobileMenu(false)}>Contact</a>
+          <a href="/find-a-place" className="rb-mobile-cta">Find a Place →</a>
+        </div>
+      )}
 
       {/* HERO */}
       <section className="rb-hero">

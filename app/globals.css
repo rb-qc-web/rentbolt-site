@@ -746,6 +746,69 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 /* MOBILE */
+/* MOBILE HAMBURGER */
+.rb-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  z-index: 110;
+}
+.rb-ham-icon {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 24px;
+}
+.rb-ham-icon span {
+  display: block;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: all 0.25s;
+  transform-origin: center;
+}
+.rb-ham-icon.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.rb-ham-icon.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.rb-ham-icon.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+.rb-mobile-drawer {
+  position: fixed;
+  top: 64px;
+  left: 0; right: 0;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(10,31,92,0.12);
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 20px 20px;
+  animation: rbSlideDown 0.2s ease;
+}
+@keyframes rbSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rb-mobile-drawer a {
+  padding: 14px 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--navy);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+}
+.rb-mobile-drawer a:last-child { border-bottom: none; }
+.rb-mobile-cta {
+  margin-top: 12px;
+  padding: 14px !important;
+  background: var(--navy) !important;
+  color: #fff !important;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 800 !important;
+  border-bottom: none !important;
+}
+
 @media (max-width: 1024px) {
   .rb-grid { grid-template-columns: repeat(2, 1fr); }
   .rb-steps { grid-template-columns: repeat(2, 1fr); }
@@ -758,6 +821,8 @@ button { font-family: inherit; cursor: pointer; }
 @media (max-width: 768px) {
   .rb-header, .rb-header.scrolled { padding: 16px 20px; }
   .rb-nav { display: none; }
+  .rb-hamburger { display: flex; color: var(--white); }
+  .rb-header.scrolled .rb-hamburger { color: var(--navy); }
   .rb-section, .rb-hero, .rb-trust, .rb-footer { padding-left: 20px; padding-right: 20px; }
   .rb-hero { padding-top: 100px; padding-bottom: 60px; }
   .rb-search { grid-template-columns: 1fr; gap: 4px; }

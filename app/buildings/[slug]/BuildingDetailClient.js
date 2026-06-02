@@ -24,6 +24,7 @@ function formatBedsLong(beds) {
 
 export default function BuildingDetailClient({ building }) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [mobileMenu, setMobileMenu] = useState(false);
   const [form, setForm] = useState({
     name: "", email: "", phone: "", visitType: "in-person", moveIn: "", message: ""
   });
@@ -793,6 +794,8 @@ export default function BuildingDetailClient({ building }) {
         @media (max-width: 968px) {
           .bd-header { padding: 14px 16px; }
           .bd-nav a:not(.bd-nav-cta) { display: none; }
+          .bd-nav { display: none; }
+          .bd-hamburger { display: flex; background: none; border: none; cursor: pointer; padding: 6px; color: var(--navy); }
           .bd-hero { padding: 24px 16px 40px; }
           .bd-hero-content { grid-template-columns: 1fr; gap: 32px; }
           .bd-main { padding: 40px 16px 60px; }

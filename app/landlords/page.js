@@ -232,6 +232,7 @@ function PartnershipForm() {
 }
 
 export default function LandlordsPage() {
+  const [mobileMenu, setMobileMenu] = useState(false);
   return (
     <>
       {/* ── HEADER ── */}
@@ -260,7 +261,18 @@ export default function LandlordsPage() {
             fontWeight: 800, fontSize: 14, borderRadius: 10, textDecoration: "none",
           }}>Find a Place</a>
         </nav>
+        <button className="rb-hamburger" onClick={() => setMobileMenu(m => !m)} aria-label="Menu" style={{color: navy}}>
+          <span className={`rb-ham-icon${mobileMenu ? " open" : ""}`}><span/><span/><span/></span>
+        </button>
       </header>
+      {mobileMenu && (
+        <div className="rb-mobile-drawer">
+          <a href="/" onClick={() => setMobileMenu(false)}>Properties</a>
+          <a href="/landlords" onClick={() => setMobileMenu(false)}>Partnership</a>
+          <a href="/contact" onClick={() => setMobileMenu(false)}>Contact</a>
+          <a href="/find-a-place" className="rb-mobile-cta">Find a Place →</a>
+        </div>
+      )}
 
       {/* ── HERO ── */}
       <section style={{
