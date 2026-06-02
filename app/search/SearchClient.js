@@ -58,6 +58,7 @@ export default function SearchClient({ buildings, totalCount }) {
   const [hoverId, setHoverId] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [mapPopup, setMapPopup] = useState(null); // { building, x, y }
 
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -129,6 +130,8 @@ export default function SearchClient({ buildings, totalCount }) {
     const map = mapInstanceRef.current;
 
     import("leaflet").then(({ default: L }) => {
+      // Close popup on map click
+      map.on("click", () => { setMapPopup(null); setActiveId(null); });
       // Remove old markers
       Object.values(markersRef.current).forEach(m => map.removeLayer(m));
       markersRef.current = {};
@@ -160,9 +163,14 @@ export default function SearchClient({ buildings, totalCount }) {
 
         const marker = L.marker([b.lat, b.lng], { icon })
           .addTo(map)
-          .on("click", () => {
+          .on("click", (e) => {
             setActiveId(b.id);
-            scrollToCard(b.id);
+            // Get pixel position of pin on map container
+            const mapContainer = map.getContainer();
+            const rect = mapContainer.getBoundingClientRect();
+            const point = map.latLngToContainerPoint([b.lat, b.lng]);
+            setMapPopup({ building: b, x: point.x, y: point.y });
+            L.DomEvent.stopPropagation(e);
           });
 
         markersRef.current[b.id] = marker;
@@ -316,13 +324,69 @@ export default function SearchClient({ buildings, totalCount }) {
           )}
         </div>
 
-        <div className="rb-smap" ref={mapRef}>
+        <div className="rb-smap" ref={mapRef} style={{ position: "relative" }}>
           {!mapLoaded && (
             <div className="rb-smap-loading">
               <div className="rb-spinner" />
               <p>Loading map...</p>
             </div>
           )}
+          {/* Map popup card */}
+          {mapPopup && (() => {
+            const b = mapPopup.building;
+            const CARD_W = 260;
+            const CARD_H = 140;
+            // Position above the pin, centered horizontally
+            let left = mapPopup.x - CARD_W / 2;
+            let top = mapPopup.y - CARD_H - 20;
+            return (
+              <div style={{
+                position: "absolute",
+                left: Math.max(8, left),
+                top: Math.max(8, top),
+                width: CARD_W,
+                zIndex: 1000,
+                background: "#fff",
+                borderRadius: 14,
+                boxShadow: "0 8px 32px rgba(10,31,92,0.18)",
+                overflow: "hidden",
+                border: "1.5px solid #E8EBF0",
+                pointerEvents: "auto",
+              }}>
+                {/* Close */}
+                <button onClick={() => { setMapPopup(null); setActiveId(null); }} style={{
+                  position: "absolute", top: 8, right: 8, width: 24, height: 24,
+                  borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.12)",
+                  cursor: "pointer", fontSize: 12, color: "#fff", display: "flex",
+                  alignItems: "center", justifyContent: "center", fontWeight: 700, zIndex: 1,
+                }}>×</button>
+                {/* Image strip if available */}
+                {b.photo && (
+                  <img src={b.photo} alt={b.name} style={{
+                    width: "100%", height: 90, objectFit: "cover", display: "block",
+                  }} />
+                )}
+                <div style={{ padding: "12px 14px 14px" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#8B92A5", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 3 }}>
+                    {b.city}{b.area ? ` · ${b.area}` : ""}
+                    {b.tag && <span style={{ marginLeft: 6, color: "#C9A84C" }}>{b.tag}</span>}
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: "#0A1F5C", lineHeight: 1.3, marginBottom: 6, paddingRight: 20 }}>
+                    {b.name}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#5A6278", marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <span>{formatBeds(b.bedrooms)}</span>
+                    {b.vacantCount > 0 && <span style={{ color: "#16a34a", fontWeight: 600 }}>● {b.vacantCount} available</span>}
+                  </div>
+                  <a href={`/buildings/${b.slug}`} style={{
+                    display: "block", textAlign: "center", padding: "8px 12px",
+                    background: "#0A1F5C", color: "#fff", borderRadius: 8,
+                    fontSize: 13, fontWeight: 700, textDecoration: "none",
+                  }}>View building →</a>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
 
