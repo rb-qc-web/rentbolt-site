@@ -413,8 +413,8 @@ button { font-family: inherit; cursor: pointer; }
 }
 .rb-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
 }
 .rb-pcard {
   border-radius: 20px;
@@ -431,7 +431,7 @@ button { font-family: inherit; cursor: pointer; }
   border-color: var(--gold);
 }
 .rb-pimg {
-  aspect-ratio: 4/3;
+  aspect-ratio: 16/9;
   background: linear-gradient(135deg, var(--navy-soft), var(--navy));
   position: relative;
   overflow: hidden;
@@ -455,7 +455,7 @@ button { font-family: inherit; cursor: pointer; }
   letter-spacing: 0.05em;
   z-index: 2;
 }
-.rb-pbody { padding: 22px; }
+.rb-pbody { padding: 16px 18px; }
 .rb-ploc {
   font-size: 12px;
   color: var(--text-mute);
@@ -465,11 +465,11 @@ button { font-family: inherit; cursor: pointer; }
   margin-bottom: 4px;
 }
 .rb-pbody h3 {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: -0.02em;
-  margin-bottom: 12px;
-  line-height: 1.2;
+  margin-bottom: 8px;
+  line-height: 1.25;
 }
 .rb-pspecs {
   display: flex;
@@ -810,7 +810,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 
 @media (max-width: 1024px) {
-  .rb-grid { grid-template-columns: repeat(2, 1fr); }
+  .rb-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .rb-steps { grid-template-columns: repeat(2, 1fr); }
   .rb-cgrid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; height: auto; }
   .rb-cgrid .rb-city { aspect-ratio: 4/3; }

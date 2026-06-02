@@ -228,7 +228,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
                 const imgSrc = b.photoUrl && b.photoUrl.startsWith("http") ? b.photoUrl : FALLBACK_IMG;
                 const locDisplay = b.area ? `${b.area} · ${b.city}` : `${b.city}, ${b.region}`;
                 return (
-                  <a key={b.id} href={`/buildings/${b.slug}`} className="rb-pcard">
+                  <a key={b.id} href={`/buildings/${b.slug}`} className="rb-pcard" target="_blank" rel="noopener noreferrer">
                     <div className="rb-pimg">
                       {b.tag && <div className="rb-ptag">{b.tag}</div>}
                       <img
