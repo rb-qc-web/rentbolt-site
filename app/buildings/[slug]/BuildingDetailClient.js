@@ -65,7 +65,7 @@ export default function BuildingDetailClient({ building }) {
         <nav className="bd-nav">
           <a href="/search">Search</a>
           <a href="/#landlords">For landlords</a>
-          <button onClick={() => setModalOpen(true)} className="bd-nav-cta">Find a Place</button>
+          <a href="/find-a-place" className="bd-nav-cta">Find a Place</a>
         </nav>
       </header>
 

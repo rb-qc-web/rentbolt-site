@@ -211,7 +211,7 @@ export default function SearchClient({ buildings, totalCount }) {
         </a>
         <div className="rb-sheader-actions">
           <a href="/" className="rb-sback">← Home</a>
-          <button onClick={() => setModalOpen(true)} className="rb-snav-cta">Find a Place</button>
+          <a href="/find-a-place" className="rb-snav-cta">Find a Place</a>
         </div>
       </header>
 

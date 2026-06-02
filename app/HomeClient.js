@@ -83,7 +83,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
           <a href="#how">How it works</a>
           <a href="#landlords">For landlords</a>
           <a href="/contact">Contact</a>
-          <button onClick={() => setModalOpen(true)} className="rb-nav-cta">Find a Place</button>
+          <a href="/find-a-place" className="rb-nav-cta">Find a Place</a>
         </nav>
       </header>
 
@@ -324,7 +324,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
               <li><a href="#properties">Browse apartments</a></li>
               <li><a href="#how">How it works</a></li>
               <li><a href="#cities">Cities</a></li>
-              <li><button onClick={() => setModalOpen(true)} style={{background:"none",border:"none",padding:0,color:"inherit",fontSize:"inherit",cursor:"pointer",textDecoration:"underline"}}>Find a Place</button></li>
+              <li><a href="/find-a-place">Find a Place</a></li>
             </ul>
           </div>
           <div className="rb-fcol">
