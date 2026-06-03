@@ -232,7 +232,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
                     </div>
                     <div className="rb-pbody">
                       <div className="rb-ploc">{locDisplay}</div>
-                      <h3>{b.name}</h3>
+                      <h3>{b.address ? b.address.split(",")[0] : b.name}</h3>
                       <div className="rb-pspecs">
                         {b.bedrooms && b.bedrooms.length > 0 && <span>{formatBeds(b.bedrooms)}</span>}
                         {b.isFurnished && <span>Furnished</span>}

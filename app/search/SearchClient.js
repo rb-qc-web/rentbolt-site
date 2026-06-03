@@ -353,8 +353,7 @@ export default function SearchClient({ buildings, totalCount }) {
                       <div className="rb-scard-city">{b.city}{b.area ? ` · ${b.area}` : ""}</div>
   
                     </div>
-                    <h3 className="rb-scard-name">{b.name}</h3>
-                    {b.address && <div className="rb-scard-addr">{b.address}</div>}
+                    <h3 className="rb-scard-name">{b.address ? b.address.split(",")[0] : b.name}</h3>
                     <div className="rb-scard-specs">
                       <span>{formatBeds(b.bedrooms)}</span>
                       {b.isFurnished && <span>Furnished</span>}
@@ -415,7 +414,7 @@ export default function SearchClient({ buildings, totalCount }) {
                     {b.tag && <span style={{ marginLeft: 6, color: "#C9A84C" }}>{b.tag}</span>}
                   </div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: "#0A1F5C", lineHeight: 1.3, marginBottom: 6, paddingRight: 20 }}>
-                    {b.name}
+                    {b.address ? b.address.split(",")[0] : b.name}
                   </div>
                   <div style={{ fontSize: 12, color: "#5A6278", marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <span>{formatBeds(b.bedrooms)}</span>

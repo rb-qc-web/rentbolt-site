@@ -136,7 +136,7 @@ export default function BuildingDetailClient({ building }) {
           <div className="bd-hero-content">
             <div className="bd-hero-left">
               {building.tag && <div className="bd-hero-tag">{building.tag}</div>}
-              <h1 className="bd-hero-title">{building.name}</h1>
+              <h1 className="bd-hero-title">{building.address ? building.address.split(",")[0] : building.name}</h1>
               {building.address && (
                 <div className="bd-hero-addr">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -290,7 +290,7 @@ export default function BuildingDetailClient({ building }) {
               {!submitted ? (
                 <>
                   <div className="bd-form-tag">Book a visit</div>
-                  <h3>Interested in {building.name}?</h3>
+                  <h3>Interested in this property?</h3>
                   <p className="bd-form-sub">A RentBolt agent will reach out within 24 hours to arrange a tour.</p>
 
                   <form onSubmit={handleSubmit} className="bd-form">
@@ -380,7 +380,7 @@ export default function BuildingDetailClient({ building }) {
                 <div className="bd-form-success">
                   <div className="bd-success-icon">✓</div>
                   <h3>Request received</h3>
-                  <p>A RentBolt agent will reach out shortly to arrange your visit to {building.name}.</p>
+                  <p>A RentBolt agent will reach out shortly to arrange your visit.</p>
                   <a href="/search" className="bd-form-btn-out">Browse more buildings →</a>
                 </div>
               )}

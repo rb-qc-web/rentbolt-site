@@ -14,11 +14,12 @@ export async function generateMetadata({ params }) {
   const beds = building.bedrooms || [];
   const bedLabel = beds.length === 0 ? "" : beds.map(b => b === 0 ? "Studio" : `${b} Bed`).join(", ");
 
+  const streetAddr = building.address ? building.address.split(',')[0] : building.name;
   return {
-    title: `${building.name} — Starting at $${building.startingPrice?.toLocaleString()}/mo`,
-    description: `${bedLabel} apartments available at ${building.name}, ${building.address}. Starting at $${building.startingPrice?.toLocaleString()}/mo. Book a visit with RentBolt.`,
+    title: `${streetAddr}, ${building.city} — Apartments for Rent`,
+    description: `${bedLabel} apartments available near ${streetAddr} in ${building.city}. Book a visit with RentBolt.`,
     openGraph: {
-      title: `${building.name} | RentBolt`,
+      title: `${streetAddr} | RentBolt`,
       description: `Apartments starting at $${building.startingPrice?.toLocaleString()}/mo in ${building.city}.`,
       images: building.photoUrl ? [{ url: building.photoUrl }] : [],
     },
