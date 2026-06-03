@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getBuildingPhoto, CITY_PHOTOS as CITY_PHOTO_MAP } from "@/lib/cityPhotos";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 
 function Bolt() {
@@ -26,15 +27,7 @@ const STEPS = [
 
 const CITY_FILTERS = ["All cities", "Montreal", "Toronto", "Ottawa", "London", "Kitchener-Waterloo"];
 
-const CITY_PHOTOS = {
-  "Montreal": "https://images.unsplash.com/photo-1519178614-68673b201f36?w=1200&h=800&fit=crop",
-  "Ottawa": "https://images.unsplash.com/photo-1517090504586-fde19ea6066f?w=800&h=600&fit=crop",
-  "Toronto": "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&h=600&fit=crop",
-  "London": "https://images.unsplash.com/photo-1572125675722-238a4f1f8ea3?w=800&h=600&fit=crop",
-  "Kitchener-Waterloo": "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=800&h=600&fit=crop",
-};
-
-const FALLBACK_IMG = "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop";
+// City photos now in lib/cityPhotos.js
 
 function formatBeds(beds) {
   if (!beds || beds.length === 0) return "";
@@ -225,7 +218,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
               </p>
             ) : (
               displayBuildings.map(b => {
-                const imgSrc = b.photoUrl && b.photoUrl.startsWith("http") ? b.photoUrl : FALLBACK_IMG;
+                const imgSrc = getBuildingPhoto(b);
                 const locDisplay = b.area ? `${b.area} · ${b.city}` : `${b.city}, ${b.region}`;
                 return (
                   <a key={b.id} href={`/buildings/${b.slug}`} className="rb-pcard" target="_blank" rel="noopener noreferrer">
@@ -234,7 +227,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
                       <img
                         src={imgSrc}
                         alt={b.name}
-                        onError={(e) => { e.currentTarget.src = FALLBACK_IMG; }}
+                        onError={(e) => { e.currentTarget.src = CITY_PHOTO_MAP[b.city] || "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=800&fit=crop&q=80"; }}
                       />
                     </div>
                     <div className="rb-pbody">
@@ -276,7 +269,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
           <div className="rb-cgrid">
             {["Montreal", "Ottawa", "Toronto", "London", "Kitchener-Waterloo"].map(city => (
               <a key={city} href="/search" className="rb-city">
-                <img src={CITY_PHOTOS[city]} alt={city} />
+                <img src={CITY_PHOTO_MAP[city] || CITY_PHOTO_MAP["Montreal"]} alt={city} />
                 <div className="rb-ccontent">
                   <h3>{city === "Montreal" ? "Montréal" : city}</h3>
                   <p>{cityCounts[city] || 0} apartments</p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getBuildingPhoto } from "@/lib/cityPhotos";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 
 function Bolt() {
@@ -110,6 +111,8 @@ export default function BuildingDetailClient({ building }) {
     setSubmitting(false);
   };
 
+  const heroPhoto = getBuildingPhoto(building);
+
   return (
     <>
       {/* HEADER */}
@@ -126,7 +129,7 @@ export default function BuildingDetailClient({ building }) {
       </header>
 
       {/* HERO */}
-      <section className="bd-hero">
+      <section className="bd-hero" style={{ backgroundImage: `url(${heroPhoto})` }}>
         <div className="bd-hero-inner">
           <a href="/search" className="bd-back">← Back to search</a>
 
@@ -463,7 +466,9 @@ export default function BuildingDetailClient({ building }) {
         .bd-nav-cta:hover { background: var(--gold-bright) !important; }
 
         .bd-hero {
-          background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 100%);
+          background-color: var(--navy-deep);
+          background-size: cover;
+          background-position: center;
           color: white;
           padding: 32px 32px 48px;
           position: relative;
@@ -472,11 +477,10 @@ export default function BuildingDetailClient({ building }) {
         .bd-hero::before {
           content: '';
           position: absolute;
-          top: -30%; right: -10%;
-          width: 600px; height: 600px;
-          background: radial-gradient(circle, rgba(201,168,76,0.18) 0%, transparent 60%);
-          border-radius: 50%;
+          inset: 0;
+          background: linear-gradient(135deg, rgba(4,14,42,0.88) 0%, rgba(10,31,92,0.80) 50%, rgba(10,31,92,0.65) 100%);
           pointer-events: none;
+          z-index: 0;
         }
         .bd-hero-inner {
           max-width: 1320px;

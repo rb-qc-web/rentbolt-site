@@ -342,17 +342,11 @@ export default function SearchClient({ buildings, totalCount }) {
                   onMouseLeave={() => setHoverId(null)}
                 >
                   {/* Photo strip */}
-                  {b.photo ? (
-                    <div className="rb-scard-photo">
-                      <img src={b.photo} alt={b.name} />
-                      {b.tag && <div className="rb-scard-tag rb-scard-tag-photo">{b.tag}</div>}
-                    </div>
-                  ) : (
-                    <div className="rb-scard-photo rb-scard-photo-empty">
-                      <span>🏢</span>
-                      {b.tag && <div className="rb-scard-tag rb-scard-tag-photo">{b.tag}</div>}
-                    </div>
-                  )}
+                  <div className="rb-scard-photo">
+                    <img src={getBuildingPhoto(b)} alt={b.name}
+                      onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop&q=80"; }} />
+                    {b.tag && <div className="rb-scard-tag rb-scard-tag-photo">{b.tag}</div>}
+                  </div>
                   <div className="rb-scard-body">
                     <div className="rb-scard-meta">
                       <div className="rb-scard-city">{b.city}{b.area ? ` · ${b.area}` : ""}</div>
@@ -410,12 +404,10 @@ export default function SearchClient({ buildings, totalCount }) {
                   cursor: "pointer", fontSize: 12, color: "#fff", display: "flex",
                   alignItems: "center", justifyContent: "center", fontWeight: 700, zIndex: 1,
                 }}>×</button>
-                {/* Image strip if available */}
-                {b.photo && (
-                  <img src={b.photo} alt={b.name} style={{
-                    width: "100%", height: 90, objectFit: "cover", display: "block",
-                  }} />
-                )}
+                {/* Image strip */}
+                <img src={getBuildingPhoto(b)} alt={b.name} style={{
+                  width: "100%", height: 90, objectFit: "cover", display: "block",
+                }} onError={(e) => { e.currentTarget.style.display = "none"; }} />
                 <div style={{ padding: "12px 14px 14px" }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: "#8B92A5", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 3 }}>
                     {b.city}{b.area ? ` · ${b.area}` : ""}
