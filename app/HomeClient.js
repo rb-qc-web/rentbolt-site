@@ -145,7 +145,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
 
           <div className="rb-hero-stats">
             <div className="rb-stat">
-              <div className="num">20,000+</div>
+              <div className="num">5,000+</div>
               <div className="label">Active listings</div>
             </div>
             <div className="rb-stat">
@@ -295,7 +295,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
               <span className="rb-tag" style={{ background: "rgba(201,168,76,0.15)", color: "var(--gold-bright)" }}>⚡ For property owners</span>
               <h2>Vacancies to fill?<br/>Lease them <span className="accent">faster.</span></h2>
               <p>We partner with hundreds of quality landlords, property managers and developers to fill vacancies faster, and better. No upfront fees. We only get paid when we deliver tenants.</p>
-              <a href="https://calendly.com/rentwithbolt/discoverycall" className="rb-btn-pri">Discover the Bolt Way →</a>
+              <a href="/landlords" className="rb-btn-pri">Discover the Bolt Way →</a>
             </div>
             <div className="rb-lstats">
               <div className="rb-lcard">
