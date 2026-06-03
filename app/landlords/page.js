@@ -13,7 +13,7 @@ const textMute = "#8B92A5";
 
 const STATS = [
   { value: "4,000+", label: "Weekly rental inquiries" },
-  { value: "5,000+", label: "Active units under mandate" },
+  { value: "20,000+", label: "Active units under mandate" },
   { value: "6", label: "Languages spoken" },
   { value: "$0", label: "Upfront cost" },
 ];

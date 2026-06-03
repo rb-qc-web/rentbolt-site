@@ -109,7 +109,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
         <div className="rb-hero-container">
           <div className="rb-hero-badge">
             <span className="dot"></span>
-            5,000+ apartments across Canada
+            20,000+ apartments across Canada
           </div>
           <h1>Find your next<br/><span className="accent">home.</span></h1>
           <p className="rb-hero-desc">
@@ -145,7 +145,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
 
           <div className="rb-hero-stats">
             <div className="rb-stat">
-              <div className="num">5,000+</div>
+              <div className="num">20,000+</div>
               <div className="label">Active listings</div>
             </div>
             <div className="rb-stat">
@@ -299,12 +299,12 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             </div>
             <div className="rb-lstats">
               <div className="rb-lcard">
-                <div className="num">5,000+</div>
+                <div className="num">20,000+</div>
                 <div className="label">Units under mandate</div>
               </div>
               <div className="rb-lcard">
                 <div className="num">11 Days</div>
-                <div className="label">To find the first tenant</div>
+                <div className="label">To find the first tenant on average</div>
               </div>
               <div className="rb-lcard">
                 <div className="num">0$</div>
