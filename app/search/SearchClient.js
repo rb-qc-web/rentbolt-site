@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
+import { getBuildingPhoto } from "@/lib/cityPhotos";
 
 function Bolt() {
   return (
