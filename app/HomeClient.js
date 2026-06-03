@@ -19,7 +19,7 @@ function Bolt() {
 
 const STEPS = [
   { icon: "🔍", num: "STEP 01", title: "Search", desc: "Browse thousands of partner apartments across 5 Canadian cities." },
-  { icon: "👀", num: "STEP 02", title: "Visit", desc: "Book a tour with a licensed agent — virtually or in-person, your choice." },
+  { icon: "👀", num: "STEP 02", title: "Visit", desc: "Book a tour with a leasing consultant — virtually or in-person, your choice." },
   { icon: "📝", num: "STEP 03", title: "Apply", desc: "Apply in minutes from anywhere. Quick background check, fast decision." },
   { icon: "🔑", num: "STEP 04", title: "Move in", desc: "Sign your lease, get your keys, settle into your new home." },
 ];
@@ -84,7 +84,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
           <a href="#how">How it works</a>
           <a href="/landlords">Partnership</a>
           <a href="/contact">Contact</a>
-          <a href="/find-a-place" className="rb-nav-cta">Find a Place</a>
+          <a href="/find-a-place" className="rb-nav-cta">Start Search</a>
         </nav>
         {/* Hamburger */}
         <button className="rb-hamburger" onClick={() => setMobileMenu(m => !m)} aria-label="Menu">
@@ -100,7 +100,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
           <a href="#how" onClick={() => setMobileMenu(false)}>How it works</a>
           <a href="/landlords" onClick={() => setMobileMenu(false)}>Partnership</a>
           <a href="/contact" onClick={() => setMobileMenu(false)}>Contact</a>
-          <a href="/find-a-place" className="rb-mobile-cta">Find a Place →</a>
+          <a href="/find-a-place" className="rb-mobile-cta">Start Search →</a>
         </div>
       )}
 
@@ -111,7 +111,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             <span className="dot"></span>
             5,000+ apartments across Canada
           </div>
-          <h1>Find a place<br/>to call <span className="accent">home.</span></h1>
+          <h1>Find your next<br/><span className="accent">home.</span></h1>
           <p className="rb-hero-desc">
             Browse thousands of apartments, rooms and homes for rent across Montreal, Toronto, Ottawa and more — managed by your favourite rental agents.
           </p>
@@ -157,8 +157,8 @@ export default function HomeClient({ buildings = [], cities = [] }) {
               <div className="label">Leasing advisors</div>
             </div>
             <div className="rb-stat">
-              <div className="num">100%</div>
-              <div className="label">Licensed agents</div>
+              <div className="num">4.8 ⭐</div>
+              <div className="label">Google reviews</div>
             </div>
           </div>
         </div>
@@ -324,7 +324,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
               RentBolt
             </a>
             <p className="rb-fdesc">
-              Apartments, rooms and homes for rent across Canada. Licensed brokerage operating in Quebec and Ontario.
+              Apartments, rooms and homes for rent across Canada. Your trusted partner for apartment hunting.
             </p>
           </div>
           <div className="rb-fcol">
@@ -333,7 +333,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
               <li><a href="#properties">Browse apartments</a></li>
               <li><a href="#how">How it works</a></li>
               <li><a href="#cities">Cities</a></li>
-              <li><a href="/find-a-place">Find a Place</a></li>
+              <li><a href="/find-a-place">Start Search</a></li>
             </ul>
           </div>
           <div className="rb-fcol">
