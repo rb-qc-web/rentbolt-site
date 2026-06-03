@@ -218,7 +218,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
               </p>
             ) : (
               displayBuildings.map(b => {
-                const imgSrc = getBuildingPhoto(b);
+                const imgSrc = getBuildingPhoto(b) || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=800&fit=crop&q=80';
                 const locDisplay = b.area ? `${b.area} · ${b.city}` : `${b.city}, ${b.region}`;
                 return (
                   <a key={b.id} href={`/buildings/${b.slug}`} className="rb-pcard" target="_blank" rel="noopener noreferrer">
@@ -239,7 +239,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
                       </div>
                       <div className="rb-pfoot">
                         <div className="rb-pprice">
-                          {b.startingPrice > 0 ? <>From ${b.startingPrice.toLocaleString()}<small>/mo</small></> : <>Contact for pricing</>}
+                          {b.startingPrice > 0 ? <>From ${Number(b.startingPrice).toLocaleString()}<small>/mo</small></> : <>Contact for pricing</>}
                         </div>
                         <div className="rb-parrow">→</div>
                       </div>

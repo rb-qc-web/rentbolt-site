@@ -360,7 +360,7 @@ export default function SearchClient({ buildings, totalCount }) {
                       {b.isFurnished && <span>Furnished</span>}
                     </div>
                   {b.startingPrice > 0 && (
-                    <div className="rb-scard-price">from ${b.startingPrice.toLocaleString()}/mo</div>
+                    <div className="rb-scard-price">from ${Number(b.startingPrice).toLocaleString()}/mo</div>
                   )}
                   </div>
                 </a>
