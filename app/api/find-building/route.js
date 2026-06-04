@@ -14,6 +14,7 @@ export async function GET(request) {
         items_page(limit: 500) {
           items {
             id name
+            column_values { id text value type }
             subitems {
               id name
               column_values { id text value type }
