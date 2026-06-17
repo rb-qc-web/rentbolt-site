@@ -117,15 +117,46 @@ export async function GET(request) {
 
     if (folderId) {
       out(`📂 Folder ID: ${folderId}`);
-      const list = await drive.files.list({
+
+      // Try images directly in this folder first
+      let list = await drive.files.list({
         q: `'${folderId}' in parents and mimeType contains 'image/' and trashed=false`,
         fields: "files(id,name,mimeType)",
         orderBy: "name",
         pageSize: 1,
       });
-      const files = list.data.files || [];
-      if (!files.length) return Response.json({ error: "No images found in folder", folderId });
-      out(`📸 First image: ${files[0].name}`);
+      let files = list.data.files || [];
+
+      // None found at root — list subfolders and check inside each, in order
+      if (!files.length) {
+        out("📂 No images at root — checking subfolders...");
+        const subList = await drive.files.list({
+          q: `'${folderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed=false`,
+          fields: "files(id,name)",
+          orderBy: "name",
+          pageSize: 20,
+        });
+        const subfolders = subList.data.files || [];
+        out(`📂 Found ${subfolders.length} subfolder(s): ${subfolders.map(f => f.name).join(", ")}`);
+
+        for (const sub of subfolders) {
+          const innerList = await drive.files.list({
+            q: `'${sub.id}' in parents and mimeType contains 'image/' and trashed=false`,
+            fields: "files(id,name,mimeType)",
+            orderBy: "name",
+            pageSize: 1,
+          });
+          const innerFiles = innerList.data.files || [];
+          if (innerFiles.length) {
+            out(`📸 Found image in subfolder "${sub.name}": ${innerFiles[0].name}`);
+            files = innerFiles;
+            break;
+          }
+        }
+      }
+
+      if (!files.length) return Response.json({ error: "No images found in folder or its subfolders", folderId, log });
+      out(`📸 Using: ${files[0].name}`);
 
       const resp = await drive.files.get(
         { fileId: files[0].id, alt: "media" },
