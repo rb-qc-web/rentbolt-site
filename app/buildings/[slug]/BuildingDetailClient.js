@@ -155,7 +155,7 @@ export default function BuildingDetailClient({ building }) {
       )}
 
       {/* HERO */}
-      <section className="bd-hero" style={{ backgroundImage: `url(${heroPhoto})` }}>
+      <section className="bd-hero" style={hasRealGallery ? {} : { backgroundImage: `url(${heroPhoto})` }}>
         <div className="bd-hero-inner">
           <a href="/search" className="bd-back">← Back to search</a>
 
@@ -493,7 +493,7 @@ export default function BuildingDetailClient({ building }) {
 
         .bd-gallery {
           background: #fff;
-          padding: 16px 16px 0;
+          padding: 16px 16px 20px;
           max-width: 1100px;
           margin: 0 auto;
         }
@@ -1065,60 +1065,6 @@ export default function BuildingDetailClient({ building }) {
           .bd-nav a:not(.bd-nav-cta) { display: none; }
           .bd-nav { display: none; }
           .bd-hamburger { display: flex; background: none; border: none; cursor: pointer; padding: 6px; color: var(--navy); }
-          .bd-gallery {
-          background: #fff;
-          padding: 16px 16px 0;
-          max-width: 1100px;
-          margin: 0 auto;
-        }
-        .bd-gallery-main {
-          width: 100%;
-          aspect-ratio: 16/9;
-          border-radius: 16px;
-          overflow: hidden;
-          background: var(--bg-soft);
-        }
-        .bd-gallery-main img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-        .bd-gallery-thumbs {
-          display: flex;
-          gap: 8px;
-          margin-top: 10px;
-          overflow-x: auto;
-          padding-bottom: 4px;
-          scrollbar-width: thin;
-        }
-        .bd-gallery-thumb {
-          flex-shrink: 0;
-          width: 96px;
-          height: 64px;
-          border-radius: 10px;
-          overflow: hidden;
-          border: 2px solid transparent;
-          padding: 0;
-          cursor: pointer;
-          background: var(--bg-soft);
-          transition: border-color 0.15s, opacity 0.15s;
-          opacity: 0.65;
-        }
-        .bd-gallery-thumb img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-        .bd-gallery-thumb:hover { opacity: 0.9; }
-        .bd-gallery-thumb.active {
-          border-color: var(--gold);
-          opacity: 1;
-        }
-        @media (max-width: 768px) {
-          .bd-gallery { padding: 12px 12px 0; }
-          .bd-gallery-thumb { width: 76px; height: 52px; }
         }
 
         .bd-hero { padding: 24px 16px 40px; }
