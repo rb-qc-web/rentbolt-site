@@ -131,33 +131,49 @@ export default function BuildingDetailClient({ building }) {
         </nav>
       </header>
 
-      {/* PHOTO GALLERY — only when real building photos exist */}
+      {/* PHOTO GALLERY — compact mosaic, only when real building photos exist */}
       {hasRealGallery && (
-        <div className="bd-gallery">
-          <div className="bd-gallery-main">
-            <img src={gallery[activePhoto]} alt={building.name} />
-          </div>
-          {gallery.length > 1 && (
-            <div className="bd-gallery-thumbs">
-              {gallery.map((url, i) => (
-                <button
-                  key={i}
-                  className={`bd-gallery-thumb${i === activePhoto ? " active" : ""}`}
-                  onClick={() => setActivePhoto(i)}
-                  aria-label={`View photo ${i + 1}`}
-                >
-                  <img src={url} alt={`${building.name} photo ${i + 1}`} />
+        <div className="bd-mosaic-wrap">
+          <a href="/search" className="bd-mosaic-back">← Back to search</a>
+          <div className="bd-mosaic">
+            <button className="bd-mosaic-main" onClick={() => setActivePhoto(0)}>
+              <img src={gallery[0]} alt={building.name} />
+            </button>
+            <div className="bd-mosaic-col">
+              {gallery[1] && (
+                <button className="bd-mosaic-tile" onClick={() => setActivePhoto(1)}>
+                  <img src={gallery[1]} alt={`${building.name} photo 2`} />
                 </button>
-              ))}
+              )}
+              {gallery[2] && (
+                <button className="bd-mosaic-tile" onClick={() => setActivePhoto(2)}>
+                  <img src={gallery[2]} alt={`${building.name} photo 3`} />
+                </button>
+              )}
             </div>
-          )}
+            <div className="bd-mosaic-col">
+              {gallery[3] && (
+                <button className="bd-mosaic-tile bd-mosaic-tile-tr" onClick={() => setActivePhoto(3)}>
+                  <img src={gallery[3]} alt={`${building.name} photo 4`} />
+                </button>
+              )}
+              {gallery[4] && (
+                <button className="bd-mosaic-tile bd-mosaic-tile-br" onClick={() => setActivePhoto(4)}>
+                  <img src={gallery[4]} alt={`${building.name} photo 5`} style={{ filter: gallery.length > 5 ? "brightness(0.55)" : "none" }} />
+                  {gallery.length > 5 && (
+                    <span className="bd-mosaic-more">+{gallery.length - 5} photos</span>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
       {/* HERO */}
       <section className="bd-hero" style={hasRealGallery ? {} : { backgroundImage: `url(${heroPhoto})` }}>
         <div className="bd-hero-inner">
-          <a href="/search" className="bd-back">← Back to search</a>
+          {!hasRealGallery && <a href="/search" className="bd-back">← Back to search</a>}
 
           <div className="bd-hero-content">
             <div className="bd-hero-left">
@@ -491,60 +507,72 @@ export default function BuildingDetailClient({ building }) {
         }
         .bd-nav-cta:hover { background: var(--gold-bright) !important; }
 
-        .bd-gallery {
-          background: #fff;
-          padding: 16px 16px 20px;
+        .bd-mosaic-wrap {
           max-width: 1100px;
           margin: 0 auto;
+          padding: 16px 16px 0;
         }
-        .bd-gallery-main {
-          width: 100%;
-          aspect-ratio: 16/9;
-          border-radius: 16px;
-          overflow: hidden;
-          background: var(--bg-soft);
+        .bd-mosaic-back {
+          display: inline-block;
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--text-mute);
+          text-decoration: none;
+          margin-bottom: 12px;
         }
-        .bd-gallery-main img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
+        .bd-mosaic-back:hover { color: var(--navy); }
+        .bd-mosaic {
+          display: grid;
+          grid-template-columns: 1.6fr 1fr 1fr;
+          gap: 6px;
+          height: 220px;
         }
-        .bd-gallery-thumbs {
-          display: flex;
-          gap: 8px;
-          margin-top: 10px;
-          overflow-x: auto;
-          padding-bottom: 4px;
-          scrollbar-width: thin;
-        }
-        .bd-gallery-thumb {
-          flex-shrink: 0;
-          width: 96px;
-          height: 64px;
-          border-radius: 10px;
-          overflow: hidden;
-          border: 2px solid transparent;
+        .bd-mosaic-main, .bd-mosaic-tile {
+          border: none;
           padding: 0;
+          margin: 0;
           cursor: pointer;
+          overflow: hidden;
           background: var(--bg-soft);
-          transition: border-color 0.15s, opacity 0.15s;
-          opacity: 0.65;
+          display: block;
+          width: 100%;
+          height: 100%;
         }
-        .bd-gallery-thumb img {
+        .bd-mosaic-main img, .bd-mosaic-tile img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           display: block;
+          transition: transform 0.2s;
         }
-        .bd-gallery-thumb:hover { opacity: 0.9; }
-        .bd-gallery-thumb.active {
-          border-color: var(--gold);
-          opacity: 1;
+        .bd-mosaic-main:hover img, .bd-mosaic-tile:hover img {
+          transform: scale(1.03);
+        }
+        .bd-mosaic-main {
+          border-radius: 12px 0 0 12px;
+        }
+        .bd-mosaic-col {
+          display: grid;
+          grid-template-rows: 1fr 1fr;
+          gap: 6px;
+        }
+        .bd-mosaic-tile-tr { border-radius: 0 12px 0 0; }
+        .bd-mosaic-tile-br { border-radius: 0 0 12px 0; position: relative; }
+        .bd-mosaic-more {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-weight: 700;
+          font-size: 13px;
         }
         @media (max-width: 768px) {
-          .bd-gallery { padding: 12px 12px 0; }
-          .bd-gallery-thumb { width: 76px; height: 52px; }
+          .bd-mosaic-wrap { padding: 12px 12px 0; }
+          .bd-mosaic { grid-template-columns: 1fr; height: auto; }
+          .bd-mosaic-main { height: 200px; border-radius: 12px; }
+          .bd-mosaic-col { display: none; }
         }
 
         .bd-hero {
