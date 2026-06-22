@@ -100,13 +100,14 @@ export async function GET(request) {
 
     out(`🏢 Found: ${item.name}`);
 
-    // Find Drive URL — try text_mkxvrp7p first, then any column with drive.google.com
-    let driveUrl = item.column_values?.find(cv => cv.id === "text_mkxvrp7p")?.text || "";
-    if (!driveUrl.includes("drive.google")) {
+    // Find Drive URL — allow manual override (useful when Monday column was already overwritten by a prior run)
+    const overrideUrl = searchParams.get("drive");
+    let driveUrl = overrideUrl || item.column_values?.find(cv => cv.id === "text_mkxvrp7p")?.text || "";
+    if (!overrideUrl && !driveUrl.includes("drive.google")) {
       driveUrl = item.column_values?.find(cv => (cv.text || "").includes("drive.google.com"))?.text || "";
     }
 
-    if (!driveUrl) return Response.json({ error: "No Drive URL found on this item", item: item.name }, { status: 404 });
+    if (!driveUrl) return Response.json({ error: "No Drive URL found on this item — pass &drive=URL to override", item: item.name }, { status: 404 });
     out(`📁 Drive URL: ${driveUrl}`);
 
     const folderId = extractFolderId(driveUrl);
