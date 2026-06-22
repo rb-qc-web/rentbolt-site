@@ -1,6 +1,6 @@
 import { Redis } from "@upstash/redis";
 
-const CACHE_KEY = "rentbolt:buildings:v3";
+const CACHE_KEY = "rentbolt:buildings:v4";
 const SECRET = process.env.CACHE_REFRESH_SECRET;
 
 export async function GET(request) {

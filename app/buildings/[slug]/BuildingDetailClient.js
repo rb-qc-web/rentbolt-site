@@ -81,6 +81,7 @@ function getIcon(name, map) {
 export default function BuildingDetailClient({ building }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [activePhoto, setActivePhoto] = useState(0);
   const [form, setForm] = useState({
     name: "", email: "", phone: "", visitType: "in-person", moveIn: "", message: ""
   });
@@ -112,6 +113,8 @@ export default function BuildingDetailClient({ building }) {
   };
 
   const heroPhoto = getBuildingPhoto(building);
+  const gallery = building.photoGallery?.length > 0 ? building.photoGallery : [heroPhoto];
+  const hasRealGallery = building.photoGallery?.length > 1;
 
   return (
     <>
@@ -127,6 +130,29 @@ export default function BuildingDetailClient({ building }) {
           <a href="/find-a-place" className="bd-nav-cta">Find a Place</a>
         </nav>
       </header>
+
+      {/* PHOTO GALLERY — only when real building photos exist */}
+      {hasRealGallery && (
+        <div className="bd-gallery">
+          <div className="bd-gallery-main">
+            <img src={gallery[activePhoto]} alt={building.name} />
+          </div>
+          {gallery.length > 1 && (
+            <div className="bd-gallery-thumbs">
+              {gallery.map((url, i) => (
+                <button
+                  key={i}
+                  className={`bd-gallery-thumb${i === activePhoto ? " active" : ""}`}
+                  onClick={() => setActivePhoto(i)}
+                  aria-label={`View photo ${i + 1}`}
+                >
+                  <img src={url} alt={`${building.name} photo ${i + 1}`} />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* HERO */}
       <section className="bd-hero" style={{ backgroundImage: `url(${heroPhoto})` }}>
@@ -464,6 +490,62 @@ export default function BuildingDetailClient({ building }) {
           align-items: center !important;
         }
         .bd-nav-cta:hover { background: var(--gold-bright) !important; }
+
+        .bd-gallery {
+          background: #fff;
+          padding: 16px 16px 0;
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+        .bd-gallery-main {
+          width: 100%;
+          aspect-ratio: 16/9;
+          border-radius: 16px;
+          overflow: hidden;
+          background: var(--bg-soft);
+        }
+        .bd-gallery-main img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .bd-gallery-thumbs {
+          display: flex;
+          gap: 8px;
+          margin-top: 10px;
+          overflow-x: auto;
+          padding-bottom: 4px;
+          scrollbar-width: thin;
+        }
+        .bd-gallery-thumb {
+          flex-shrink: 0;
+          width: 96px;
+          height: 64px;
+          border-radius: 10px;
+          overflow: hidden;
+          border: 2px solid transparent;
+          padding: 0;
+          cursor: pointer;
+          background: var(--bg-soft);
+          transition: border-color 0.15s, opacity 0.15s;
+          opacity: 0.65;
+        }
+        .bd-gallery-thumb img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .bd-gallery-thumb:hover { opacity: 0.9; }
+        .bd-gallery-thumb.active {
+          border-color: var(--gold);
+          opacity: 1;
+        }
+        @media (max-width: 768px) {
+          .bd-gallery { padding: 12px 12px 0; }
+          .bd-gallery-thumb { width: 76px; height: 52px; }
+        }
 
         .bd-hero {
           background-color: var(--navy-deep);
@@ -983,7 +1065,63 @@ export default function BuildingDetailClient({ building }) {
           .bd-nav a:not(.bd-nav-cta) { display: none; }
           .bd-nav { display: none; }
           .bd-hamburger { display: flex; background: none; border: none; cursor: pointer; padding: 6px; color: var(--navy); }
-          .bd-hero { padding: 24px 16px 40px; }
+          .bd-gallery {
+          background: #fff;
+          padding: 16px 16px 0;
+          max-width: 1100px;
+          margin: 0 auto;
+        }
+        .bd-gallery-main {
+          width: 100%;
+          aspect-ratio: 16/9;
+          border-radius: 16px;
+          overflow: hidden;
+          background: var(--bg-soft);
+        }
+        .bd-gallery-main img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .bd-gallery-thumbs {
+          display: flex;
+          gap: 8px;
+          margin-top: 10px;
+          overflow-x: auto;
+          padding-bottom: 4px;
+          scrollbar-width: thin;
+        }
+        .bd-gallery-thumb {
+          flex-shrink: 0;
+          width: 96px;
+          height: 64px;
+          border-radius: 10px;
+          overflow: hidden;
+          border: 2px solid transparent;
+          padding: 0;
+          cursor: pointer;
+          background: var(--bg-soft);
+          transition: border-color 0.15s, opacity 0.15s;
+          opacity: 0.65;
+        }
+        .bd-gallery-thumb img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .bd-gallery-thumb:hover { opacity: 0.9; }
+        .bd-gallery-thumb.active {
+          border-color: var(--gold);
+          opacity: 1;
+        }
+        @media (max-width: 768px) {
+          .bd-gallery { padding: 12px 12px 0; }
+          .bd-gallery-thumb { width: 76px; height: 52px; }
+        }
+
+        .bd-hero { padding: 24px 16px 40px; }
           .bd-hero-content { grid-template-columns: 1fr; gap: 32px; }
           .bd-main { padding: 40px 16px 60px; }
           .bd-main-inner { grid-template-columns: 1fr; gap: 32px; }

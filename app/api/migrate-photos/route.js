@@ -115,6 +115,8 @@ export async function GET(request) {
     let imageBuffer;
     let filename = `${itemId}-hero.jpg`;
 
+    let galleryFiles = [];
+
     if (folderId) {
       out(`📂 Folder ID: ${folderId}`);
 
@@ -123,11 +125,11 @@ export async function GET(request) {
         q: `'${folderId}' in parents and mimeType contains 'image/' and trashed=false`,
         fields: "files(id,name,mimeType)",
         orderBy: "name",
-        pageSize: 1,
+        pageSize: 8,
       });
       let files = list.data.files || [];
 
-      // None found at root — list subfolders and check inside each, in order
+      // None found at root — collect from subfolders instead
       if (!files.length) {
         out("📂 No images at root — checking subfolders...");
         const subList = await drive.files.list({
@@ -139,25 +141,28 @@ export async function GET(request) {
         const subfolders = subList.data.files || [];
         out(`📂 Found ${subfolders.length} subfolder(s): ${subfolders.map(f => f.name).join(", ")}`);
 
+        // Pull up to 8 images total, spread across subfolders (helps variety)
         for (const sub of subfolders) {
+          if (files.length >= 8) break;
           const innerList = await drive.files.list({
             q: `'${sub.id}' in parents and mimeType contains 'image/' and trashed=false`,
             fields: "files(id,name,mimeType)",
             orderBy: "name",
-            pageSize: 1,
+            pageSize: 8 - files.length,
           });
           const innerFiles = innerList.data.files || [];
           if (innerFiles.length) {
-            out(`📸 Found image in subfolder "${sub.name}": ${innerFiles[0].name}`);
-            files = innerFiles;
-            break;
+            out(`📸 ${innerFiles.length} image(s) in "${sub.name}"`);
+            files = files.concat(innerFiles);
           }
         }
       }
 
       if (!files.length) return Response.json({ error: "No images found in folder or its subfolders", folderId, log });
-      out(`📸 Using: ${files[0].name}`);
+      galleryFiles = files;
+      out(`📸 Collected ${files.length} image(s) for gallery`);
 
+      // Download hero (first image)
       const resp = await drive.files.get(
         { fileId: files[0].id, alt: "media" },
         { responseType: "arraybuffer" }
@@ -177,22 +182,49 @@ export async function GET(request) {
       return Response.json({ error: "Could not parse Drive URL", driveUrl });
     }
 
-    out(`📦 Downloaded: ${Math.round(imageBuffer.length / 1024)}KB`);
+    out(`📦 Downloaded hero: ${Math.round(imageBuffer.length / 1024)}KB`);
 
     if (dryRun) {
-      return Response.json({ success: true, dryRun: true, log, message: "Dry run — no upload performed" });
+      return Response.json({
+        success: true, dryRun: true, log,
+        galleryCount: galleryFiles.length,
+        message: "Dry run — no upload performed"
+      });
     }
 
-    // Upload to Cloudflare
-    out("☁️ Uploading to Cloudflare...");
-    const cfUrl = await uploadToCloudflare(imageBuffer, filename);
-    out(`✅ Cloudflare URL: ${cfUrl}`);
+    // Upload hero first
+    out("☁️ Uploading hero to Cloudflare...");
+    const heroCfUrl = await uploadToCloudflare(imageBuffer, filename);
+    out(`✅ Hero: ${heroCfUrl}`);
 
-    // Write back to Monday
-    await writeMondayColumn(itemId, boardId, "text_mkxvrp7p", cfUrl);
-    out("💾 Written back to Monday");
+    const galleryUrls = [heroCfUrl];
 
-    return Response.json({ success: true, cfUrl, item: item.name, log });
+    // Upload remaining gallery images (skip index 0, already done)
+    if (folderId && galleryFiles.length > 1) {
+      for (let i = 1; i < galleryFiles.length; i++) {
+        try {
+          const resp = await drive.files.get(
+            { fileId: galleryFiles[i].id, alt: "media" },
+            { responseType: "arraybuffer" }
+          );
+          const buf = Buffer.from(resp.data);
+          out(`☁️ Uploading gallery image ${i + 1}/${galleryFiles.length}: ${galleryFiles[i].name}`);
+          const url = await uploadToCloudflare(buf, galleryFiles[i].name);
+          galleryUrls.push(url);
+          await new Promise(r => setTimeout(r, 300));
+        } catch (err) {
+          out(`⚠️ Skipped gallery image ${i + 1}: ${err.message}`);
+        }
+      }
+    }
+
+    out(`✅ Gallery complete: ${galleryUrls.length} image(s)`);
+
+    // Write JSON array back to Monday — hero is galleryUrls[0]
+    await writeMondayColumn(itemId, boardId, "text_mkxvrp7p", JSON.stringify(galleryUrls));
+    out("💾 Written back to Monday (as JSON array)");
+
+    return Response.json({ success: true, heroUrl: heroCfUrl, gallery: galleryUrls, item: item.name, log });
 
   } catch (err) {
     return Response.json({ error: err.message, log }, { status: 500 });
