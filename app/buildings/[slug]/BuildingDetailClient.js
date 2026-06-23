@@ -78,10 +78,66 @@ function getIcon(name, map) {
   return null;
 }
 
+function PhotoLightbox({ photos, index, onIndexChange, onClose, alt }) {
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") onIndexChange((i) => (i + 1) % photos.length);
+      if (e.key === "ArrowLeft") onIndexChange((i) => (i - 1 + photos.length) % photos.length);
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [photos.length, onClose, onIndexChange]);
+
+  const goNext = (e) => { e.stopPropagation(); onIndexChange((i) => (i + 1) % photos.length); };
+  const goPrev = (e) => { e.stopPropagation(); onIndexChange((i) => (i - 1 + photos.length) % photos.length); };
+
+  return (
+    <div className="bd-lightbox" onClick={onClose}>
+      <button className="bd-lightbox-close" onClick={onClose} aria-label="Close">✕</button>
+      <span className="bd-lightbox-count">{index + 1} / {photos.length}</span>
+
+      {photos.length > 1 && (
+        <button className="bd-lightbox-nav bd-lightbox-prev" onClick={goPrev} aria-label="Previous photo">‹</button>
+      )}
+
+      <img
+        src={photos[index]}
+        alt={`${alt} photo ${index + 1}`}
+        className="bd-lightbox-img"
+        onClick={(e) => e.stopPropagation()}
+      />
+
+      {photos.length > 1 && (
+        <button className="bd-lightbox-nav bd-lightbox-next" onClick={goNext} aria-label="Next photo">›</button>
+      )}
+
+      {photos.length > 1 && (
+        <div className="bd-lightbox-thumbs" onClick={(e) => e.stopPropagation()}>
+          {photos.map((url, i) => (
+            <button
+              key={i}
+              className={`bd-lightbox-thumb${i === index ? " active" : ""}`}
+              onClick={(e) => { e.stopPropagation(); onIndexChange(i); }}
+            >
+              <img src={url} alt="" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function BuildingDetailClient({ building }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [activePhoto, setActivePhoto] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [form, setForm] = useState({
     name: "", email: "", phone: "", visitType: "in-person", moveIn: "", message: ""
   });
@@ -131,13 +187,18 @@ export default function BuildingDetailClient({ building }) {
         </nav>
       </header>
 
-      {/* PHOTO GALLERY — single large photo + thumbnail strip, only when real photos exist */}
+      {/* PHOTO GALLERY — single large banner + thumbnail strip, click to expand */}
       {hasRealGallery && (
         <div className="bd-mosaic-wrap">
           <a href="/search" className="bd-mosaic-back">← Back to search</a>
-          <div className="bd-gallery-main-photo">
+          <button
+            className="bd-gallery-main-photo"
+            onClick={() => setLightboxOpen(true)}
+            aria-label="View full size"
+          >
             <img src={gallery[activePhoto]} alt={building.name} />
-          </div>
+            <span className="bd-gallery-expand">⤢ View photos</span>
+          </button>
           {gallery.length > 1 && (
             <div className="bd-gallery-strip">
               {gallery.map((url, i) => (
@@ -153,6 +214,17 @@ export default function BuildingDetailClient({ building }) {
             </div>
           )}
         </div>
+      )}
+
+      {/* LIGHTBOX */}
+      {lightboxOpen && (
+        <PhotoLightbox
+          photos={gallery}
+          index={activePhoto}
+          onIndexChange={setActivePhoto}
+          onClose={() => setLightboxOpen(false)}
+          alt={building.name}
+        />
       )}
 
       {/* HERO */}
@@ -512,12 +584,33 @@ export default function BuildingDetailClient({ building }) {
           border-radius: 14px;
           overflow: hidden;
           background: var(--bg-soft);
+          position: relative;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          display: block;
         }
         .bd-gallery-main-photo img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           display: block;
+        }
+        .bd-gallery-expand {
+          position: absolute;
+          bottom: 14px;
+          right: 14px;
+          background: rgba(10,31,92,0.85);
+          color: #fff;
+          font-size: 13px;
+          font-weight: 600;
+          padding: 8px 14px;
+          border-radius: 100px;
+          backdrop-filter: blur(4px);
+          transition: opacity 0.15s;
+        }
+        .bd-gallery-main-photo:hover .bd-gallery-expand {
+          background: rgba(10,31,92,0.95);
         }
         .bd-gallery-strip {
           display: flex;
@@ -554,6 +647,103 @@ export default function BuildingDetailClient({ building }) {
           .bd-mosaic-wrap { padding: 12px 12px 0; }
           .bd-gallery-main-photo { height: 240px; border-radius: 12px; }
           .bd-gallery-thumb { width: 68px; height: 48px; }
+        }
+
+        .bd-lightbox {
+          position: fixed;
+          inset: 0;
+          z-index: 500;
+          background: rgba(4,14,42,0.97);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: zoom-out;
+        }
+        .bd-lightbox-close {
+          position: absolute;
+          top: 20px;
+          right: 24px;
+          background: rgba(255,255,255,0.1);
+          border: none;
+          color: #fff;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          font-size: 18px;
+          cursor: pointer;
+          z-index: 2;
+        }
+        .bd-lightbox-close:hover { background: rgba(255,255,255,0.2); }
+        .bd-lightbox-count {
+          position: absolute;
+          top: 28px;
+          left: 24px;
+          color: rgba(255,255,255,0.7);
+          font-size: 13px;
+          font-weight: 600;
+        }
+        .bd-lightbox-img {
+          max-width: 88vw;
+          max-height: 78vh;
+          object-fit: contain;
+          border-radius: 8px;
+          cursor: default;
+        }
+        .bd-lightbox-nav {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background: rgba(255,255,255,0.1);
+          border: none;
+          color: #fff;
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          font-size: 28px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          line-height: 1;
+        }
+        .bd-lightbox-nav:hover { background: rgba(255,255,255,0.2); }
+        .bd-lightbox-prev { left: 16px; }
+        .bd-lightbox-next { right: 16px; }
+        .bd-lightbox-thumbs {
+          position: absolute;
+          bottom: 20px;
+          left: 0; right: 0;
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+          padding: 0 16px;
+          overflow-x: auto;
+        }
+        .bd-lightbox-thumb {
+          width: 56px;
+          height: 40px;
+          border-radius: 6px;
+          overflow: hidden;
+          border: 2px solid transparent;
+          padding: 0;
+          cursor: pointer;
+          opacity: 0.5;
+          flex-shrink: 0;
+        }
+        .bd-lightbox-thumb img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .bd-lightbox-thumb.active {
+          opacity: 1;
+          border-color: var(--gold);
+        }
+        @media (max-width: 768px) {
+          .bd-lightbox-img { max-width: 94vw; max-height: 68vh; }
+          .bd-lightbox-nav { width: 40px; height: 40px; font-size: 22px; }
+          .bd-lightbox-thumbs { display: none; }
         }
 
         .bd-hero {
