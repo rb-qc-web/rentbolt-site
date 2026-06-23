@@ -508,15 +508,15 @@ export default function BuildingDetailClient({ building }) {
         .bd-mosaic-back:hover { color: var(--navy); }
         .bd-gallery-main-photo {
           width: 100%;
-          height: 380px;
+          height: 420px;
           border-radius: 14px;
           overflow: hidden;
-          background: #0A0E1A;
+          background: var(--bg-soft);
         }
         .bd-gallery-main-photo img {
           width: 100%;
           height: 100%;
-          object-fit: contain;
+          object-fit: cover;
           display: block;
         }
         .bd-gallery-strip {
@@ -1076,7 +1076,8 @@ export default function BuildingDetailClient({ building }) {
           .bd-hamburger { display: flex; background: none; border: none; cursor: pointer; padding: 6px; color: var(--navy); }
         }
 
-        .bd-hero { padding: 24px 16px 40px; }
+        @media (max-width: 768px) {
+          .bd-hero { padding: 24px 16px 40px; }
           .bd-hero-content { grid-template-columns: 1fr; gap: 32px; }
           .bd-main { padding: 40px 16px 60px; }
           .bd-main-inner { grid-template-columns: 1fr; gap: 32px; }
