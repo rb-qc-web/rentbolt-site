@@ -187,32 +187,20 @@ export default function BuildingDetailClient({ building }) {
         </nav>
       </header>
 
-      {/* PHOTO GALLERY — single large banner + thumbnail strip, click to expand */}
+      {/* PHOTO GALLERY — single full-width banner, click to expand into lightbox */}
       {hasRealGallery && (
         <div className="bd-mosaic-wrap">
           <a href="/search" className="bd-mosaic-back">← Back to search</a>
           <button
             className="bd-gallery-main-photo"
             onClick={() => setLightboxOpen(true)}
-            aria-label="View full size"
+            aria-label="View all photos"
           >
-            <img src={gallery[activePhoto]} alt={building.name} />
-            <span className="bd-gallery-expand">⤢ View photos</span>
+            <img src={gallery[0]} alt={building.name} />
+            {gallery.length > 1 && (
+              <span className="bd-gallery-count">📷 {gallery.length} photos</span>
+            )}
           </button>
-          {gallery.length > 1 && (
-            <div className="bd-gallery-strip">
-              {gallery.map((url, i) => (
-                <button
-                  key={i}
-                  className={`bd-gallery-thumb${i === activePhoto ? " active" : ""}`}
-                  onClick={() => setActivePhoto(i)}
-                  aria-label={`View photo ${i + 1}`}
-                >
-                  <img src={url} alt={`${building.name} photo ${i + 1}`} />
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       )}
 
@@ -580,7 +568,7 @@ export default function BuildingDetailClient({ building }) {
         .bd-mosaic-back:hover { color: var(--navy); }
         .bd-gallery-main-photo {
           width: 100%;
-          height: 420px;
+          height: 480px;
           border-radius: 14px;
           overflow: hidden;
           background: var(--bg-soft);
@@ -595,58 +583,26 @@ export default function BuildingDetailClient({ building }) {
           height: 100%;
           object-fit: cover;
           display: block;
+          transition: transform 0.25s;
         }
-        .bd-gallery-expand {
+        .bd-gallery-main-photo:hover img {
+          transform: scale(1.015);
+        }
+        .bd-gallery-count {
           position: absolute;
-          bottom: 14px;
-          right: 14px;
-          background: rgba(10,31,92,0.85);
+          bottom: 16px;
+          right: 16px;
+          background: rgba(0,0,0,0.6);
           color: #fff;
           font-size: 13px;
           font-weight: 600;
-          padding: 8px 14px;
-          border-radius: 100px;
-          backdrop-filter: blur(4px);
-          transition: opacity 0.15s;
-        }
-        .bd-gallery-main-photo:hover .bd-gallery-expand {
-          background: rgba(10,31,92,0.95);
-        }
-        .bd-gallery-strip {
-          display: flex;
-          gap: 8px;
-          margin-top: 10px;
-          overflow-x: auto;
-          padding-bottom: 4px;
-        }
-        .bd-gallery-thumb {
-          flex-shrink: 0;
-          width: 84px;
-          height: 60px;
+          padding: 8px 16px;
           border-radius: 8px;
-          overflow: hidden;
-          border: 2px solid transparent;
-          padding: 0;
-          cursor: pointer;
-          background: var(--bg-soft);
-          opacity: 0.6;
-          transition: opacity 0.15s, border-color 0.15s;
-        }
-        .bd-gallery-thumb img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-        .bd-gallery-thumb:hover { opacity: 0.85; }
-        .bd-gallery-thumb.active {
-          opacity: 1;
-          border-color: var(--gold);
+          backdrop-filter: blur(4px);
         }
         @media (max-width: 768px) {
           .bd-mosaic-wrap { padding: 12px 12px 0; }
-          .bd-gallery-main-photo { height: 240px; border-radius: 12px; }
-          .bd-gallery-thumb { width: 68px; height: 48px; }
+          .bd-gallery-main-photo { height: 260px; border-radius: 12px; }
         }
 
         .bd-lightbox {
