@@ -280,6 +280,7 @@ export default function BuildingDetailClient({ building }) {
                   {building.unitPrices.filter(u => u.price).map((u, i) => (
                     <div key={i} className="bd-price-card">
                       <div className="bd-price-card-type">{u.type}</div>
+                      <div className="bd-price-card-from">From</div>
                       <div className="bd-price-card-val">${u.price.toLocaleString()}</div>
                       <div className="bd-price-card-mo">/ month</div>
                     </div>
@@ -879,6 +880,14 @@ export default function BuildingDetailClient({ building }) {
           text-transform: uppercase;
           letter-spacing: 0.06em;
           margin-bottom: 8px;
+        }
+        .bd-price-card-from {
+          font-size: 11px;
+          font-weight: 700;
+          color: var(--gold-dark, var(--gold));
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin-bottom: 2px;
         }
         .bd-price-card-val {
           font-size: 22px;
