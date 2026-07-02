@@ -138,6 +138,7 @@ export async function GET(request) {
           fields: "files(id,name)",
           orderBy: "name",
           pageSize: 20,
+          includeItemsFromAllDrives: true, supportsAllDrives: true,
         });
         const subfolders = subList.data.files || [];
         out(`📂 Found ${subfolders.length} subfolder(s): ${subfolders.map(f => f.name).join(", ")}`);

@@ -83,7 +83,7 @@ async function getImagesFromDrive(drive, driveUrl) {
     const results = [];
     for (const fileId of fileIds.slice(0, 20)) {
       try {
-        const resp = await drive.files.get({ fileId, alt: "media" }, { responseType: "arraybuffer" });
+        const resp = await drive.files.get({ fileId, alt: "media", supportsAllDrives: true }, { responseType: "arraybuffer" });
         results.push({ buffer: Buffer.from(resp.data), name: `${fileId}.jpg` });
         await new Promise(r => setTimeout(r, 200));
       } catch (err) {
@@ -100,6 +100,7 @@ async function getImagesFromDrive(drive, driveUrl) {
   let list = await drive.files.list({
     q: `'${folderId}' in parents and mimeType contains 'image/' and trashed=false`,
     fields: "files(id,name,mimeType)", orderBy: "name", pageSize: 20,
+    includeItemsFromAllDrives: true, supportsAllDrives: true,
   });
   let files = list.data.files || [];
 
@@ -107,12 +108,14 @@ async function getImagesFromDrive(drive, driveUrl) {
     const subList = await drive.files.list({
       q: `'${folderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed=false`,
       fields: "files(id,name)", orderBy: "name", pageSize: 20,
+      includeItemsFromAllDrives: true, supportsAllDrives: true,
     });
     for (const sub of (subList.data.files || [])) {
       if (files.length >= 20) break;
       const inner = await drive.files.list({
         q: `'${sub.id}' in parents and mimeType contains 'image/' and trashed=false`,
         fields: "files(id,name,mimeType)", orderBy: "name", pageSize: 20 - files.length,
+        includeItemsFromAllDrives: true, supportsAllDrives: true,
       });
       files = files.concat(inner.data.files || []);
     }
@@ -122,7 +125,7 @@ async function getImagesFromDrive(drive, driveUrl) {
 
   const results = [];
   for (const file of files) {
-    const resp = await drive.files.get({ fileId: file.id, alt: "media" }, { responseType: "arraybuffer" });
+    const resp = await drive.files.get({ fileId: file.id, alt: "media", supportsAllDrives: true }, { responseType: "arraybuffer" });
     results.push({ buffer: Buffer.from(resp.data), name: file.name });
     await new Promise(r => setTimeout(r, 200));
   }
