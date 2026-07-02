@@ -244,8 +244,13 @@ export async function GET(request) {
         }
         iOut(`☁️ ${cfUrls.length} uploaded to Cloudflare`);
 
-        await writeMondayColumn(item.id, board.id, board.photoCol, JSON.stringify(cfUrls));
-        iOut(`💾 Written back to Monday`);
+        // Write gallery JSON to RB Website subitem's long_text5 column
+        await mondayCall(`
+          mutation ($itemId: ID!, $value: JSON!) {
+            change_column_value(board_id: ${board.id}, item_id: $itemId, column_id: "long_text5", value: $value) { id }
+          }
+        `, { itemId: String(rbPhotosSub.id), value: JSON.stringify(JSON.stringify(cfUrls)) });
+        iOut(`💾 Written back to RB Website subitem`);
         results.push({ id: item.id, name: item.name, status: "migrated", photos: cfUrls.length });
 
       } catch (err) {
