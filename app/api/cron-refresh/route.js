@@ -1,5 +1,6 @@
 import { Redis } from "@upstash/redis";
 import { fetchBuildingsFromMonday } from "@/lib/monday";
+import { runBatchMigration } from "@/lib/migrate";
 
 const CACHE_KEY = "rentbolt:buildings:v9";
 const CACHE_TTL = 60 * 15;
@@ -31,9 +32,14 @@ export async function GET(request) {
 
     await redis.set(CACHE_KEY, JSON.stringify(buildings), { ex: CACHE_TTL });
 
+    // Run photo migration for all cities after cache refresh
+    console.log("[Cron] Running photo migration...");
+    const migrationResults = await runBatchMigration();
+    console.log(`[Cron] Migration complete: ${JSON.stringify(migrationResults)}`);
+
     const ms = Date.now() - start;
     console.log(`[Cron] Cache refreshed — ${buildings.length} buildings in ${ms}ms`);
-    return Response.json({ success: true, buildings: buildings.length, ms });
+    return Response.json({ success: true, buildings: buildings.length, ms, migration: migrationResults });
   } catch (err) {
     console.error("[Cron] Refresh failed:", err.message);
     return Response.json({ error: err.message }, { status: 500 });
