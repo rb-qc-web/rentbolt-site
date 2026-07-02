@@ -1,5 +1,4 @@
 import { google } from "googleapis";
-import FormData from "form-data";
 
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
@@ -45,13 +44,14 @@ async function mondayCall(query, variables = {}) {
 
 async function uploadToCloudflare(imageBuffer, filename) {
   const form = new FormData();
-  form.append("file", imageBuffer, { filename, contentType: "image/jpeg" });
+  const blob = new Blob([imageBuffer], { type: "image/jpeg" });
+  form.append("file", blob, filename);
   form.append("requireSignedURLs", "false");
   const res = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/images/v1`,
     {
       method: "POST",
-      headers: { Authorization: `Bearer ${CF_API_TOKEN}`, ...form.getHeaders() },
+      headers: { Authorization: `Bearer ${CF_API_TOKEN}` },
       body: form,
     }
   );
