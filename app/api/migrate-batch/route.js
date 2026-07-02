@@ -205,7 +205,11 @@ export async function GET(request) {
           s.name?.toLowerCase().trim() === "rb website"
         );
         if (rbPhotosSub) {
-          const linkCol = rbPhotosSub.column_values?.find(cv => cv.id === "link");
+          // Check all link-type columns for a Drive URL
+          const linkCol = rbPhotosSub.column_values?.find(cv =>
+            (cv.id === "link" || cv.id === "link_mkx19xr3" || cv.id === "link_mkx147fa") &&
+            (cv.text || "").includes("drive.google")
+          );
           driveUrl = linkCol?.text || "";
         }
 
