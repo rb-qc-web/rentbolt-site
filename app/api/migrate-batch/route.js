@@ -10,11 +10,11 @@ const CF_API_TOKEN   = process.env.CLOUDFLARE_API_TOKEN;
 const GCP_JSON       = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
 
 const BOARD_CONFIGS = {
-  london:   { id: "18401824343", photoCol: "text_mkxvrp7p", photoSource: "subitem" },
-  montreal: { id: "3743206409",  photoCol: "text_mkxvrp7p", photoSource: "parent"  },
-  ottawa:   { id: "4955235841",  photoCol: "text_mkxvrp7p", photoSource: "parent"  },
-  toronto:  { id: "18402583974", photoCol: "text_mkxvrp7p", photoSource: "subitem" },
-  kwcg:     { id: "5892819868",  photoCol: "text_mkxvrp7p", photoSource: "parent"  },
+  london:   { id: "18401824343", photoCol: "text_mkxvrp7p" },
+  montreal: { id: "3743206409",  photoCol: "text_mkxvrp7p" },
+  ottawa:   { id: "4955235841",  photoCol: "text_mkxvrp7p" },
+  toronto:  { id: "18402583974", photoCol: "text_mkxvrp7p" },
+  kwcg:     { id: "5892819868",  photoCol: "text_mkxvrp7p" },
 };
 
 const ACTIVE_STATUSES = ["Lease-Up", "Stabilization"];
@@ -179,18 +179,20 @@ export async function GET(request) {
       const iOut = (msg) => out(`  [${item.name}] ${msg}`);
       try {
         let driveUrl = "";
-        if (board.photoSource === "subitem") {
-          const photosSub = item.subitems?.find(s => s.name?.toLowerCase() === "photos");
-          const linkCol   = photosSub?.column_values?.find(cv => cv.id === "link");
+
+        // New standard: always look for "RB Website Photos" subitem
+        // If not present → building has no curated photos → skip
+        const rbPhotosSub = item.subitems?.find(s =>
+          s.name?.toLowerCase().trim() === "rb website photos"
+        );
+        if (rbPhotosSub) {
+          const linkCol = rbPhotosSub.column_values?.find(cv => cv.id === "link");
           driveUrl = linkCol?.text || "";
-        } else {
-          const photoCol = item.column_values?.find(cv => cv.id === board.photoCol);
-          driveUrl = photoCol?.text || "";
         }
 
         if (!driveUrl || !driveUrl.includes("drive.google")) {
-          iOut(`⚠️ No Drive link — skipping`);
-          results.push({ id: item.id, name: item.name, status: "skipped", reason: "no_drive_link" });
+          iOut(`⏭️ No "RB Website Photos" subitem — skipping`);
+          results.push({ id: item.id, name: item.name, status: "skipped", reason: "no_rb_website_photos" });
           continue;
         }
 
