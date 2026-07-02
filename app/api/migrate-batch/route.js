@@ -183,7 +183,7 @@ export async function GET(request) {
         // New standard: always look for "RB Website Photos" subitem
         // If not present → building has no curated photos → skip
         const rbPhotosSub = item.subitems?.find(s =>
-          s.name?.toLowerCase().trim() === "rb website photos"
+          s.name?.toLowerCase().trim() === "rb website"
         );
         if (rbPhotosSub) {
           const linkCol = rbPhotosSub.column_values?.find(cv => cv.id === "link");
