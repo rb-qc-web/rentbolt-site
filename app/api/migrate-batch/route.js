@@ -201,20 +201,26 @@ export async function GET(request) {
 
         // New standard: always look for "RB Website Photos" subitem
         // If not present → building has no curated photos → skip
+        // Debug: log all subitem names
+        const subitemNames = (item.subitems || []).map(s => s.name);
+        iOut(`📋 Subitems: ${JSON.stringify(subitemNames)}`);
+
         const rbPhotosSub = item.subitems?.find(s =>
           s.name?.toLowerCase().trim() === "rb website"
         );
+
         if (rbPhotosSub) {
           // Check all link-type columns for a Drive URL
+          const allLinks = rbPhotosSub.column_values?.filter(cv => cv.text);
+          iOut(`🔗 RB Website columns with text: ${JSON.stringify(allLinks?.map(cv => ({id: cv.id, text: cv.text?.slice(0,50)})))}`);
           const linkCol = rbPhotosSub.column_values?.find(cv =>
-            (cv.id === "link" || cv.id === "link_mkx19xr3" || cv.id === "link_mkx147fa") &&
             (cv.text || "").includes("drive.google")
           );
           driveUrl = linkCol?.text || "";
         }
 
         if (!driveUrl || !driveUrl.includes("drive.google")) {
-          iOut(`⏭️ No "RB Website Photos" subitem — skipping`);
+          iOut(`⏭️ No "RB Website" subitem with Drive link — skipping`);
           results.push({ id: item.id, name: item.name, status: "skipped", reason: "no_rb_website_photos" });
           continue;
         }
