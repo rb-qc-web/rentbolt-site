@@ -69,18 +69,37 @@ async function writeMondayColumn(itemId, boardId, columnId, value) {
 }
 
 async function getImagesFromDrive(drive, driveUrl) {
-  const folderId = extractFolderId(driveUrl);
-  const fileId   = !folderId ? extractFileId(driveUrl) : null;
-  if (!folderId && !fileId) return [];
+  // Handle multiple space-separated file/folder links (pasted from Drive "Copy link")
+  const urls = driveUrl.split(/\s+/).filter(u => u.includes("drive.google") || u.includes("drive.google.com"));
 
-  if (fileId) {
-    const resp = await drive.files.get({ fileId, alt: "media" }, { responseType: "arraybuffer" });
-    return [{ buffer: Buffer.from(resp.data), name: `${fileId}.jpg` }];
+  // If multiple individual file links — download each directly
+  const fileIds = [];
+  for (const url of urls) {
+    const fId = extractFileId(url) || (url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || [])[1];
+    if (fId) fileIds.push(fId);
   }
+
+  if (fileIds.length > 0) {
+    const results = [];
+    for (const fileId of fileIds.slice(0, 20)) {
+      try {
+        const resp = await drive.files.get({ fileId, alt: "media" }, { responseType: "arraybuffer" });
+        results.push({ buffer: Buffer.from(resp.data), name: `${fileId}.jpg` });
+        await new Promise(r => setTimeout(r, 200));
+      } catch (err) {
+        console.log(`  Skipping file ${fileId}: ${err.message}`);
+      }
+    }
+    return results;
+  }
+
+  // Single folder link
+  const folderId = extractFolderId(urls[0] || driveUrl);
+  if (!folderId) return [];
 
   let list = await drive.files.list({
     q: `'${folderId}' in parents and mimeType contains 'image/' and trashed=false`,
-    fields: "files(id,name,mimeType)", orderBy: "name", pageSize: 8,
+    fields: "files(id,name,mimeType)", orderBy: "name", pageSize: 20,
   });
   let files = list.data.files || [];
 
@@ -90,10 +109,10 @@ async function getImagesFromDrive(drive, driveUrl) {
       fields: "files(id,name)", orderBy: "name", pageSize: 20,
     });
     for (const sub of (subList.data.files || [])) {
-      if (files.length >= 8) break;
+      if (files.length >= 20) break;
       const inner = await drive.files.list({
         q: `'${sub.id}' in parents and mimeType contains 'image/' and trashed=false`,
-        fields: "files(id,name,mimeType)", orderBy: "name", pageSize: 8 - files.length,
+        fields: "files(id,name,mimeType)", orderBy: "name", pageSize: 20 - files.length,
       });
       files = files.concat(inner.data.files || []);
     }
