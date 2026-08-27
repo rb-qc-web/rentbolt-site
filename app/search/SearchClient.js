@@ -105,12 +105,38 @@ export default function SearchClient({ buildings, totalCount }) {
         attributionControl: false,
       }).setView(DEFAULT_CENTER, DEFAULT_ZOOM);
 
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-      }).addTo(map);
+      // Basemap. Carto Positron (the clean light style) now requires an API
+      // key. If one is present we use it; otherwise we fall back to Esri's
+      // World Light Gray Canvas, which is keyless and visually very close.
+      // Setting NEXT_PUBLIC_CARTO_API_KEY in Vercel switches this back to
+      // Carto with no code change.
+      const cartoKey = process.env.NEXT_PUBLIC_CARTO_API_KEY;
+
+      const basemap = cartoKey
+        ? {
+            url: `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?api_key=${cartoKey}`,
+            options: { subdomains: "abcd", maxZoom: 20 },
+            attribution: "© OpenStreetMap · © CARTO",
+          }
+        : {
+            url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+            options: { maxZoom: 16 },
+            attribution: "Esri — Light Gray Canvas",
+          };
+
+      L.tileLayer(basemap.url, basemap.options).addTo(map);
+
+      // Esri's gray canvas omits street labels at some zooms; overlay the
+      // reference layer so street names stay readable.
+      if (!cartoKey) {
+        L.tileLayer(
+          "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+          { maxZoom: 16 }
+        ).addTo(map);
+      }
 
       L.control.attribution({ position: "bottomright", prefix: false })
-        .addAttribution("© OpenStreetMap contributors")
+        .addAttribution(basemap.attribution)
         .addTo(map);
 
       mapInstanceRef.current = map;
