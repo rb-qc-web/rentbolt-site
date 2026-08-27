@@ -310,18 +310,26 @@ export default function SearchClient({ buildings, totalCount }) {
       {/* FILTERS BAR */}
       <div className="rb-sfilters">
         <div className="rb-sfilters-inner">
-          <div className="rb-spill-row">
-            {CITY_FILTERS.map(c => (
-              <button
-                key={c}
-                className={`rb-spill${city === c ? " active" : ""}`}
-                onClick={() => setCity(c)}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
           <div className="rb-sfilter-controls">
+            {/* City is a dropdown rather than a pill row: it stays compact and
+                keeps working as more markets are added. */}
+            <div className="rb-scity-wrap">
+              <select
+                className="rb-scity"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                aria-label="Filter by city"
+              >
+                {CITY_FILTERS.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <svg className="rb-scity-caret" width="14" height="14" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </div>
+
             <div className="rb-sbed-group">
               {BED_FILTERS.map(b => (
                 <button
@@ -333,6 +341,7 @@ export default function SearchClient({ buildings, totalCount }) {
                 </button>
               ))}
             </div>
+
             <input
               type="text"
               className="rb-ssearch"
@@ -350,18 +359,6 @@ export default function SearchClient({ buildings, totalCount }) {
       {/* SPLIT LAYOUT */}
       <div className="rb-ssplit">
         <div className="rb-slist" ref={listRef}>
-          <div className="rb-slist-header">
-            <div className="rb-scount">
-              <strong>{filtered.length}</strong> {filtered.length === 1 ? "building" : "buildings"}
-              {filtered.length < buildings.length && <span> · filtered from {buildings.length}</span>}
-            </div>
-            {totalCount > buildings.length && (
-              <div className="rb-snote">
-                {totalCount - buildings.length} more buildings without coordinates not shown
-              </div>
-            )}
-          </div>
-
           {filtered.length === 0 ? (
             <div className="rb-sempty">
               <h3>No buildings match these filters</h3>
@@ -548,27 +545,33 @@ export default function SearchClient({ buildings, totalCount }) {
           align-items: center;
           flex-wrap: wrap;
         }
-        .rb-spill-row {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
+        .rb-scity-wrap {
+          position: relative;
+          flex-shrink: 0;
         }
-        .rb-spill {
-          padding: 8px 16px;
-          background: var(--bg-soft);
+        .rb-scity {
+          appearance: none;
+          -webkit-appearance: none;
+          padding: 10px 34px 10px 16px;
+          background: var(--navy);
+          color: #fff;
           border: none;
           border-radius: 100px;
           font-size: 13px;
-          font-weight: 600;
-          color: var(--text-mute);
-          cursor: pointer;
-          transition: all 0.15s;
+          font-weight: 700;
           font-family: inherit;
+          cursor: pointer;
+          transition: opacity 0.15s;
         }
-        .rb-spill:hover { background: var(--border); }
-        .rb-spill.active {
-          background: var(--navy);
-          color: white;
+        .rb-scity:hover { opacity: 0.9; }
+        .rb-scity:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+        .rb-scity-caret {
+          position: absolute;
+          right: 13px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #fff;
+          pointer-events: none;
         }
         .rb-sfilter-controls {
           display: flex;
@@ -640,28 +643,6 @@ export default function SearchClient({ buildings, totalCount }) {
           overflow-y: auto;
           background: white;
           border-right: 1px solid var(--border);
-        }
-        .rb-slist-header {
-          padding: 20px 24px 16px;
-          border-bottom: 1px solid var(--border);
-          position: sticky;
-          top: 0;
-          background: white;
-          z-index: 5;
-        }
-        .rb-scount {
-          font-size: 14px;
-          color: var(--text-mute);
-        }
-        .rb-scount strong {
-          color: var(--navy);
-          font-size: 16px;
-          font-weight: 800;
-        }
-        .rb-snote {
-          font-size: 12px;
-          color: var(--text-mute);
-          margin-top: 4px;
         }
         .rb-slist-items {
           padding: 12px;
