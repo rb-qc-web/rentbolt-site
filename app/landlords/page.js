@@ -12,8 +12,8 @@ const textMid = "#5A6278";
 const textMute = "#8B92A5";
 
 const STATS = [
-  { value: "4,000+", label: "Weekly rental inquiries" },
-  { value: "20,000+", label: "Active units under mandate" },
+  { value: "12,000+", label: "Weekly rental inquiries" },
+  { value: "40,000+", label: "Active units under mandate" },
   { value: "6", label: "Languages spoken" },
   { value: "$0", label: "Upfront cost" },
 ];
@@ -285,8 +285,8 @@ export default function LandlordsPage() {
               Property Developers, Owners, & Managers
             </p>
             <h1 style={{ fontSize: "clamp(30px, 5vw, 52px)", fontWeight: 800, lineHeight: 1.1, margin: "0 0 22px", letterSpacing: "-1px" }}>
-              We'll refer quality tenants<br />
-              <span style={{ color: gold }}>to your properties.</span>
+              Supercharge Your Leasing<br />
+              <span style={{ color: gold }}>Engine with RentBolt.</span>
             </h1>
             <p style={{ fontSize: 17, color: "rgba(255,255,255,0.65)", maxWidth: 460, lineHeight: 1.7, marginBottom: 32 }}>
               Partner with RentBolt to gain access to a large pool of clients from a new demographic.
@@ -318,9 +318,9 @@ export default function LandlordsPage() {
             {[
               { icon: "⚡", text: "First tenant referred in 11–14 days, on average" },
               { icon: "✅", text: "Pre-qualified files submitted for your approval" },
-              { icon: "🌍", text: "International tenant pipeline" },
+              { icon: "🕐", text: "7 days a week — after hours and weekends" },
               { icon: "💸", text: "100% results based — zero cost until lease signed" },
-              { icon: "📊", text: "4,000+ active rental inquiries per week" },
+              { icon: "📊", text: "12,000+ active rental inquiries per week" },
             ].map(item => (
               <div key={item.text} style={{
                 display: "flex", alignItems: "flex-start", gap: 14,
