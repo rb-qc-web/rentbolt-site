@@ -1,6 +1,5 @@
 import { checkAuth, mondayCall } from "../_auth";
-import { PHOTO_BOARDS } from "@/lib/migrate";
-import { findPhotoSubitem, parseGallery, GALLERY_COLUMN_ID } from "@/lib/photoConfig";
+import { findPhotoSubitem, parseGallery, GALLERY_COLUMN_ID, PHOTO_BOARDS } from "@/lib/photoConfig";
 import { getPublicName } from "@/lib/publicName";
 
 export const dynamic = "force-dynamic";

@@ -33,15 +33,38 @@ export default function AdminPhotosClient() {
       const res = await fetch("/api/admin/buildings", {
         headers: { "x-admin-password": pwOverride ?? pw },
       });
-      if (res.status === 401) { setAuthError("Wrong password"); setAuthed(false); return false; }
-      const data = await res.json();
+      if (res.status === 401) {
+        setAuthError("Wrong password");
+        setAuthed(false);
+        sessionStorage.removeItem("rb_admin_pw");
+        return false;
+      }
+
+      // Read as text first: a 500 can return HTML, and calling res.json() on
+      // it throws — which previously surfaced as "wrong password" on the
+      // login screen and made a server error impossible to diagnose.
+      const raw = await res.text();
+      let data;
+      try { data = JSON.parse(raw); }
+      catch {
+        setAuthError(`Server error (${res.status}). ${raw.slice(0, 120)}`);
+        setAuthed(false);
+        return false;
+      }
+
+      if (!res.ok) {
+        setAuthError(data.error || `Server error (${res.status})`);
+        setAuthed(false);
+        return false;
+      }
+
       setBuildings(data.buildings || []);
       setBoardErrors(data.boardErrors || []);
       setAuthed(true);
       setAuthError("");
       return true;
-    } catch {
-      setAuthError("Could not reach the server");
+    } catch (err) {
+      setAuthError(`Network error: ${err.message}`);
       return false;
     } finally { setLoading(false); }
   }
