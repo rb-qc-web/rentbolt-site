@@ -66,6 +66,9 @@ export default function SearchClient({ buildings, totalCount }) {
   const markersRef = useRef({});
   const clusterRef = useRef(null);
   const listRef = useRef(null);
+  // Remembers the filter set we last auto-fitted to, so selecting or hovering
+  // a card doesn't re-trigger fitBounds and yank the map back out.
+  const lastFitKeyRef = useRef(null);
 
   // Filter buildings
   const filtered = useMemo(() => {
@@ -211,12 +214,22 @@ export default function SearchClient({ buildings, totalCount }) {
       map.addLayer(cluster);
       clusterRef.current = cluster;
 
-      // Auto-fit bounds when filters change
-      if (filtered.length > 0 && filtered.length < buildings.length) {
+      // Auto-fit bounds ONLY when the filter set itself changes.
+      // This effect also re-runs on activeId/hoverId, and previously refitted
+      // every time — which cancelled the flyTo from clicking a card and made
+      // the map appear to zoom out on every selection.
+      const fitKey = `${city}|${bed}|${search}|${filtered.length}`;
+      if (
+        lastFitKeyRef.current !== fitKey &&
+        filtered.length > 0 &&
+        filtered.length < buildings.length
+      ) {
         const located = filtered.filter(b => b.lat && b.lng);
-        if (!located.length) return;
-        const bounds = L.latLngBounds(located.map(b => [b.lat, b.lng]));
-        map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13 });
+        if (located.length) {
+          const bounds = L.latLngBounds(located.map(b => [b.lat, b.lng]));
+          map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13 });
+        }
+        lastFitKeyRef.current = fitKey;
       }
       }); // end loadCluster
     });
