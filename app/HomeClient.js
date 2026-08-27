@@ -138,7 +138,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
 
           <div className="rb-hero-stats">
             <div className="rb-stat">
-              <div className="num">5,000+</div>
+              <div className="num">9,000+</div>
               <div className="label">Active listings</div>
             </div>
             <div className="rb-stat">
@@ -146,7 +146,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
               <div className="label">Major cities</div>
             </div>
             <div className="rb-stat">
-              <div className="num">50+</div>
+              <div className="num">80+</div>
               <div className="label">Leasing advisors</div>
             </div>
             <div className="rb-stat">
@@ -292,7 +292,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             </div>
             <div className="rb-lstats">
               <div className="rb-lcard">
-                <div className="num">20,000+</div>
+                <div className="num">40,000+</div>
                 <div className="label">Units under mandate</div>
               </div>
               <div className="rb-lcard">
