@@ -102,11 +102,11 @@ export default function HomeClient({ buildings = [], cities = [] }) {
         <div className="rb-hero-container">
           <div className="rb-hero-badge">
             <span className="dot"></span>
-            20,000+ apartments across Canada
+            9,000+ apartments across Canada
           </div>
           <h1>Find your next<br/><span className="accent">home.</span></h1>
           <p className="rb-hero-desc">
-            Browse thousands of apartments, rooms and homes for rent across Montreal, Toronto, Ottawa and more — managed by your favourite rental agents.
+            A better way to find your next apartment — simple, quick, and powered by real human agents at RentBolt.
           </p>
 
           <form className="rb-search" onSubmit={(e) => {
