@@ -138,6 +138,8 @@ export default function BuildingDetailClient({ building }) {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [activePhoto, setActivePhoto] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  const openLightbox = (i) => { setActivePhoto(i); setLightboxOpen(true); };
   const [form, setForm] = useState({
     name: "", email: "", phone: "", visitType: "in-person", moveIn: "", message: ""
   });
@@ -168,8 +170,10 @@ export default function BuildingDetailClient({ building }) {
     setSubmitting(false);
   };
 
-  const heroPhoto = getBuildingPhoto(building);
-  const gallery = building.photoGallery?.length > 0 ? building.photoGallery : [heroPhoto];
+  // Falls back to the city image when a building has no uploaded photos.
+  const gallery = building.photoGallery?.length > 0
+    ? building.photoGallery
+    : [getBuildingPhoto(building)];
   const hasRealGallery = building.photoGallery?.length > 1;
 
   return (
@@ -187,23 +191,6 @@ export default function BuildingDetailClient({ building }) {
         </nav>
       </header>
 
-      {/* PHOTO GALLERY — single full-width banner, click to expand into lightbox */}
-      {hasRealGallery && (
-        <div className="bd-mosaic-wrap">
-          <a href="/search" className="bd-mosaic-back">← Back to search</a>
-          <button
-            className="bd-gallery-main-photo"
-            onClick={() => setLightboxOpen(true)}
-            aria-label="View all photos"
-          >
-            <img src={gallery[0]} alt={building.name} />
-            {gallery.length > 1 && (
-              <span className="bd-gallery-count">📷 {gallery.length} photos</span>
-            )}
-          </button>
-        </div>
-      )}
-
       {/* LIGHTBOX */}
       {lightboxOpen && (
         <PhotoLightbox
@@ -216,9 +203,9 @@ export default function BuildingDetailClient({ building }) {
       )}
 
       {/* HERO */}
-      <section className="bd-hero" style={hasRealGallery ? {} : { backgroundImage: `url(${heroPhoto})` }}>
+      <section className="bd-hero">
         <div className="bd-hero-inner">
-          {!hasRealGallery && <a href="/search" className="bd-back">← Back to search</a>}
+          <a href="/search" className="bd-back">← Back to search</a>
 
           <div className="bd-hero-content">
             <div className="bd-hero-left">
@@ -245,6 +232,37 @@ export default function BuildingDetailClient({ building }) {
           </div>
         </div>
       </section>
+
+      {/* PHOTO MOSAIC — Airbnb style: one large photo, four smaller alongside.
+          Falls back gracefully when a building has fewer than five photos. */}
+      {hasRealGallery && (
+        <div className="bd-mosaic-wrap">
+          <div className={`bd-mosaic bd-mosaic-${Math.min(gallery.length, 5)}`}>
+            <button className="bd-mosaic-hero" onClick={() => openLightbox(0)} aria-label="View photo 1">
+              <img src={gallery[0]} alt={building.publicName || building.name} />
+            </button>
+
+            {gallery.length > 1 && (
+              <div className="bd-mosaic-grid">
+                {gallery.slice(1, 5).map((url, i) => (
+                  <button key={i} className="bd-mosaic-cell" onClick={() => openLightbox(i + 1)} aria-label={`View photo ${i + 2}`}>
+                    <img src={url} alt="" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {gallery.length > 1 && (
+              <button className="bd-mosaic-all" onClick={() => openLightbox(0)}>
+                <span className="bd-mosaic-all-icon" aria-hidden="true">
+                  <i /><i /><i /><i /><i /><i /><i /><i /><i />
+                </span>
+                Show all {gallery.length} photos
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* MAIN CONTENT */}
       <section className="bd-main">
@@ -547,59 +565,106 @@ export default function BuildingDetailClient({ building }) {
         .bd-nav-cta:hover { background: var(--gold-bright) !important; }
 
         .bd-mosaic-wrap {
-          max-width: 1100px;
+          max-width: 1120px;
           margin: 0 auto;
-          padding: 16px 16px 0;
+          padding: 20px 16px 0;
         }
-        .bd-mosaic-back {
-          display: inline-block;
-          font-size: 13px;
-          font-weight: 600;
-          color: var(--text-mute);
-          text-decoration: none;
-          margin-bottom: 12px;
-        }
-        .bd-mosaic-back:hover { color: var(--navy); }
-        .bd-gallery-main-photo {
-          width: 100%;
-          height: 480px;
-          border-radius: 14px;
-          overflow: hidden;
-          background: var(--bg-soft);
+        .bd-mosaic {
           position: relative;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+          height: 420px;
+          border-radius: 16px;
+          overflow: hidden;
+        }
+        .bd-mosaic-hero,
+        .bd-mosaic-cell {
           border: none;
           padding: 0;
+          margin: 0;
           cursor: pointer;
+          overflow: hidden;
+          background: var(--bg-soft);
           display: block;
+          width: 100%;
+          height: 100%;
         }
-        .bd-gallery-main-photo img {
+        .bd-mosaic-hero img,
+        .bd-mosaic-cell img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           display: block;
-          transition: transform 0.25s;
+          transition: transform 0.3s ease, filter 0.2s ease;
         }
-        .bd-gallery-main-photo:hover img {
-          transform: scale(1.015);
+        .bd-mosaic-hero:hover img,
+        .bd-mosaic-cell:hover img {
+          transform: scale(1.04);
+          filter: brightness(0.94);
         }
-        .bd-gallery-count {
-          position: absolute;
-          bottom: 16px;
-          right: 16px;
-          background: rgba(0,0,0,0.6);
-          color: #fff;
-          font-size: 13px;
-          font-weight: 600;
-          padding: 8px 16px;
-          border-radius: 8px;
-          backdrop-filter: blur(4px);
-        }
-        @media (max-width: 768px) {
-          .bd-mosaic-wrap { padding: 12px 12px 0; }
-          .bd-gallery-main-photo { height: 260px; border-radius: 12px; }
+        .bd-mosaic-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          grid-template-rows: 1fr 1fr;
+          gap: 8px;
         }
 
-        .bd-lightbox {
+        /* Fewer than five photos: let the hero take the full width rather than
+           leaving obvious empty cells. */
+        .bd-mosaic-1 { grid-template-columns: 1fr; }
+        .bd-mosaic-2 .bd-mosaic-grid,
+        .bd-mosaic-3 .bd-mosaic-grid { grid-template-columns: 1fr; }
+        .bd-mosaic-2 .bd-mosaic-grid { grid-template-rows: 1fr; }
+        .bd-mosaic-3 .bd-mosaic-grid { grid-template-rows: 1fr 1fr; }
+
+        .bd-mosaic-all {
+          position: absolute;
+          right: 16px;
+          bottom: 16px;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 16px;
+          background: #fff;
+          color: var(--navy);
+          border: 1px solid rgba(10,31,92,0.15);
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 700;
+          font-family: inherit;
+          cursor: pointer;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+          transition: transform 0.15s ease;
+        }
+        .bd-mosaic-all:hover { transform: scale(1.03); }
+        .bd-mosaic-all-icon {
+          display: grid;
+          grid-template-columns: repeat(3, 3px);
+          grid-template-rows: repeat(3, 3px);
+          gap: 2px;
+        }
+        .bd-mosaic-all-icon i {
+          width: 3px;
+          height: 3px;
+          background: var(--navy);
+          border-radius: 1px;
+        }
+
+        @media (max-width: 768px) {
+          .bd-mosaic-wrap { padding: 14px 12px 0; }
+          /* On phones the side grid becomes unreadable — show the hero only,
+             with the button as the way into the full set. */
+          .bd-mosaic {
+            grid-template-columns: 1fr;
+            height: 260px;
+            border-radius: 12px;
+          }
+          .bd-mosaic-grid { display: none; }
+          .bd-mosaic-all { right: 12px; bottom: 12px; padding: 9px 14px; font-size: 12px; }
+        }
+
+.bd-lightbox {
           position: fixed;
           inset: 0;
           z-index: 500;
@@ -697,19 +762,19 @@ export default function BuildingDetailClient({ building }) {
         }
 
         .bd-hero {
-          background-color: var(--navy-deep);
-          background-size: cover;
-          background-position: center;
+          background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 100%);
           color: white;
-          padding: 32px 32px 48px;
+          padding: 28px 32px 40px;
           position: relative;
           overflow: hidden;
         }
         .bd-hero::before {
           content: '';
           position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, rgba(4,14,42,0.88) 0%, rgba(10,31,92,0.80) 50%, rgba(10,31,92,0.65) 100%);
+          top: -30%; right: -8%;
+          width: 520px; height: 520px;
+          background: radial-gradient(circle, rgba(201,168,76,0.16) 0%, transparent 62%);
+          border-radius: 50%;
           pointer-events: none;
           z-index: 0;
         }
