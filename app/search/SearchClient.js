@@ -403,6 +403,17 @@ export default function SearchClient({ buildings, totalCount }) {
               ))}
             </div>
           )}
+
+          {/* End-of-list CTA. A visitor who reaches the bottom has not found
+              what they want — catch them here rather than losing them. */}
+          <div className="rb-scta">
+            <h3>Didn&apos;t find what you were looking for?</h3>
+            <p>
+              We have more options than we list publicly. Tell us what you need and
+              a RentBolt agent will find it for you.
+            </p>
+            <a href="/find-a-place" className="rb-scta-btn">Tell us what you&apos;re looking for →</a>
+          </div>
         </div>
 
         <div className="rb-smap" ref={mapRef} style={{ position: "relative" }}>
@@ -767,6 +778,41 @@ export default function SearchClient({ buildings, totalCount }) {
           background: var(--bg-soft);
           border-radius: 100px;
         }
+
+        .rb-scta {
+          margin: 8px 12px 32px;
+          padding: 28px 24px;
+          background: var(--navy);
+          border-radius: 16px;
+          text-align: center;
+          color: #fff;
+        }
+        .rb-scta h3 {
+          margin: 0 0 8px;
+          font-size: 19px;
+          font-weight: 800;
+          letter-spacing: -0.01em;
+        }
+        .rb-scta p {
+          margin: 0 auto 18px;
+          font-size: 14px;
+          line-height: 1.6;
+          color: rgba(255,255,255,0.72);
+          max-width: 420px;
+        }
+        .rb-scta-btn {
+          display: inline-flex;
+          align-items: center;
+          background: var(--gold);
+          color: var(--navy-deep);
+          padding: 12px 24px;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 800;
+          text-decoration: none;
+          transition: transform 0.15s ease;
+        }
+        .rb-scta-btn:hover { transform: translateY(-1px); }
 
         .rb-sempty {
           padding: 60px 32px;
