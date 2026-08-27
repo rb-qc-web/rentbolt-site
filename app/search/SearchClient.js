@@ -102,13 +102,12 @@ export default function SearchClient({ buildings, totalCount }) {
         attributionControl: false,
       }).setView(DEFAULT_CENTER, DEFAULT_ZOOM);
 
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-        subdomains: "abcd",
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
       }).addTo(map);
 
       L.control.attribution({ position: "bottomright", prefix: false })
-        .addAttribution("© OpenStreetMap · CartoDB")
+        .addAttribution("© OpenStreetMap contributors")
         .addTo(map);
 
       mapInstanceRef.current = map;
@@ -214,7 +213,9 @@ export default function SearchClient({ buildings, totalCount }) {
 
       // Auto-fit bounds when filters change
       if (filtered.length > 0 && filtered.length < buildings.length) {
-        const bounds = L.latLngBounds(filtered.map(b => [b.lat, b.lng]));
+        const located = filtered.filter(b => b.lat && b.lng);
+        if (!located.length) return;
+        const bounds = L.latLngBounds(located.map(b => [b.lat, b.lng]));
         map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13 });
       }
       }); // end loadCluster
