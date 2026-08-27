@@ -32,8 +32,15 @@ export async function GET(request) {
     await redis.set(CACHE_KEY, JSON.stringify(buildings), { ex: CACHE_TTL });
 
     const ms = Date.now() - start;
+    const failures = buildings.boardFailures || [];
     console.log(`[Cron] Cache refreshed — ${buildings.length} buildings in ${ms}ms`);
-    return Response.json({ success: true, buildings: buildings.length, ms });
+    return Response.json({
+      success: true,
+      buildings: buildings.length,
+      ms,
+      boardFailures: failures,
+      warning: failures.length ? `${failures.length} board(s) failed to load` : undefined,
+    });
   } catch (err) {
     console.error("[Cron] Refresh failed:", err.message);
     return Response.json({ error: err.message }, { status: 500 });
