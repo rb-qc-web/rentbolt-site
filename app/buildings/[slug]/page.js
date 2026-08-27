@@ -14,7 +14,7 @@ export async function generateMetadata({ params }) {
   const beds = building.bedrooms || [];
   const bedLabel = beds.length === 0 ? "" : beds.map(b => b === 0 ? "Studio" : `${b} Bed`).join(", ");
 
-  const streetAddr = building.address ? building.address.split(',')[0] : building.name;
+  const streetAddr = building.publicName || building.name;
   return {
     title: `${streetAddr}, ${building.city} — Apartments for Rent`,
     description: `${bedLabel} apartments available near ${streetAddr} in ${building.city}. Book a visit with RentBolt.`,

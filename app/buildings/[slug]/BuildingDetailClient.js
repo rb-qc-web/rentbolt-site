@@ -223,16 +223,9 @@ export default function BuildingDetailClient({ building }) {
           <div className="bd-hero-content">
             <div className="bd-hero-left">
               {building.tag && <div className="bd-hero-tag">{building.tag}</div>}
-              <h1 className="bd-hero-title">{building.address ? building.address.split(",")[0] : building.name}</h1>
-              {building.address && (
-                <div className="bd-hero-addr">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                  </svg>
-                  {building.address}
-                </div>
-              )}
+              <h1 className="bd-hero-title">{building.publicName || building.name}</h1>
+              {/* Exact civic address intentionally not shown — the h1 carries the
+                  street name and the meta line below carries neighbourhood + city. */}
               <div className="bd-hero-meta">
                 <span>{building.city}, {building.region}</span>
                 {building.area && <><span>·</span><span>{building.area}</span></>}
