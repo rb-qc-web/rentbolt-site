@@ -148,18 +148,13 @@ export default function AdminPhotosClient() {
       const res = await api("/api/admin/save-gallery", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          itemId: selected.id, boardId: selected.boardId,
-          subitemId: selected.subitemId, urls,
-        }),
+        body: JSON.stringify({ itemId: selected.id, urls }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Save failed");
 
       setBuildings(bs => bs.map(b =>
-        b.id === selected.id
-          ? { ...b, photoCount: urls.length, gallery: urls, subitemId: data.subitemId }
-          : b
+        b.id === selected.id ? { ...b, photoCount: urls.length, gallery: urls } : b
       ));
       setPhotos(p => p.map(x => ({ ...x, status: x.url ? "saved" : x.status })));
       setToast({ kind: "ok", msg: `Saved ${urls.length} photo(s) to ${selected.label}` });
@@ -278,7 +273,6 @@ export default function AdminPhotosClient() {
                 <div style={{ marginBottom: 4, fontSize: 17, fontWeight: 800, color: NAVY }}>{selected.label}</div>
                 <div style={{ fontSize: 12, color: "#8B92A5", marginBottom: 16 }}>
                   {selected.city} · shows publicly as “{selected.publicName}”
-                  {!selected.subitemId && " · RB Website subitem will be created on save"}
                 </div>
 
                 <label

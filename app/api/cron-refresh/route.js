@@ -1,7 +1,7 @@
 import { Redis } from "@upstash/redis";
 import { fetchBuildingsFromMonday } from "@/lib/monday";
 
-const CACHE_KEY = "rentbolt:buildings:v15";
+const CACHE_KEY = "rentbolt:buildings:v16";
 const CACHE_TTL = 60 * 15;
 
 export const dynamic = "force-dynamic";

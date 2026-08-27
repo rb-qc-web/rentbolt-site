@@ -1,6 +1,7 @@
 import { checkAuth, mondayCall } from "../_auth";
 import { findPhotoSubitem, parseGallery, GALLERY_COLUMN_ID, PHOTO_BOARDS } from "@/lib/photoConfig";
 import { getPublicName } from "@/lib/publicName";
+import { getGalleries } from "@/lib/galleryStore";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -60,6 +61,15 @@ export async function GET(request) {
         photoCount: gallery.length,
         gallery,
       });
+    }
+  }
+
+  // Redis galleries take precedence over anything stored in Monday.
+  const stored = await getGalleries(out.map(b => b.id));
+  for (const b of out) {
+    if (stored[b.id]?.length) {
+      b.gallery = stored[b.id];
+      b.photoCount = stored[b.id].length;
     }
   }
 
