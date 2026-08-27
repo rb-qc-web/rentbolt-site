@@ -165,15 +165,6 @@ button { font-family: inherit; cursor: pointer; }
   margin-bottom: 48px;
   line-height: 1.6;
 }
-/* The strongest objection-killer in the hero — brought to full white and
-   gold-underlined so it reads at a glance rather than blending into the
-   muted body copy. */
-.rb-hero-free {
-  color: #fff;
-  font-weight: 800;
-  box-shadow: inset 0 -0.5em 0 rgba(201,168,76,0.28);
-  padding: 0 2px;
-}
 
 /* SEARCH CARD */
 .rb-search {

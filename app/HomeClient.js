@@ -106,8 +106,8 @@ export default function HomeClient({ buildings = [], cities = [] }) {
           </div>
           <h1>Find your next<br/><span className="accent">home.</span></h1>
           <p className="rb-hero-desc">
-            Skip the endless scrolling. Tell us what you&apos;re looking for and RentBolt
-            finds it, shows it, and gets you the keys — <strong className="rb-hero-free">at no cost to you.</strong>
+            Tell us what you&apos;re looking for and RentBolt finds it, shows it,
+            and gets you the keys — at no cost to you.
           </p>
 
           <form className="rb-search" onSubmit={(e) => {
