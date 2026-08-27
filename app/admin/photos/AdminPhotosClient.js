@@ -20,6 +20,7 @@ export default function AdminPhotosClient() {
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
   const [toast, setToast] = useState(null);
+  const [boardErrors, setBoardErrors] = useState([]);
 
   const selected = buildings.find(b => b.id === selectedId) || null;
 
@@ -35,6 +36,7 @@ export default function AdminPhotosClient() {
       if (res.status === 401) { setAuthError("Wrong password"); setAuthed(false); return false; }
       const data = await res.json();
       setBuildings(data.buildings || []);
+      setBoardErrors(data.boardErrors || []);
       setAuthed(true);
       setAuthError("");
       return true;
@@ -183,7 +185,31 @@ export default function AdminPhotosClient() {
           <span style={{ fontSize: 13, color: "#8B92A5" }}>
             {done} of {buildings.length} active buildings have photos
           </span>
+          <button onClick={() => loadBuildings()} disabled={loading}
+            style={{ marginLeft: "auto", padding: "6px 14px", fontSize: 12, fontWeight: 700,
+                     border: "1px solid #E8EBF0", background: "#fff", borderRadius: 8,
+                     cursor: "pointer", fontFamily: "inherit", color: NAVY }}>
+            {loading ? "Refreshing…" : "Refresh"}
+          </button>
         </div>
+
+        {boardErrors.length > 0 && (
+          <div style={{ background: "#FDEDEC", border: "1px solid #F5B7B1", borderRadius: 10,
+                        padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#922B21" }}>
+            <strong>Some boards failed to load.</strong>
+            {boardErrors.map((e, i) => (
+              <div key={i} style={{ marginTop: 4 }}>{e.city}: {e.error}</div>
+            ))}
+          </div>
+        )}
+
+        {buildings.length === 0 && boardErrors.length === 0 && !loading && (
+          <div style={{ background: "#FEF9E7", border: "1px solid #F7DC6F", borderRadius: 10,
+                        padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#7D6608" }}>
+            No active buildings came back from Monday. Check that boards have
+            items with status “Lease-Up” or “Stabilization”.
+          </div>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 20, alignItems: "start" }}>
 
