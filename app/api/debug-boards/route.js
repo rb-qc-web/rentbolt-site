@@ -89,6 +89,14 @@ export async function GET(request) {
         activeMissingCoordinates: active.length - withCoords.length,
         hasMorePages: Boolean(page?.cursor),
         ms: Date.now() - started,
+        // Name the active buildings with no location — these are live listings
+        // that silently never appear on the map or in search results.
+        missingCoordinateNames: active
+          .filter(i => {
+            const loc = i.column_values?.find(cv => cv.id === board.locationColId)?.text || "";
+            return loc.trim().length === 0;
+          })
+          .map(i => i.name),
         sampleActive: active.slice(0, 5).map(i => i.name),
       };
     } catch (err) {
