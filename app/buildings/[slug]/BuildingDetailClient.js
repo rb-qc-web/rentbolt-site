@@ -220,14 +220,21 @@ export default function BuildingDetailClient({ building }) {
                 {building.isFurnished && <><span>·</span><span>Furnished available</span></>}
               </div>
             </div>
+
+            {/* Price and CTA live above the fold. Price is the most-scanned
+                element on a listing and previously required scrolling past the
+                whole gallery to find. */}
             <div className="bd-hero-right">
-              <div className="bd-verified">
-                <Bolt />
-                <div>
-                  <strong>RentBolt Verified</strong>
-                  <span>Our agents have personally visited this building and can arrange a tour.</span>
+              {building.startingPrice > 0 && (
+                <div className="bd-hero-price">
+                  <span className="bd-hero-price-label">From</span>
+                  <span className="bd-hero-price-val">
+                    ${Number(building.startingPrice).toLocaleString()}
+                    <small>/mo</small>
+                  </span>
                 </div>
-              </div>
+              )}
+              <a href="#book" className="bd-hero-cta">Book a visit</a>
             </div>
           </div>
         </div>
@@ -280,6 +287,14 @@ export default function BuildingDetailClient({ building }) {
               <div className="bd-fact">
                 <div className="bd-fact-label">Status</div>
                 <div className="bd-fact-value bd-fact-status">{building.statusText === "Lease-Up" ? "Now leasing" : "Available"}</div>
+              </div>
+            </div>
+
+            <div className="bd-verified">
+              <Bolt />
+              <div>
+                <strong>RentBolt Verified</strong>
+                <span>Our agents have personally visited this building and can arrange a tour.</span>
               </div>
             </div>
 
@@ -384,7 +399,7 @@ export default function BuildingDetailClient({ building }) {
           </div>
 
           {/* RIGHT — sticky lead form */}
-          <aside className="bd-right">
+          <aside className="bd-right" id="book">
             <div className="bd-form-card">
               {!submitted ? (
                 <>
@@ -574,7 +589,7 @@ export default function BuildingDetailClient({ building }) {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 8px;
-          height: 420px;
+          height: 460px;
           border-radius: 16px;
           overflow: hidden;
         }
@@ -764,7 +779,7 @@ export default function BuildingDetailClient({ building }) {
         .bd-hero {
           background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 100%);
           color: white;
-          padding: 28px 32px 40px;
+          padding: 20px 32px 24px;
           position: relative;
           overflow: hidden;
         }
@@ -796,11 +811,60 @@ export default function BuildingDetailClient({ building }) {
           transition: color 0.2s;
         }
         .bd-back:hover { color: var(--gold-bright); }
+        .bd-hero-price {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          line-height: 1.1;
+        }
+        .bd-hero-price-label {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--gold);
+        }
+        .bd-hero-price-val {
+          font-size: 26px;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          margin-top: 2px;
+        }
+        .bd-hero-price-val small {
+          font-size: 13px;
+          font-weight: 600;
+          opacity: 0.7;
+          margin-left: 2px;
+        }
+        .bd-hero-cta {
+          display: inline-flex;
+          align-items: center;
+          background: var(--gold);
+          color: var(--navy-deep);
+          padding: 12px 24px;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 800;
+          text-decoration: none;
+          white-space: nowrap;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+          box-shadow: 0 3px 14px rgba(201,168,76,0.3);
+        }
+        .bd-hero-cta:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(201,168,76,0.4); }
+
         .bd-hero-content {
-          display: grid;
-          grid-template-columns: 1.6fr 1fr;
-          gap: 60px;
-          align-items: end;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          gap: 32px;
+          flex-wrap: wrap;
+        }
+        .bd-hero-left { min-width: 0; }
+        .bd-hero-right {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          flex-shrink: 0;
         }
         .bd-hero-tag {
           display: inline-block;
@@ -841,28 +905,29 @@ export default function BuildingDetailClient({ building }) {
         }
         .bd-hero-meta span { white-space: nowrap; }
 
+        /* Sits on a light background now that it has moved out of the hero. */
         .bd-verified {
           display: flex;
-          gap: 16px;
-          background: rgba(255,255,255,0.06);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 16px;
-          padding: 20px 22px;
+          gap: 14px;
           align-items: flex-start;
+          background: var(--bg-soft);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          padding: 16px 18px;
+          margin-bottom: 28px;
         }
         .bd-verified > svg { flex-shrink: 0; margin-top: 2px; }
         .bd-verified strong {
           display: block;
-          color: var(--gold-bright);
-          font-size: 13px;
-          font-weight: 700;
+          color: var(--navy);
+          font-size: 12px;
+          font-weight: 800;
           letter-spacing: 0.05em;
           text-transform: uppercase;
-          margin-bottom: 6px;
+          margin-bottom: 4px;
         }
         .bd-verified span {
-          color: rgba(255,255,255,0.75);
+          color: var(--text-mute);
           font-size: 13px;
           line-height: 1.5;
         }
@@ -1291,7 +1356,48 @@ export default function BuildingDetailClient({ building }) {
 
         @media (max-width: 768px) {
           .bd-hero { padding: 24px 16px 40px; }
-          .bd-hero-content { grid-template-columns: 1fr; gap: 32px; }
+          .bd-hero-price {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          line-height: 1.1;
+        }
+        .bd-hero-price-label {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: var(--gold);
+        }
+        .bd-hero-price-val {
+          font-size: 26px;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          margin-top: 2px;
+        }
+        .bd-hero-price-val small {
+          font-size: 13px;
+          font-weight: 600;
+          opacity: 0.7;
+          margin-left: 2px;
+        }
+        .bd-hero-cta {
+          display: inline-flex;
+          align-items: center;
+          background: var(--gold);
+          color: var(--navy-deep);
+          padding: 12px 24px;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 800;
+          text-decoration: none;
+          white-space: nowrap;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+          box-shadow: 0 3px 14px rgba(201,168,76,0.3);
+        }
+        .bd-hero-cta:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(201,168,76,0.4); }
+
+        .bd-hero-content { grid-template-columns: 1fr; gap: 32px; }
           .bd-main { padding: 40px 16px 60px; }
           .bd-main-inner { grid-template-columns: 1fr; gap: 32px; }
           .bd-right { position: relative; top: 0; }
