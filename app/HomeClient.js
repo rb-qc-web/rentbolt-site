@@ -106,8 +106,8 @@ export default function HomeClient({ buildings = [], cities = [] }) {
           </div>
           <h1>Find your next<br/><span className="accent">home.</span></h1>
           <p className="rb-hero-desc">
-            Apartments &amp; homes for rent, done better. Powered by real people,
-            RentBolt takes you from browsing to leasing — faster, simpler, and hassle-free.
+            Apartments &amp; homes for rent, done better. RentBolt takes you from
+            browsing to leasing — faster, simpler, and hassle-free.
           </p>
 
           <form className="rb-search" onSubmit={(e) => {
