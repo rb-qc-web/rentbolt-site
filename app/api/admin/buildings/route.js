@@ -14,26 +14,41 @@ export async function GET(request) {
 
   const out = [];
   const boardErrors = [];
+  let skippedInactive = 0;
 
   for (const [key, board] of Object.entries(PHOTO_BOARDS)) {
     let items = [];
     try {
-      // Request ONLY this board's location column — asking for columns that
-      // don't exist on a board can fail the whole query. Subitem columns are
-      // narrowed to the gallery field to keep the query cheap enough for the
-      // largest board (Montreal), which is where complexity limits bite.
-      const data = await mondayCall(`{
-        boards(ids: [${board.id}]) {
-          items_page(limit: 200) {
-            items {
-              id name
-              column_values(ids: ["status2", "${board.locationColId}"]) { id text }
-              subitems { id name column_values(ids: ["${GALLERY_COLUMN_ID}"]) { id text } }
+      // Paginate. Montreal has 500+ items, so a single limit:200 page silently
+      // hid roughly 300 buildings — including any newly added one past the
+      // first page, which looked like the tool "not updating".
+      let cursor = null;
+      let page = 0;
+      do {
+        // Request ONLY this board's location column — asking for columns that
+        // don't exist on a board can fail the whole query. Subitem columns are
+        // narrowed to the gallery field to keep the query cheap enough for the
+        // largest board, where Monday's complexity limits bite.
+        const data = await mondayCall(
+          `query ($cursor: String) {
+            boards(ids: [${board.id}]) {
+              items_page(limit: 100, cursor: $cursor) {
+                cursor
+                items {
+                  id name
+                  column_values(ids: ["status2", "${board.locationColId}"]) { id text }
+                  subitems { id name column_values(ids: ["${GALLERY_COLUMN_ID}"]) { id text } }
+                }
+              }
             }
-          }
-        }
-      }`);
-      items = data?.boards?.[0]?.items_page?.items || [];
+          }`,
+          { cursor }
+        );
+        const pageData = data?.boards?.[0]?.items_page;
+        items = items.concat(pageData?.items || []);
+        cursor = pageData?.cursor || null;
+        page++;
+      } while (cursor && page < 12); // 1200 items per board ceiling
     } catch (err) {
       // Never swallow this. A silent skip here is what made the list empty.
       boardErrors.push({ city: board.city, error: err.message });
@@ -42,7 +57,7 @@ export async function GET(request) {
 
     for (const item of items) {
       const status = item.column_values?.find(cv => cv.id === "status2")?.text || "";
-      if (!ACTIVE.some(s => status.includes(s))) continue;
+      if (!ACTIVE.some(s => status.includes(s))) { skippedInactive++; continue; }
 
       const address = item.column_values?.find(cv => cv.id === board.locationColId)?.text || "";
       const sub = findPhotoSubitem(item);
@@ -81,6 +96,7 @@ export async function GET(request) {
   return Response.json({
     buildings: out,
     total: out.length,
+    skippedInactive,
     boardErrors: boardErrors.length ? boardErrors : undefined,
   });
 }

@@ -32,7 +32,9 @@ const EXPECTED = {
   dropdown_mkvpjqc3:      "Furnished",
 };
 
-export async function GET() {
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const full = searchParams.get("full");          // ?full=ottawa lists every column
   const report = {};
 
   for (const [key, board] of Object.entries(BOARDS)) {
@@ -71,6 +73,9 @@ export async function GET() {
       report[key] = {
         city: board.city,
         totalColumns: cols.length,
+        allColumns: full && (full === key || full === "1")
+          ? cols.map(c => ({ id: c.id, title: c.title, type: c.type }))
+          : undefined,
         missingCount: missing.length,
         missing,
         possibleReplacements: Object.keys(candidates).length ? candidates : undefined,
