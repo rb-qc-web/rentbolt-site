@@ -2,7 +2,8 @@ import { fetchBuildings, fetchCities } from "@/lib/monday";
 import HomeClient from "./HomeClient";
 
 // ISR: revalidate building data every 15 minutes
-export const revalidate = 900;
+// Aligned with the 10-minute data cron.
+export const revalidate = 600;
 
 export default async function HomePage() {
   const buildings = await fetchBuildings();

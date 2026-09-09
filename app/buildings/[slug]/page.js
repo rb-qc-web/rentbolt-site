@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import BuildingDetailClient from "./BuildingDetailClient";
 
 // Render on-demand instead of pre-building all pages (faster build)
-export const revalidate = 900;
+// Aligned with the 10-minute data cron so pricing and status don't go stale.
+export const revalidate = 600;
 export const dynamicParams = true;
 
 // Dynamic metadata for SEO
