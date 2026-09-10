@@ -96,8 +96,51 @@ export default function AdminPhotosClient() {
     });
   }, [buildings, filter, onlyMissing]);
 
+  // Cloudflare Images limits. Checked up front so a doomed file fails with a
+  // clear reason instead of a generic rejection after the round trip.
+  const MAX_BYTES = 10 * 1024 * 1024; // 10MB
+  const UNSUPPORTED = /\.(heic|heif|tiff?|bmp|avif)$/i; // HEIC is the common one (iPhone)
+
+  async function uploadOne(file) {
+    if (file.size > MAX_BYTES) {
+      throw new Error(`Too large (${(file.size / 1024 / 1024).toFixed(1)}MB, max 10MB)`);
+    }
+    if (UNSUPPORTED.test(file.name) || /heic|heif/i.test(file.type)) {
+      throw new Error("Format not supported — save as JPEG first");
+    }
+
+    const r = await api("/api/admin/upload-url", { method: "POST" });
+    if (!r.ok) {
+      const detail = await r.text().catch(() => "");
+      throw new Error(`Could not get an upload URL (${r.status}) ${detail.slice(0, 80)}`);
+    }
+    const { uploadURL, deliveryURL } = await r.json();
+
+    // Straight to Cloudflare — never through Vercel, so file size is a non-issue.
+    const fd = new FormData();
+    fd.append("file", file);
+    const up = await fetch(uploadURL, { method: "POST", body: fd });
+    if (!up.ok) {
+      // Read Cloudflare's actual reason rather than discarding it. Previously
+      // every failure surfaced as a bare "Failed" with nothing to act on.
+      let reason = `HTTP ${up.status}`;
+      try {
+        const body = await up.json();
+        const msg = body?.errors?.map(e => e.message).join("; ");
+        if (msg) reason = msg;
+      } catch {
+        const txt = await up.text().catch(() => "");
+        if (txt) reason = txt.slice(0, 120);
+      }
+      throw new Error(reason);
+    }
+    return deliveryURL;
+  }
+
   async function uploadFiles(fileList) {
-    const files = Array.from(fileList).filter(f => f.type.startsWith("image/"));
+    const files = Array.from(fileList).filter(f =>
+      f.type.startsWith("image/") || UNSUPPORTED.test(f.name)
+    );
     if (!files.length || !selected) return;
     setBusy(true);
 
@@ -106,19 +149,11 @@ export default function AdminPhotosClient() {
       const file = files[i];
       setProgress(`Uploading ${i + 1} of ${files.length} — ${file.name}`);
       try {
-        const r = await api("/api/admin/upload-url", { method: "POST" });
-        if (!r.ok) throw new Error("Could not get an upload URL");
-        const { uploadURL, deliveryURL } = await r.json();
-
-        // Straight to Cloudflare — never through Vercel, so file size is a non-issue.
-        const fd = new FormData();
-        fd.append("file", file);
-        const up = await fetch(uploadURL, { method: "POST", body: fd });
-        if (!up.ok) throw new Error("Cloudflare rejected the file");
-
-        added.push({ url: deliveryURL, name: file.name, status: "new" });
+        const url = await uploadOne(file);
+        added.push({ url, name: file.name, status: "new" });
       } catch (err) {
-        added.push({ url: null, name: file.name, status: "error", error: err.message });
+        // Keep the File so the tile can offer a retry.
+        added.push({ url: null, name: file.name, status: "error", error: err.message, file });
       }
     }
 
@@ -126,7 +161,23 @@ export default function AdminPhotosClient() {
     setBusy(false);
     setProgress("");
     const failed = added.filter(a => a.status === "error").length;
-    if (failed) setToast({ kind: "error", msg: `${failed} file(s) failed to upload` });
+    if (failed) setToast({ kind: "error", msg: `${failed} of ${files.length} failed — see the red tiles for why` });
+  }
+
+  async function retryOne(index) {
+    const entry = photos[index];
+    if (!entry?.file) return;
+    setBusy(true);
+    setProgress(`Retrying ${entry.name}`);
+    try {
+      const url = await uploadOne(entry.file);
+      setPhotos(p => p.map((x, i) => i === index ? { url, name: x.name, status: "new" } : x));
+    } catch (err) {
+      setPhotos(p => p.map((x, i) => i === index ? { ...x, error: err.message } : x));
+    } finally {
+      setBusy(false);
+      setProgress("");
+    }
   }
 
   function move(i, dir) {
@@ -301,7 +352,26 @@ export default function AdminPhotosClient() {
                         <div key={i} style={{ border: "1px solid #E8EBF0", borderRadius: 10, overflow: "hidden", position: "relative", background: "#F7F8FA" }}>
                           {p.url
                             ? <img src={p.url} alt="" style={{ width: "100%", height: 90, objectFit: "cover", display: "block" }} />
-                            : <div style={{ height: 90, display: "grid", placeItems: "center", fontSize: 11, color: "#C0392B", padding: 6, textAlign: "center" }}>Failed</div>}
+                            : (
+                              <div
+                                title={`${p.name}: ${p.error || "Upload failed"}`}
+                                style={{ height: 90, display: "flex", flexDirection: "column", justifyContent: "center",
+                                         gap: 4, fontSize: 10, color: "#C0392B", padding: "6px 8px", textAlign: "center",
+                                         background: "#FDEDEC", overflow: "hidden" }}>
+                                <strong style={{ fontSize: 11 }}>Failed</strong>
+                                {/* The actual reason, not just "Failed" — a size or
+                                    format problem is fixable, a server error is not. */}
+                                <span style={{ lineHeight: 1.3, wordBreak: "break-word" }}>
+                                  {(p.error || "Unknown error").slice(0, 70)}
+                                </span>
+                                {p.file && (
+                                  <button onClick={() => retryOne(i)} disabled={busy}
+                                    style={{ ...miniBtn, alignSelf: "center", padding: "2px 10px", fontSize: 10 }}>
+                                    Retry
+                                  </button>
+                                )}
+                              </div>
+                            )}
                           {i === 0 && p.url && (
                             <span style={{ position: "absolute", top: 6, left: 6, background: NAVY, color: "#fff", fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 6 }}>COVER</span>
                           )}
