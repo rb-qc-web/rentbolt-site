@@ -1,6 +1,5 @@
 {
   "crons": [
-    { "path": "/api/cron-refresh", "schedule": "*/10 * * * *" },
-    { "path": "/api/cron-photos",  "schedule": "0 * * * *" }
+    { "path": "/api/cron-refresh", "schedule": "*/10 * * * *" }
   ]
 }
