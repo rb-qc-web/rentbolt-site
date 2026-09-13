@@ -207,7 +207,7 @@ export default function FindAPlaceClient() {
       {mobileMenu && (
         <div className="rb-mobile-drawer">
           <a href="/" onClick={() => setMobileMenu(false)}>Home</a>
-          <a href="/landlords" onClick={() => setMobileMenu(false)}>Partnership</a>
+          <a href="/landlords" onClick={() => setMobileMenu(false)}>Property Owners</a>
           <a href="/contact" onClick={() => setMobileMenu(false)}>Contact</a>
         </div>
       )}

@@ -248,7 +248,7 @@ export default function LandlordsPage() {
         <nav style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {[
             { href: "/", label: "Properties" },
-            { href: "/landlords", label: "Partnership" },
+            { href: "/landlords", label: "Property Owners" },
             { href: "/contact", label: "Contact" },
           ].map(l => (
             <a key={l.href} href={l.href} style={{
@@ -268,7 +268,7 @@ export default function LandlordsPage() {
       {mobileMenu && (
         <div className="rb-mobile-drawer">
           <a href="/" onClick={() => setMobileMenu(false)}>Properties</a>
-          <a href="/landlords" onClick={() => setMobileMenu(false)}>Partnership</a>
+          <a href="/landlords" onClick={() => setMobileMenu(false)}>Property Owners</a>
           <a href="/contact" onClick={() => setMobileMenu(false)}>Contact</a>
           <a href="/find-a-place" className="rb-mobile-cta">Find a Place →</a>
         </div>
@@ -529,7 +529,7 @@ export default function LandlordsPage() {
               <h4 style={{ fontSize: 11, fontWeight: 700, color: gold, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 16 }}>Company</h4>
               {[
                 { href: "/", label: "Find a Home" },
-                { href: "/landlords", label: "Partnership" },
+                { href: "/landlords", label: "Property Owners" },
                 { href: "/contact", label: "Contact" },
               ].map(l => (
                 <a key={l.href} href={l.href} style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", textDecoration: "none", marginBottom: 10 }}>{l.label}</a>

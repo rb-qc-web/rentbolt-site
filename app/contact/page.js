@@ -84,7 +84,7 @@ export default function ContactPage() {
         <nav style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {[
             { href: "/", label: "Properties" },
-            { href: "/landlords", label: "Partnership" },
+            { href: "/landlords", label: "Property Owners" },
             { href: "/contact", label: "Contact" },
           ].map(l => (
             <a key={l.href} href={l.href} style={{

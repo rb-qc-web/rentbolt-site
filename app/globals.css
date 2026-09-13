@@ -83,34 +83,16 @@ button { font-family: inherit; cursor: pointer; }
 
 /* HERO */
 .rb-hero {
-  min-height: 100vh;
-  background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 50%, var(--navy-soft) 100%);
+  min-height: 76vh;
+  background: var(--navy);
   color: var(--white);
   display: flex; align-items: center;
-  padding: 120px 48px 80px;
+  padding: 108px 48px 64px;
   position: relative;
   overflow: hidden;
 }
-.rb-hero::before {
-  content: '';
-  position: absolute;
-  top: 20%; right: -10%;
-  width: 700px; height: 700px;
-  background: radial-gradient(circle, rgba(201,168,76,0.18) 0%, transparent 60%);
-  border-radius: 50%;
-  animation: rb-float 20s ease-in-out infinite;
-  pointer-events: none;
-}
-.rb-hero::after {
-  content: '';
-  position: absolute;
-  bottom: -20%; left: -10%;
-  width: 500px; height: 500px;
-  background: radial-gradient(circle, rgba(26,50,120,0.4) 0%, transparent 70%);
-  border-radius: 50%;
-  animation: rb-float 25s ease-in-out infinite reverse;
-  pointer-events: none;
-}
+.rb-hero::before { content: none; }
+.rb-hero::after { content: none; }
 @keyframes rb-float {
   0%, 100% { transform: translate(0, 0); }
   50% { transform: translate(-50px, 30px); }
@@ -136,11 +118,19 @@ button { font-family: inherit; cursor: pointer; }
     margin: 0 0 0 auto;
     padding-right: 56px;
   }
+  /* Search bar runs past the navy panel and over the photo — the detail that
+     makes the split read as designed rather than merely divided. */
+  .rb-hero-split .rb-search {
+    max-width: none;
+    width: calc(100% + 340px);
+    position: relative;
+    z-index: 3;
+  }
   .rb-hero-photo {
     position: relative;
     align-self: stretch;
     overflow: hidden;
-    background: var(--navy-deep);
+    background: var(--navy);
   }
   .rb-hero-photo img {
     position: absolute;
@@ -176,7 +166,7 @@ button { font-family: inherit; cursor: pointer; }
   font-size: 13px;
   font-weight: 500;
   color: var(--gold-bright);
-  margin-bottom: 32px;
+  margin-bottom: 26px;
   backdrop-filter: blur(10px);
 }
 .rb-hero-badge .dot {
@@ -190,7 +180,7 @@ button { font-family: inherit; cursor: pointer; }
   50% { opacity: 0.5; transform: scale(1.3); }
 }
 .rb-hero h1 {
-  font-size: clamp(48px, 7vw, 96px);
+  font-size: clamp(38px, 4.8vw, 66px);
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.04em;
@@ -214,30 +204,28 @@ button { font-family: inherit; cursor: pointer; }
 /* SEARCH CARD */
 .rb-search {
   background: var(--white);
-  border-radius: 20px;
-  padding: 8px;
+  border-radius: 12px;
+  padding: 6px 6px 6px 4px;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px;
-  max-width: 680px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  max-width: 860px;
+  box-shadow: 0 6px 22px rgba(10,31,92,0.14);
   align-items: center;
 }
 .rb-search-field {
-  padding: 18px 22px;
-  border-radius: 14px;
+  padding: 10px 20px;
+  border-radius: 8px;
   transition: background 0.2s;
   cursor: pointer;
 }
 .rb-search-field:hover { background: var(--bg-soft); }
 .rb-search-field label {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-mute);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 1px;
 }
 .rb-search-field select {
   width: 100%;
@@ -252,21 +240,83 @@ button { font-family: inherit; cursor: pointer; }
   appearance: none;
 }
 .rb-search-btn {
-  background: var(--navy);
-  color: var(--white);
+  background: var(--gold);
+  color: var(--navy-deep);
   border: none;
-  width: 60px; height: 60px;
-  border-radius: 14px;
+  height: 48px;
+  padding: 0 32px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
   transition: all 0.2s;
 }
 .rb-search-btn:hover {
-  background: var(--gold);
-  color: var(--navy);
-  transform: scale(1.05);
+  background: var(--gold-bright);
+  transform: translateY(-1px);
+}
+
+/* KEY FIGURES — horizontal band beneath the hero, in place of the old
+   in-hero stats row. Keeps the navy block compact. */
+.rb-figures {
+  background: var(--navy);
+  border-bottom: none;
+}
+.rb-figures-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 18px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.rb-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  position: relative;
+  flex: 1;
+  justify-content: center;
+}
+.rb-figure + .rb-figure::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 26px;
+  background: var(--border);
+}
+.rb-figure {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+.rb-figure .num {
+  font-size: 27px;
+  font-weight: 800;
+  color: var(--gold-bright);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.rb-figure .label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.62);
+  font-weight: 500;
+}
+.rb-figure + .rb-figure::before { background: rgba(255,255,255,0.14); height: 32px; }
+@media (max-width: 968px) {
+  .rb-figures-inner { padding: 16px 16px; gap: 14px; }
+  .rb-figure { flex: 0 0 45%; justify-content: flex-start; }
+  .rb-figure + .rb-figure::before { display: none; }
+  .rb-figure .num { font-size: 21px; }
+  .rb-figure .label { font-size: 13px; }
 }
 
 /* HERO STATS */
@@ -293,7 +343,7 @@ button { font-family: inherit; cursor: pointer; }
 /* TRUST STRIP */
 .rb-trust {
   background: var(--white);
-  padding: 32px 48px;
+  padding: 22px 48px;
   border-bottom: 1px solid var(--border);
 }
 .rb-trust-inner {
@@ -301,9 +351,42 @@ button { font-family: inherit; cursor: pointer; }
   margin: 0 auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 48px;
+  justify-content: space-around;
+  gap: 32px;
   flex-wrap: wrap;
+}
+.rb-tpoint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  flex: 1;
+  justify-content: center;
+  color: var(--navy);
+}
+.rb-tpoint + .rb-tpoint::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 30px;
+  background: var(--border);
+}
+.rb-tpoint svg { width: 21px; height: 21px; flex-shrink: 0; color: var(--gold); }
+.rb-tpoint span {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--navy);
+  line-height: 1.3;
+}
+@media (max-width: 768px) {
+  .rb-tpoint { flex: 0 0 100%; justify-content: flex-start; }
+  .rb-tpoint + .rb-tpoint::before { display: none; }
+  .rb-tpoint span { font-size: 11px; }
 }
 .rb-trust-label {
   font-size: 13px;
@@ -328,7 +411,7 @@ button { font-family: inherit; cursor: pointer; }
 .rb-trust-logo:hover { color: var(--navy); opacity: 1; }
 
 /* SECTIONS */
-.rb-section { padding: 100px 48px; }
+.rb-section { padding: 72px 48px; }
 .rb-container { max-width: 1320px; margin: 0 auto; }
 .rb-tag {
   display: inline-flex;
@@ -342,10 +425,10 @@ button { font-family: inherit; cursor: pointer; }
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 .rb-shead {
-  margin-bottom: 64px;
+  margin-bottom: 44px;
   max-width: 720px;
 }
 .rb-shead.center {
@@ -354,16 +437,16 @@ button { font-family: inherit; cursor: pointer; }
   margin-right: auto;
 }
 .rb-shead h2 {
-  font-size: clamp(36px, 4.5vw, 56px);
+  font-size: clamp(30px, 3.2vw, 42px);
   font-weight: 800;
   letter-spacing: -0.03em;
-  line-height: 1.05;
-  margin-bottom: 16px;
+  line-height: 1.1;
+  margin-bottom: 14px;
   color: var(--text);
 }
 .rb-shead h2 .accent { color: var(--gold); }
 .rb-shead p {
-  font-size: 18px;
+  font-size: 16px;
   color: var(--text-mute);
   line-height: 1.6;
 }
@@ -377,7 +460,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 .rb-step {
   background: var(--white);
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 36px 28px;
   transition: all 0.4s cubic-bezier(.16,1,.3,1);
   border: 1px solid var(--border);
@@ -395,25 +478,25 @@ button { font-family: inherit; cursor: pointer; }
 }
 .rb-step:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 50px rgba(10,31,92,0.1);
+  box-shadow: 0 4px 16px rgba(10,31,92,0.07);
   border-color: var(--gold);
 }
 .rb-step:hover::before { transform: translateX(0); }
 .rb-step-icon {
-  width: 56px; height: 56px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--gold-soft), var(--white));
-  border: 1px solid var(--gold-soft);
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  border: none;
+  color: var(--navy);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
   margin-bottom: 20px;
   transition: all 0.3s;
 }
 .rb-step:hover .rb-step-icon {
   background: var(--gold);
-  transform: rotate(-8deg) scale(1.1);
+  color: var(--navy-deep);
 }
 .rb-step-num {
   font-size: 12px;
@@ -423,7 +506,7 @@ button { font-family: inherit; cursor: pointer; }
   margin-bottom: 8px;
 }
 .rb-step h3 {
-  font-size: 22px;
+  font-size: 19px;
   font-weight: 700;
   margin-bottom: 8px;
   letter-spacing: -0.02em;
@@ -459,10 +542,10 @@ button { font-family: inherit; cursor: pointer; }
 .rb-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 14px;
 }
 .rb-pcard {
-  border-radius: 20px;
+  border-radius: 12px;
   overflow: hidden;
   background: var(--white);
   transition: all 0.4s cubic-bezier(.16,1,.3,1);
@@ -472,7 +555,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 .rb-pcard:hover {
   transform: translateY(-8px);
-  box-shadow: 0 24px 60px rgba(10,31,92,0.12);
+  box-shadow: 0 4px 16px rgba(10,31,92,0.07);
   border-color: var(--gold);
 }
 .rb-pimg {
@@ -594,7 +677,7 @@ button { font-family: inherit; cursor: pointer; }
   height: 540px;
 }
 .rb-city {
-  border-radius: 20px;
+  border-radius: 12px;
   overflow: hidden;
   position: relative;
   background: var(--navy);
@@ -651,17 +734,17 @@ button { font-family: inherit; cursor: pointer; }
 .rb-linner {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
-  gap: 80px;
+  gap: 56px;
   align-items: center;
   position: relative;
   z-index: 2;
 }
 .rb-lcontent h2 {
-  font-size: clamp(36px, 5vw, 64px);
+  font-size: clamp(30px, 3.2vw, 42px);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.02;
-  margin: 16px 0 24px;
+  margin: 14px 0 20px;
 }
 .rb-lcontent h2 .accent {
   background: linear-gradient(135deg, var(--gold-bright), var(--gold));
@@ -670,7 +753,7 @@ button { font-family: inherit; cursor: pointer; }
   background-clip: text;
 }
 .rb-lcontent p {
-  font-size: 18px;
+  font-size: 16px;
   color: rgba(255,255,255,0.75);
   margin-bottom: 32px;
   max-width: 560px;
@@ -687,22 +770,22 @@ button { font-family: inherit; cursor: pointer; }
   font-weight: 700;
   font-size: 15px;
   transition: all 0.3s cubic-bezier(.16,1,.3,1);
-  box-shadow: 0 8px 24px rgba(201,168,76,0.3);
+  box-shadow: 0 3px 12px rgba(201,168,76,0.25);
 }
 .rb-btn-pri:hover {
   background: var(--gold-bright);
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(201,168,76,0.45);
+  box-shadow: 0 6px 18px rgba(201,168,76,0.32);
 }
 .rb-lstats {
   display: grid;
   gap: 20px;
 }
 .rb-lcard {
-  padding: 28px;
+  padding: 22px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 16px;
+  border-radius: 12px;
   backdrop-filter: blur(10px);
   transition: all 0.3s;
 }
@@ -711,7 +794,7 @@ button { font-family: inherit; cursor: pointer; }
   border-color: var(--gold);
 }
 .rb-lcard .num {
-  font-size: 40px;
+  font-size: 29px;
   font-weight: 800;
   color: var(--gold-bright);
   letter-spacing: -0.03em;
@@ -823,7 +906,7 @@ button { font-family: inherit; cursor: pointer; }
   left: 0; right: 0;
   background: #fff;
   border-bottom: 1px solid var(--border);
-  box-shadow: 0 8px 32px rgba(10,31,92,0.12);
+  box-shadow: 0 4px 16px rgba(10,31,92,0.07);
   z-index: 99;
   display: flex;
   flex-direction: column;
@@ -878,4 +961,86 @@ button { font-family: inherit; cursor: pointer; }
   .rb-steps { grid-template-columns: 1fr; }
   .rb-fgrid { grid-template-columns: 1fr; gap: 40px; }
   .rb-fbottom { flex-direction: column; gap: 16px; text-align: center; }
+}
+
+
+/* Step icon glyph sizing — kept in one place so it can't drift from the
+   trust bar icons, which use the same visual language. */
+.rb-step-icon svg { width: 22px; height: 22px; stroke-width: 1.8; }
+
+
+/* ── EXPANDING STEP CARDS ──────────────────────────────────────────────
+   Clicking a step slides a navy panel up over the card. Overlay rather than
+   expand-in-place, so opening one card never changes the row height and
+   shifts the others. */
+.rb-step {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+  min-height: 290px;
+  display: block;
+}
+.rb-step-face {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100%;
+  transition: opacity 0.25s ease;
+}
+.rb-step.open .rb-step-face { opacity: 0; }
+
+.rb-step-more {
+  display: inline-block;
+  margin-top: auto;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--gold-dark, #A8892F);
+}
+.rb-step:hover .rb-step-more { color: var(--navy); }
+
+.rb-step-panel {
+  position: absolute;
+  inset: 0;
+  background: var(--navy);
+  color: var(--white);
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  transform: translateX(100%);
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.rb-step.open .rb-step-panel { transform: translateX(0); }
+
+.rb-step-panel-num {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-bright);
+}
+.rb-step-detail {
+  font-size: 14.5px;
+  line-height: 1.62;
+  color: rgba(255,255,255,0.88);
+}
+.rb-step-close {
+  margin-top: auto;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+}
+
+/* Respect users who have asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  .rb-step-panel { transition: none; }
+  .rb-step-face { transition: none; }
 }

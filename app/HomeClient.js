@@ -18,11 +18,29 @@ function Bolt() {
   );
 }
 
+// Line icons, consistent 1.6 stroke. Emoji were rendering differently per OS
+// and read as placeholders rather than designed iconography.
+const ICONS = {
+  search: <path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.35-4.35" />,
+  eye: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" /></>,
+  doc: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6" /><path d="M9 15h6" /></>,
+  key: <><circle cx="7.5" cy="15.5" r="4.5" /><path d="M10.7 12.3 21 2" /><path d="m17 6 3 3" /></>,
+};
+
+function StepIcon({ name }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      {ICONS[name]}
+    </svg>
+  );
+}
+
 const STEPS = [
-  { icon: "🔍", num: "STEP 01", title: "Search", desc: "Browse thousands of partner apartments across 5 Canadian cities." },
-  { icon: "👀", num: "STEP 02", title: "Visit", desc: "Book a tour with a leasing consultant — virtually or in-person, your choice." },
-  { icon: "📝", num: "STEP 03", title: "Apply", desc: "Apply in minutes from anywhere. Quick background check, fast decision." },
-  { icon: "🔑", num: "STEP 04", title: "Move in", desc: "Sign your lease, get your keys, settle into your new home." },
+  { icon: "search", detail: "Unlike a traditional listing platform, RentBolt visits and onboards every property in person. Every listing is vetted and verified before you see it.", title: "Find your fit", desc: "Search by city through thousands of partner apartments for what matters most to you." },
+  { icon: "eye", detail: "Local rental experts join RentBolt to help you find your next place to call home. We personally vet, onboard and certify each advisor, so you have someone you can count on from start to finish.", title: "Visit", desc: "Get a tour from a real local expert who knows the market." },
+  { icon: "doc", detail: "Online applications, done better. Before submitting your file, we help you understand your chances of approval and strengthen your application for the property you want.", title: "Apply", desc: "Apply in minutes from anywhere. Quick background check, fast decision." },
+  { icon: "key", detail: "You’re all set! Your property manager takes it from here, but we’re still here if there’s anything we can help you with.", title: "Move in", desc: "Sign your lease, get your keys, settle into your new home." },
 ];
 
 const CITY_FILTERS = ["All cities", "Montreal", "Toronto", "Ottawa", "London", "Kitchener-Waterloo"];
@@ -40,6 +58,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
   const [activeCity, setActiveCity] = useState("All cities");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [openStep, setOpenStep] = useState(null);
   // Brand hero image. Deliberately a styled lifestyle shot rather than a real
   // listing — it sets the tone, it is not presented as a specific unit.
   const heroPhotos = ["/hero-apartment.jpg"];
@@ -78,7 +97,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
         <nav className="rb-nav">
           <a href="#properties">Properties</a>
           <a href="#how">How it works</a>
-          <a href="/landlords">Partnership</a>
+          <a href="/landlords">Property Owners</a>
           <a href="/contact">Contact</a>
           <a href="/find-a-place" className="rb-nav-cta">Start Search</a>
         </nav>
@@ -94,7 +113,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
         <div className="rb-mobile-drawer">
           <a href="#properties" onClick={() => setMobileMenu(false)}>Properties</a>
           <a href="#how" onClick={() => setMobileMenu(false)}>How it works</a>
-          <a href="/landlords" onClick={() => setMobileMenu(false)}>Partnership</a>
+          <a href="/landlords" onClick={() => setMobileMenu(false)}>Property Owners</a>
           <a href="/contact" onClick={() => setMobileMenu(false)}>Contact</a>
           <a href="/find-a-place" className="rb-mobile-cta">Start Search →</a>
         </div>
@@ -107,10 +126,10 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             <span className="dot"></span>
             9,000+ apartments across Canada
           </div>
-          <h1>Find your next<br/><span className="accent">home.</span></h1>
+          <h1>Find a place &amp;<br/><span className="accent">call it yours.</span></h1>
           <p className="rb-hero-desc">
-            Apartments &amp; homes for rent, done better. RentBolt takes you from
-            browsing to leasing — faster, simpler, and hassle-free.
+            Thousands of apartments, rooms and homes for rent. Find what you&apos;re
+            looking for, with real human experts guiding you every step.
           </p>
 
           <form className="rb-search" onSubmit={(e) => {
@@ -118,8 +137,8 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             const city = e.target.city.value;
             window.location.href = city ? `/search?city=${encodeURIComponent(city)}` : "/search";
           }}>
-            <div className="rb-search-field" style={{flex: 1}}>
-              <label>📍 City</label>
+            <div className="rb-search-field">
+              <label>City</label>
               <select name="city">
                 <option value="">All cities</option>
                 <option value="Montreal">Montreal</option>
@@ -131,7 +150,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
                 <option value="Gatineau">Gatineau</option>
               </select>
             </div>
-            <button className="rb-search-btn" type="submit" aria-label="Search">→</button>
+            <button className="rb-search-btn" type="submit">Start search</button>
           </form>
           <p style={{marginTop: "16px", fontSize: "14px", color: "rgba(255,255,255,0.55)"}}>
             Not sure where yet?{" "}
@@ -140,24 +159,6 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             </a>
           </p>
 
-          <div className="rb-hero-stats">
-            <div className="rb-stat">
-              <div className="num">9,000+</div>
-              <div className="label">Active listings</div>
-            </div>
-            <div className="rb-stat">
-              <div className="num">5</div>
-              <div className="label">Major cities</div>
-            </div>
-            <div className="rb-stat">
-              <div className="num">80+</div>
-              <div className="label">Leasing advisors</div>
-            </div>
-            <div className="rb-stat">
-              <div className="num">4.8 ⭐</div>
-              <div className="label">Google reviews</div>
-            </div>
-          </div>
         </div>
 
         {/* Photo panel. Desktop only — mobile keeps the original single-column
@@ -169,15 +170,50 @@ export default function HomeClient({ buildings = [], cities = [] }) {
         )}
       </section>
 
-      {/* TRUST */}
+      {/* KEY FIGURES — moved out of the hero so the navy block stays compact */}
+      <div className="rb-figures">
+        <div className="rb-figures-inner">
+          <div className="rb-figure">
+            <div className="num">9,000+</div>
+            <div className="label">Active listings</div>
+          </div>
+          <div className="rb-figure">
+            <div className="num">5</div>
+            <div className="label">Major cities</div>
+          </div>
+          <div className="rb-figure">
+            <div className="num">80+</div>
+            <div className="label">Leasing advisors</div>
+          </div>
+          <div className="rb-figure">
+            <div className="num">4.8 ⭐</div>
+            <div className="label">Google reviews</div>
+          </div>
+        </div>
+      </div>
+
+      {/* TRUST — what we actually do, rather than press mentions */}
       <div className="rb-trust">
         <div className="rb-trust-inner">
-          <div className="rb-trust-label">As featured in</div>
-          <div className="rb-trust-logos">
-            <div className="rb-trust-logo">Radio-Canada</div>
-            <div className="rb-trust-logo">HEC Montréal</div>
-            <div className="rb-trust-logo">Immigrant Québec</div>
-            <div className="rb-trust-logo">Je Choisis Montréal</div>
+          <div className="rb-tpoint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <span>Real local leasing advisors</span>
+          </div>
+          <div className="rb-tpoint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="m9 12.5 2 2 4-4"/>
+            </svg>
+            <span>Professionally vetted listings</span>
+          </div>
+          <div className="rb-tpoint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>
+              <path d="M8 13h8"/><path d="M8 17h5"/>
+            </svg>
+            <span>From inquiry to moving day</span>
           </div>
         </div>
       </div>
@@ -187,16 +223,28 @@ export default function HomeClient({ buildings = [], cities = [] }) {
         <div className="rb-container">
           <div className="rb-shead">
             <span className="rb-tag">🏡 The RentBolt Way</span>
-            <h2>From search to <span className="accent">moving day.</span></h2>
+            <h2>A better way to <span className="accent">rent.</span></h2>
           </div>
           <div className="rb-steps">
             {STEPS.map((step, i) => (
-              <div key={i} className="rb-step">
-                <div className="rb-step-icon">{step.icon}</div>
-                <div className="rb-step-num">{step.num}</div>
-                <h3>{step.title}</h3>
-                <p>{step.desc}</p>
-              </div>
+              <button
+                key={i}
+                type="button"
+                className={`rb-step${openStep === i ? " open" : ""}`}
+                onClick={() => setOpenStep(openStep === i ? null : i)}
+                aria-expanded={openStep === i}
+              >
+                <span className="rb-step-face">
+                  <span className="rb-step-icon"><StepIcon name={step.icon} /></span>
+                  <h3>{step.title}</h3>
+                  <p>{step.desc}</p>
+                  <span className="rb-step-more">Learn more <span aria-hidden="true">+</span></span>
+                </span>
+                <span className="rb-step-panel">
+                  <span className="rb-step-detail">{step.detail}</span>
+                  <span className="rb-step-close" aria-hidden="true">Close &times;</span>
+                </span>
+              </button>
             ))}
           </div>
         </div>
@@ -207,8 +255,8 @@ export default function HomeClient({ buildings = [], cities = [] }) {
         <div className="rb-container">
           <div className="rb-shead">
             <span className="rb-tag">🔥 Latest Properties</span>
-            <h2>Apartments available <span className="accent">right now.</span></h2>
-            <p>Hand-picked from our portfolio of professionally-managed buildings.</p>
+            <h2>Latest gems <span className="accent">for rent.</span></h2>
+            <p>Places that you can visit in the next 24 hours.</p>
           </div>
 
           <div className="rb-pills">
@@ -274,9 +322,9 @@ export default function HomeClient({ buildings = [], cities = [] }) {
       <section className="rb-section rb-cities rb-reveal" id="cities">
         <div className="rb-container">
           <div className="rb-shead center">
-            <span className="rb-tag">🇨🇦 Where we operate</span>
+            <span className="rb-tag">🇨🇦 Pick your market</span>
             <h2>Browse by <span className="accent">city.</span></h2>
-            <p>Active in 5 major Canadian markets, with thousands of units under mandate.</p>
+            <p>Thousands of verified listings across major Canadian markets.</p>
           </div>
           <div className="rb-cgrid">
             {["Montreal", "Ottawa", "Toronto", "London", "Kitchener-Waterloo"].map(city => (
@@ -299,7 +347,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             <div className="rb-lcontent">
               <span className="rb-tag" style={{ background: "rgba(201,168,76,0.15)", color: "var(--gold-bright)" }}>⚡ For property owners</span>
               <h2>Vacancies to fill?<br/>Lease them <span className="accent">faster.</span></h2>
-              <p>We partner with hundreds of quality landlords, property managers and developers to fill vacancies faster, and better. No upfront fees. We only get paid when we deliver tenants.</p>
+              <p>We partner with hundreds of quality property owners, managers, and developers like you to maximize occupancy and fill vacancies faster, and better. No upfront fees. We only get paid when you win.</p>
               <a href="/landlords" className="rb-btn-pri">Discover the Bolt Way →</a>
             </div>
             <div className="rb-lstats">
@@ -342,7 +390,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             </ul>
           </div>
           <div className="rb-fcol">
-            <h4>Partnership</h4>
+            <h4>Property Owners</h4>
             <ul>
               <li><a href="/landlords">Our services</a></li>
               <li><a href="https://calendly.com/rentwithbolt/discoverycall">Discovery call</a></li>
