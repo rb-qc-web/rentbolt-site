@@ -181,9 +181,9 @@ button { font-family: inherit; cursor: pointer; }
 }
 .rb-hero h1 {
   font-size: clamp(38px, 4.8vw, 66px);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.02;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
   margin-bottom: 24px;
   max-width: 900px;
 }
@@ -300,7 +300,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 .rb-figure .num {
   font-size: 27px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--gold-bright);
   line-height: 1;
   letter-spacing: -0.02em;
@@ -328,10 +328,10 @@ button { font-family: inherit; cursor: pointer; }
 }
 .rb-stat .num {
   font-size: 36px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--gold-bright);
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
 }
 .rb-stat .label {
   font-size: 13px;
@@ -438,8 +438,8 @@ button { font-family: inherit; cursor: pointer; }
 }
 .rb-shead h2 {
   font-size: clamp(30px, 3.2vw, 42px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.1;
   margin-bottom: 14px;
   color: var(--text);
@@ -741,8 +741,8 @@ button { font-family: inherit; cursor: pointer; }
 }
 .rb-lcontent h2 {
   font-size: clamp(30px, 3.2vw, 42px);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   line-height: 1.02;
   margin: 14px 0 20px;
 }
@@ -795,9 +795,9 @@ button { font-family: inherit; cursor: pointer; }
 }
 .rb-lcard .num {
   font-size: 29px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--gold-bright);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1;
   margin-bottom: 6px;
 }
