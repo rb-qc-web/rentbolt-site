@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getBuildingPhoto, CITY_PHOTOS as CITY_PHOTO_MAP } from "@/lib/cityPhotos";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 
@@ -40,6 +40,25 @@ export default function HomeClient({ buildings = [], cities = [] }) {
   const [activeCity, setActiveCity] = useState("All cities");
   const [modalOpen, setModalOpen] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [heroShot, setHeroShot] = useState(0);
+
+  // Hero photos come from buildings that actually have uploaded galleries, so
+  // the hero can't point at a dead URL and improves as the VA adds photos.
+  const heroPhotos = useMemo(() => {
+    const out = [];
+    for (const b of buildings) {
+      const first = b.photoGallery?.[0];
+      if (first && first.includes("imagedelivery.net") && !out.includes(first)) out.push(first);
+      if (out.length >= 5) break;
+    }
+    return out;
+  }, [buildings]);
+
+  useEffect(() => {
+    if (heroPhotos.length < 2) return;
+    const t = setInterval(() => setHeroShot(i => (i + 1) % heroPhotos.length), 6000);
+    return () => clearInterval(t);
+  }, [heroPhotos.length]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -98,7 +117,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
       )}
 
       {/* HERO */}
-      <section className="rb-hero">
+      <section className={`rb-hero${heroPhotos.length ? " rb-hero-split" : ""}`}>
         <div className="rb-hero-container">
           <div className="rb-hero-badge">
             <span className="dot"></span>
@@ -156,6 +175,21 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             </div>
           </div>
         </div>
+
+        {/* Photo panel. Desktop only — mobile keeps the original single-column
+            hero, since the empty right side was a desktop-only problem. */}
+        {heroPhotos.length > 0 && (
+          <div className="rb-hero-photo" aria-hidden="true">
+            {heroPhotos.map((src, i) => (
+              <img
+                key={src}
+                src={src}
+                alt=""
+                className={i === heroShot ? "on" : ""}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* TRUST */}

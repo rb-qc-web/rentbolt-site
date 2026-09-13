@@ -120,6 +120,51 @@ button { font-family: inherit; cursor: pointer; }
   margin: 0 auto;
   position: relative; z-index: 2;
 }
+
+/* Split hero: existing content on the left, photo panel filling the right.
+   Only applied when real building photos exist — otherwise the hero renders
+   exactly as before. Desktop only; mobile keeps the original layout. */
+@media (min-width: 969px) {
+  .rb-hero-split {
+    display: grid;
+    grid-template-columns: 1fr 46%;
+    align-items: center;
+    padding-right: 0;
+  }
+  .rb-hero-split .rb-hero-container {
+    max-width: 720px;
+    margin: 0 0 0 auto;
+    padding-right: 56px;
+  }
+  .rb-hero-photo {
+    position: relative;
+    align-self: stretch;
+    overflow: hidden;
+    background: var(--navy-deep);
+  }
+  .rb-hero-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .rb-hero-photo img.on { opacity: 1; }
+  /* Soft seam so the photo meets the navy without a hard cut. */
+  .rb-hero-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 120px;
+    background: linear-gradient(90deg, var(--navy) 0%, transparent 100%);
+    pointer-events: none;
+  }
+}
+@media (max-width: 968px) {
+  .rb-hero-photo { display: none; }
+}
 .rb-hero-badge {
   display: inline-flex;
   align-items: center;
