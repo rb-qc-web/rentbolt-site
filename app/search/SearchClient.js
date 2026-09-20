@@ -54,6 +54,7 @@ export default function SearchClient({ buildings, totalCount }) {
     return param || "All cities";
   });
   const [bed, setBed] = useState(-1);
+  const [hood, setHood] = useState("All neighbourhoods");
   const [search, setSearch] = useState("");
   const [activeId, setActiveId] = useState(null);
   const [hoverId, setHoverId] = useState(null);
@@ -71,9 +72,27 @@ export default function SearchClient({ buildings, totalCount }) {
   const lastFitKeyRef = useRef(null);
 
   // Filter buildings
+  const hoodOptions = useMemo(() => {
+    if (city === "All cities") return [];
+    const counts = {};
+    for (const b of buildings) {
+      if (b.city !== city) continue;
+      const n = b.neighbourhood;
+      if (n) counts[n] = (counts[n] || 0) + 1;
+    }
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([name, count]) => ({ name, count }));
+  }, [buildings, city]);
+
+  // Reset the neighbourhood whenever the city changes, or it would filter
+  // against a borough that doesn't exist in the new city.
+  useEffect(() => { setHood("All neighbourhoods"); }, [city]);
+
   const filtered = useMemo(() => {
     return buildings.filter(b => {
       if (city !== "All cities" && b.city !== city) return false;
+      if (hood !== "All neighbourhoods" && b.neighbourhood !== hood) return false;
       if (bed >= 0) {
         if (bed === 3) {
           if (!b.bedrooms?.some(x => x >= 3)) return false;
@@ -88,7 +107,7 @@ export default function SearchClient({ buildings, totalCount }) {
       }
       return true;
     });
-  }, [buildings, city, bed, search]);
+  }, [buildings, city, hood, bed, search]);
 
   // INIT MAP (once)
   useEffect(() => {
@@ -290,6 +309,7 @@ export default function SearchClient({ buildings, totalCount }) {
   const resetFilters = () => {
     setCity("All cities");
     setBed(-1);
+    setHood("All neighbourhoods");
     setSearch("");
   };
 
@@ -330,6 +350,26 @@ export default function SearchClient({ buildings, totalCount }) {
               </svg>
             </div>
 
+            {hoodOptions.length > 0 && (
+              <div className="rb-scity-wrap">
+                <select
+                  className="rb-scity rb-shood"
+                  value={hood}
+                  onChange={(e) => setHood(e.target.value)}
+                  aria-label="Filter by neighbourhood"
+                >
+                  <option value="All neighbourhoods">All neighbourhoods</option>
+                  {hoodOptions.map(o => (
+                    <option key={o.name} value={o.name}>{o.name} ({o.count})</option>
+                  ))}
+                </select>
+                <svg className="rb-scity-caret" width="14" height="14" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </div>
+            )}
+
             <div className="rb-sbed-group">
               {BED_FILTERS.map(b => (
                 <button
@@ -349,7 +389,7 @@ export default function SearchClient({ buildings, totalCount }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            {(city !== "All cities" || bed !== -1 || search) && (
+            {(city !== "All cities" || bed !== -1 || search || hood !== "All neighbourhoods") && (
               <button className="rb-sreset" onClick={resetFilters}>Reset</button>
             )}
           </div>
@@ -556,6 +596,14 @@ export default function SearchClient({ buildings, totalCount }) {
           align-items: center;
           flex-wrap: wrap;
         }
+        .rb-shood {
+          background: var(--bg-soft);
+          color: var(--navy);
+          font-weight: 600;
+          max-width: 230px;
+        }
+        .rb-shood + .rb-scity-caret { color: var(--navy); }
+
         .rb-scity-wrap {
           position: relative;
           flex-shrink: 0;
