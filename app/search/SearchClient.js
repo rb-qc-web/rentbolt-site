@@ -402,6 +402,20 @@ export default function SearchClient({ buildings, totalCount }) {
       {/* SPLIT LAYOUT */}
       <div className="rb-ssplit">
         <div className="rb-slist" ref={listRef}>
+          {/* Tells people the heart does something — without it the control is
+              easy to miss and the saved list never gets used. */}
+          {filtered.length > 0 && (
+            <div className="rb-shint">
+              Save the places you like with the
+              <span className="rb-shint-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.7-7.7 1.1-1.1a5.5 5.5 0 0 0 0-7.8z" />
+                </svg>
+              </span>
+              icon — we&apos;ll help you with your shortlist.
+            </div>
+          )}
           {filtered.length === 0 ? (
             <div className="rb-sempty">
               <h3>No buildings match these filters</h3>
@@ -830,6 +844,24 @@ export default function SearchClient({ buildings, totalCount }) {
           background: var(--bg-soft);
           border-radius: 100px;
         }
+
+        .rb-shint {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-wrap: wrap;
+          margin: 14px 12px 4px;
+          padding: 10px 14px;
+          background: var(--bg-soft);
+          border-radius: 8px;
+          font-size: 13px;
+          color: var(--text-mute);
+        }
+        .rb-shint-icon {
+          display: inline-flex;
+          color: #C0392B;
+        }
+        .rb-shint-icon svg { width: 15px; height: 15px; }
 
         .rb-scta {
           margin: 8px 12px 32px;

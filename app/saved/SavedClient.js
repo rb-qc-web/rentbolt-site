@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useFavourites } from "@/lib/useFavourites";
 import FavouriteButton from "@/app/components/FavouriteButton";
 import { getBuildingPhoto } from "@/lib/cityPhotos";
+import { SiteHeader, SiteFooter } from "@/app/components/SiteChrome";
 
 export default function SavedClient({ buildings }) {
   const { ids, ready, clear } = useFavourites();
@@ -42,9 +43,11 @@ export default function SavedClient({ buildings }) {
 
   // Render nothing until localStorage has been read, or the server HTML and
   // the first client render disagree.
-  if (!ready) return <main className="sv-wrap" />;
+  if (!ready) return (<><SiteHeader /><main className="sv-wrap" /><SiteFooter /></>);
 
   return (
+    <>
+    <SiteHeader />
     <main className="sv-wrap">
       <div className="sv-inner">
         <header className="sv-head">
@@ -151,5 +154,7 @@ export default function SavedClient({ buildings }) {
         }
       `}</style>
     </main>
+    <SiteFooter />
+    </>
   );
 }
