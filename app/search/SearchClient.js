@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import FavouriteButton from "@/app/components/FavouriteButton";
+import SavedNavLink from "@/app/components/SavedNavLink";
 import { useSearchParams } from "next/navigation";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 import { getBuildingPhoto } from "@/lib/cityPhotos";
@@ -323,6 +325,7 @@ export default function SearchClient({ buildings, totalCount }) {
         </a>
         <div className="rb-sheader-actions">
           <a href="/" className="rb-sback">← Home</a>
+          <SavedNavLink />
           <a href="/find-a-place" className="rb-snav-cta">Find a Place</a>
         </div>
       </header>
@@ -424,6 +427,7 @@ export default function SearchClient({ buildings, totalCount }) {
                     <img src={getBuildingPhoto(b)} alt={b.name}
                       onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop&q=80"; }} />
                     {b.tag && <div className="rb-scard-tag rb-scard-tag-photo">{b.tag}</div>}
+                    <FavouriteButton id={b.id} />
                   </div>
                   <div className="rb-scard-body">
                     <div className="rb-scard-meta">

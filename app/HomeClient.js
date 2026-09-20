@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SavedNavLink from "@/app/components/SavedNavLink";
 import { getBuildingPhoto, CITY_PHOTOS as CITY_PHOTO_MAP } from "@/lib/cityPhotos";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 
@@ -98,6 +99,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
           <a href="#properties">Properties</a>
           <a href="#how">How it works</a>
           <a href="/landlords">Property Owners</a>
+            <SavedNavLink />
           <a href="/contact">Contact</a>
           <a href="/find-a-place" className="rb-nav-cta">Start Search</a>
         </nav>

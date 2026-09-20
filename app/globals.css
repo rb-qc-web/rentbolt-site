@@ -1044,3 +1044,60 @@ button { font-family: inherit; cursor: pointer; }
   .rb-step-panel { transition: none; }
   .rb-step-face { transition: none; }
 }
+
+/* ── FAVOURITES ───────────────────────────────────────────────────────────
+   Heart control. Sits over card photos and inline in the listing hero. */
+.rb-fav {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.92);
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+  box-shadow: 0 2px 8px rgba(10,31,92,0.18);
+}
+.rb-fav svg { width: 18px; height: 18px; }
+.rb-fav:hover { transform: scale(1.08); }
+.rb-fav.on { background: #fff; color: #C0392B; }
+
+/* In the listing hero the heart sits beside the CTA, not over a photo. */
+.bd-hero-fav {
+  position: static;
+  width: 46px;
+  height: 46px;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  box-shadow: none;
+}
+.bd-hero-fav:hover { background: rgba(255,255,255,0.2); }
+.bd-hero-fav.on { background: #fff; color: #C0392B; }
+
+/* Saved count in the nav */
+.rb-nav-saved {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.rb-nav-saved .count {
+  background: var(--gold);
+  color: var(--navy-deep);
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}

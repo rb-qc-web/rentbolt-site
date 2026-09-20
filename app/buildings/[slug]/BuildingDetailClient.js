@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import FavouriteButton from "@/app/components/FavouriteButton";
+import SavedNavLink from "@/app/components/SavedNavLink";
 import { getBuildingPhoto } from "@/lib/cityPhotos";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 
@@ -187,6 +189,7 @@ export default function BuildingDetailClient({ building }) {
         <nav className="bd-nav">
           <a href="/search">Search</a>
           <a href="/landlords">Property Owners</a>
+            <SavedNavLink />
           <a href="/find-a-place" className="bd-nav-cta">Find a Place</a>
         </nav>
       </header>
@@ -234,6 +237,7 @@ export default function BuildingDetailClient({ building }) {
                   </span>
                 </div>
               )}
+              <FavouriteButton id={building.id} className="bd-hero-fav" />
               <a href="#book" className="bd-hero-cta">Book a visit</a>
             </div>
           </div>
