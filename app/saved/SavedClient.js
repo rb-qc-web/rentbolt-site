@@ -8,7 +8,11 @@ import { SiteHeader, SiteFooter } from "@/app/components/SiteChrome";
 
 export default function SavedClient({ buildings }) {
   const { ids, ready, clear } = useFavourites();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [moveIn, setMoveIn] = useState("");
+  const [flexible, setFlexible] = useState(false);
   const [note, setNote] = useState("");
   const [state, setState] = useState({ status: "idle", msg: "" });
 
@@ -25,7 +29,11 @@ export default function SavedClient({ buildings }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          name,
           email,
+          phone,
+          moveIn: flexible ? "" : moveIn,
+          flexible,
           note,
           buildings: saved.map(b => ({
             id: b.id, name: b.publicName, city: b.city,
@@ -93,20 +101,63 @@ export default function SavedClient({ buildings }) {
                 <div className="sv-done">{state.msg}</div>
               ) : (
                 <form onSubmit={submit} className="sv-form">
-                  <input
-                    type="email" required placeholder="you@email.com"
-                    value={email} onChange={e => setEmail(e.target.value)}
-                    aria-label="Your email"
-                  />
-                  <input
-                    type="text" placeholder="Anything we should know? (optional)"
-                    value={note} onChange={e => setNote(e.target.value)}
-                    aria-label="Optional note"
-                  />
-                  <button type="submit" disabled={state.status === "sending"}>
-                    {state.status === "sending" ? "Sending…" : "Send my list"}
-                  </button>
-                  {state.status === "error" && <div className="sv-err">{state.msg}</div>}
+                  <div className="sv-row">
+                    <label className="sv-field">
+                      <span>Full name</span>
+                      <input
+                        type="text" required placeholder="First and last name"
+                        value={name} onChange={e => setName(e.target.value)}
+                      />
+                    </label>
+                    <label className="sv-field">
+                      <span>Email</span>
+                      <input
+                        type="email" required placeholder="you@email.com"
+                        value={email} onChange={e => setEmail(e.target.value)}
+                      />
+                    </label>
+                    <label className="sv-field">
+                      <span>Phone <em>(optional)</em></span>
+                      <input
+                        type="tel" placeholder="(514) 555-0123"
+                        value={phone} onChange={e => setPhone(e.target.value)}
+                      />
+                    </label>
+                  </div>
+
+                  <div className="sv-row">
+                    <label className="sv-field sv-field-date">
+                      <span>Desired move-in date</span>
+                      <input
+                        type="date" value={moveIn} disabled={flexible}
+                        onChange={e => setMoveIn(e.target.value)}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      className={`sv-flex${flexible ? " on" : ""}`}
+                      onClick={() => setFlexible(f => !f)}
+                      aria-pressed={flexible}
+                    >
+                      <span className="sv-flex-dot" aria-hidden="true" />
+                      I&apos;m flexible
+                    </button>
+                  </div>
+
+                  <label className="sv-field">
+                    <span>Anything we should know? <em>(optional)</em></span>
+                    <textarea
+                      rows={2} placeholder="e.g. I need parking and a quiet building"
+                      value={note} onChange={e => setNote(e.target.value)}
+                    />
+                  </label>
+
+                  <div className="sv-actions">
+                    <button type="submit" disabled={state.status === "sending"}>
+                      {state.status === "sending" ? "Sending…" : "Send my list"}
+                    </button>
+                    {state.status === "error" && <div className="sv-err">{state.msg}</div>}
+                  </div>
                 </form>
               )}
             </section>
@@ -141,11 +192,30 @@ export default function SavedClient({ buildings }) {
         .sv-capture { background: var(--navy); color: #fff; border-radius: 12px; padding: 32px; }
         .sv-capture h2 { font-size: 22px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.015em; }
         .sv-capture p { color: rgba(255,255,255,0.72); font-size: 15px; line-height: 1.6; margin: 0 0 20px; max-width: 560px; }
-        .sv-form { display: flex; gap: 10px; flex-wrap: wrap; }
-        .sv-form input { flex: 1 1 220px; padding: 12px 16px; border: none; border-radius: 8px; font-size: 14px; font-family: inherit; }
-        .sv-form button { background: var(--gold); color: var(--navy-deep); border: none; border-radius: 8px; padding: 12px 28px; font-weight: 700; font-size: 14px; font-family: inherit; white-space: nowrap; }
-        .sv-form button:disabled { opacity: 0.6; }
-        .sv-err { flex: 1 1 100%; color: #F5B7B1; font-size: 13px; }
+        .sv-form { display: flex; flex-direction: column; gap: 14px; }
+        .sv-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+        .sv-field { flex: 1 1 200px; display: flex; flex-direction: column; gap: 6px; }
+        .sv-field > span { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.72); }
+        .sv-field > span em { font-style: normal; color: rgba(255,255,255,0.45); font-weight: 500; }
+        .sv-field input, .sv-field textarea {
+          width: 100%; padding: 12px 14px; border: none; border-radius: 8px;
+          font-size: 14px; font-family: inherit; resize: vertical;
+        }
+        .sv-field input:disabled { opacity: 0.45; }
+        .sv-field-date { flex: 0 1 260px; }
+        .sv-flex {
+          display: inline-flex; align-items: center; gap: 9px;
+          background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.18);
+          border-radius: 8px; padding: 12px 18px; font-size: 13px; font-weight: 600;
+          font-family: inherit; white-space: nowrap; height: 44px;
+        }
+        .sv-flex-dot { width: 15px; height: 15px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.45); transition: all 0.15s; }
+        .sv-flex.on { background: var(--gold); color: var(--navy-deep); border-color: var(--gold); }
+        .sv-flex.on .sv-flex-dot { background: var(--navy-deep); border-color: var(--navy-deep); }
+        .sv-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .sv-form button[type="submit"] { background: var(--gold); color: var(--navy-deep); border: none; border-radius: 8px; padding: 13px 30px; font-weight: 700; font-size: 14px; font-family: inherit; white-space: nowrap; }
+        .sv-form button[type="submit"]:disabled { opacity: 0.6; }
+        .sv-err { color: #F5B7B1; font-size: 13px; }
         .sv-done { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 16px 20px; font-size: 15px; font-weight: 600; }
 
         @media (max-width: 640px) {
