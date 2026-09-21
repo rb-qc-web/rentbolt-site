@@ -137,6 +137,7 @@ Coverage: `/api/photo-status`.
 
 | Route | Answers |
 |---|---|
+| `/api/data-health` | **start here.** Everything missing across every board, ranked by cost. `?names=1` lists the buildings, `?city=X` narrows |
 | `/api/debug-columns` | which expected columns don't exist on which board |
 | `/api/debug-boards` | per-board health; `?heavy=1` uses the production query shape. Also names active listings missing coordinates |
 | `/api/debug-beds?city=X` | parsed bedrooms per building, and how many have no unit data |

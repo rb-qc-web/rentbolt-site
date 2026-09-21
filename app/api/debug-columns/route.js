@@ -60,12 +60,16 @@ export async function GET(request) {
       // Offer likely replacements so fixing a mismatch doesn't require digging.
       const candidates = {};
       for (const { id } of missing) {
+        // Also suggest text columns. The promo field (text3) is missing on
+        // Ottawa, and without this the audit reported it as missing but
+        // offered no candidate replacement.
         const wantedType = id.startsWith("dropdown") ? "dropdown"
           : id.startsWith("location") || id === "location" ? "location"
+          : id.startsWith("text") || id.startsWith("long_text") ? "text"
           : null;
         if (wantedType) {
           candidates[id] = cols
-            .filter(c => c.type === wantedType)
+            .filter(c => c.type === wantedType || (wantedType === "text" && c.type === "long_text"))
             .map(c => ({ id: c.id, title: c.title }));
         }
       }
