@@ -281,7 +281,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             ) : (
               displayBuildings.map(b => {
                 const imgSrc = getBuildingPhoto(b) || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&h=800&fit=crop&q=80';
-                const locDisplay = b.area ? `${b.area} · ${b.city}` : `${b.city}, ${b.region}`;
+                const locDisplay = b.neighbourhood ? `${b.neighbourhood} · ${b.city}` : `${b.city}, ${b.region}`;
                 return (
                   <a key={b.id} href={`/buildings/${b.slug}`} className="rb-pcard" target="_blank" rel="noopener noreferrer">
                     <div className="rb-pimg">

@@ -104,7 +104,7 @@ export default function SearchClient({ buildings, totalCount }) {
       }
       if (search.trim()) {
         const q = search.toLowerCase();
-        const hay = `${b.name} ${b.area} ${b.city} ${b.address}`.toLowerCase();
+        const hay = `${b.name} ${b.neighbourhood} ${b.area} ${b.city} ${b.address}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -445,7 +445,7 @@ export default function SearchClient({ buildings, totalCount }) {
                   </div>
                   <div className="rb-scard-body">
                     <div className="rb-scard-meta">
-                      <div className="rb-scard-city">{b.city}{b.area ? ` · ${b.area}` : ""}</div>
+                      <div className="rb-scard-city">{b.city}{b.neighbourhood ? ` · ${b.neighbourhood}` : ""}</div>
   
                     </div>
                     <h3 className="rb-scard-name">{b.publicName || b.name}</h3>
@@ -516,7 +516,7 @@ export default function SearchClient({ buildings, totalCount }) {
                 }} onError={(e) => { e.currentTarget.style.display = "none"; }} />
                 <div style={{ padding: "12px 14px 14px" }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: "#8B92A5", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 3 }}>
-                    {b.city}{b.area ? ` · ${b.area}` : ""}
+                    {b.city}{b.neighbourhood ? ` · ${b.neighbourhood}` : ""}
                     {b.tag && <span style={{ marginLeft: 6, color: "#C9A84C" }}>{b.tag}</span>}
                   </div>
                   <div style={{ fontSize: 14, fontWeight: 800, color: "#0A1F5C", lineHeight: 1.3, marginBottom: 6, paddingRight: 20 }}>

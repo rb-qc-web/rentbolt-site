@@ -1,4 +1,5 @@
 import { fetchBuildings } from "@/lib/monday";
+import { hasNeighbourhoods } from "@/lib/neighbourhoods";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -55,13 +56,18 @@ export async function GET(request) {
       key: "noNeighbourhood",
       why: "Not reachable via the neighbourhood filter.",
       test: b => !b.neighbourhood,
+      // Only meaningful where we have polygons. Without this, Ottawa, London
+      // and KW scored 0% completeness because every building failed a check
+      // that reflects a missing map file, not bad data in monday.
+      appliesTo: city => hasNeighbourhoods(city),
     },
   ];
 
   for (const city of cities) {
     const list = buildings.filter(b => b.city === city);
     const issues = {};
-    for (const issue of ISSUES) {
+    const applicable = ISSUES.filter(i => !i.appliesTo || i.appliesTo(city));
+    for (const issue of applicable) {
       const hit = list.filter(issue.test);
       issues[issue.key] = names
         ? { count: hit.length, why: issue.why, buildings: hit.map(b => b.publicName || b.name) }
@@ -69,10 +75,11 @@ export async function GET(request) {
     }
 
     // A listing with none of the above is fully populated.
-    const clean = list.filter(b => !ISSUES.some(i => i.test(b))).length;
+    const clean = list.filter(b => !applicable.some(i => i.test(b))).length;
 
     byCity[city] = {
       activeBuildings: list.length,
+      neighbourhoodDataAvailable: hasNeighbourhoods(city),
       fullyPopulated: clean,
       completeness: list.length ? `${Math.round((clean / list.length) * 100)}%` : "n/a",
       issues,
@@ -81,7 +88,9 @@ export async function GET(request) {
 
   const totals = {};
   for (const issue of ISSUES) {
-    totals[issue.key] = cities.reduce((n, c) => n + byCity[c].issues[issue.key].count, 0);
+    totals[issue.key] = cities.reduce(
+      (n, c) => n + (byCity[c].issues[issue.key]?.count || 0), 0
+    );
   }
 
   return Response.json({

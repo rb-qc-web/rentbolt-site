@@ -218,7 +218,7 @@ export default function BuildingDetailClient({ building }) {
                   street name and the meta line below carries neighbourhood + city. */}
               <div className="bd-hero-meta">
                 <span>{building.city}, {building.region}</span>
-                {building.area && <><span>·</span><span>{building.area}</span></>}
+                {building.neighbourhood && <><span>·</span><span>{building.neighbourhood}</span></>}
                 {bedsLabel && <><span>·</span><span>{bedsLabel}</span></>}
                 {building.isFurnished && <><span>·</span><span>Furnished available</span></>}
               </div>
@@ -282,10 +282,10 @@ export default function BuildingDetailClient({ building }) {
           <div className="bd-left">
             {/* KEY FACTS */}
             <div className="bd-facts">
-              {building.area && (
+              {building.neighbourhood && (
                 <div className="bd-fact">
                   <div className="bd-fact-label">Neighbourhood</div>
-                  <div className="bd-fact-value">{building.area}</div>
+                  <div className="bd-fact-value">{building.neighbourhood}</div>
                 </div>
               )}
               <div className="bd-fact">
