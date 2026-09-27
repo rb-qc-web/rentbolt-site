@@ -82,7 +82,7 @@ export default function SearchClient({ buildings, totalCount }) {
   });
   const [bed, setBed] = useState(-1);
   const [hood, setHood] = useState("All neighbourhoods");
-  const [maxPrice, setMaxPrice] = useState(0);        // 0 = no limit
+  const [priceRange, setPriceRange] = useState(null);  // null = untouched
   const [amenityPicks, setAmenityPicks] = useState([]);
   const [inclusionPicks, setInclusionPicks] = useState([]);
   const [petsOnly, setPetsOnly] = useState(false);
@@ -131,33 +131,41 @@ export default function SearchClient({ buildings, totalCount }) {
   const inclusionOptions = useMemo(() => tally(scopeForOptions, b => b.inclusionsList), [scopeForOptions]);
   const petCount         = useMemo(() => scopeForOptions.filter(isPetFriendly).length, [scopeForOptions]);
 
-  // Price steps derived from real inventory, rounded to clean numbers, so the
-  // options always bracket what is actually listed.
-  const priceOptions = useMemo(() => {
+  // Slider bounds come from what is actually listed, rounded outward to clean
+  // $50 steps, so the handles always span the real range for this city.
+  const priceBounds = useMemo(() => {
     const prices = scopeForOptions.map(b => b.startingPrice).filter(p => p > 0);
-    if (prices.length < 3) return [];
-    const max = Math.max(...prices);
-    const steps = [1200, 1500, 1800, 2100, 2400, 2800, 3200, 4000].filter(s => s < max);
-    return steps.map(s => ({ value: s, count: prices.filter(p => p <= s).length }));
+    if (prices.length < 2) return null;
+    const lo = Math.floor(Math.min(...prices) / 50) * 50;
+    const hi = Math.ceil(Math.max(...prices) / 50) * 50;
+    return hi > lo ? { lo, hi } : null;
   }, [scopeForOptions]);
+
+  // Untouched means "no filter", so the range follows the data as the city
+  // changes instead of stranding the handles at another market's numbers.
+  const price = priceRange || (priceBounds ? [priceBounds.lo, priceBounds.hi] : [0, 0]);
+  const priceTouched = Boolean(
+    priceRange && priceBounds && (priceRange[0] > priceBounds.lo || priceRange[1] < priceBounds.hi)
+  );
 
   // Anything picked in one city may not exist in the next, so clear on change.
   useEffect(() => {
-    setAmenityPicks([]); setInclusionPicks([]); setPetsOnly(false); setMaxPrice(0);
+    setAmenityPicks([]); setInclusionPicks([]); setPetsOnly(false); setPriceRange(null);
   }, [city]);
 
   const extraCount =
-    (maxPrice ? 1 : 0) + amenityPicks.length + inclusionPicks.length + (petsOnly ? 1 : 0);
+    (priceTouched ? 1 : 0) + amenityPicks.length + inclusionPicks.length + (petsOnly ? 1 : 0);
 
   const filtered = useMemo(() => {
     return buildings.filter(b => {
       if (city !== "All cities" && b.city !== city) return false;
       if (hood !== "All neighbourhoods" && b.neighbourhood !== hood) return false;
 
-      // Only filters out buildings that HAVE a price above the cap. A building
-      // with no price yet is kept — it may well be in budget, and hiding it
-      // would punish listings for a data gap rather than for their rent.
-      if (maxPrice && b.startingPrice > 0 && b.startingPrice > maxPrice) return false;
+      // Only filters buildings that HAVE a price. One with no price yet is
+      // kept — it may well be in budget, and hiding it would punish the
+      // listing for a data gap rather than for its rent.
+      if (priceTouched && b.startingPrice > 0 &&
+          (b.startingPrice < price[0] || b.startingPrice > price[1])) return false;
 
       if (petsOnly && !isPetFriendly(b)) return false;
       if (amenityPicks.length && !amenityPicks.every(a => (b.amenitiesList || []).includes(a))) return false;
@@ -176,7 +184,7 @@ export default function SearchClient({ buildings, totalCount }) {
       }
       return true;
     });
-  }, [buildings, city, hood, bed, search, maxPrice, petsOnly, amenityPicks, inclusionPicks]);
+  }, [buildings, city, hood, bed, search, priceTouched, price, petsOnly, amenityPicks, inclusionPicks]);
 
   // INIT MAP (once)
   useEffect(() => {
@@ -379,7 +387,7 @@ export default function SearchClient({ buildings, totalCount }) {
     setCity("All cities");
     setBed(-1);
     setHood("All neighbourhoods");
-    setMaxPrice(0);
+    setPriceRange(null);
     setAmenityPicks([]);
     setInclusionPicks([]);
     setPetsOnly(false);
@@ -486,18 +494,54 @@ export default function SearchClient({ buildings, totalCount }) {
 
           {panelOpen && (
             <div className="rb-spanel">
-              {priceOptions.length > 0 && (
+              {priceBounds && (
                 <div className="rb-spanel-group">
-                  <h4>Monthly budget</h4>
-                  <div className="rb-schips">
-                    <button className={`rb-schip${maxPrice === 0 ? " on" : ""}`} onClick={() => setMaxPrice(0)}>Any</button>
-                    {priceOptions.map(o => (
-                      <button key={o.value}
-                        className={`rb-schip${maxPrice === o.value ? " on" : ""}`}
-                        onClick={() => setMaxPrice(maxPrice === o.value ? 0 : o.value)}>
-                        Under ${o.value.toLocaleString()} <em>{o.count}</em>
-                      </button>
-                    ))}
+                  <div className="rb-sbudget-head">
+                    <h4>Monthly budget</h4>
+                    <span className="rb-sbudget-val">
+                      ${price[0].toLocaleString()} &mdash; ${price[1].toLocaleString()}
+                      {price[1] >= priceBounds.hi && "+"}
+                    </span>
+                  </div>
+
+                  {/* Two overlaid range inputs. The track and fill are drawn
+                      underneath; only the thumbs take pointer events, so both
+                      handles stay grabbable across the whole width. */}
+                  <div className="rb-srange">
+                    <div className="rb-srange-track" />
+                    <div
+                      className="rb-srange-fill"
+                      style={{
+                        left: `${((price[0] - priceBounds.lo) / (priceBounds.hi - priceBounds.lo)) * 100}%`,
+                        right: `${100 - ((price[1] - priceBounds.lo) / (priceBounds.hi - priceBounds.lo)) * 100}%`,
+                      }}
+                    />
+                    <input
+                      type="range" min={priceBounds.lo} max={priceBounds.hi} step={50}
+                      value={price[0]}
+                      aria-label="Minimum monthly budget"
+                      onChange={e => {
+                        const v = Math.min(Number(e.target.value), price[1] - 50);
+                        setPriceRange([v, price[1]]);
+                      }}
+                    />
+                    <input
+                      type="range" min={priceBounds.lo} max={priceBounds.hi} step={50}
+                      value={price[1]}
+                      aria-label="Maximum monthly budget"
+                      onChange={e => {
+                        const v = Math.max(Number(e.target.value), price[0] + 50);
+                        setPriceRange([price[0], v]);
+                      }}
+                    />
+                  </div>
+
+                  <div className="rb-srange-ends">
+                    <span>${priceBounds.lo.toLocaleString()}</span>
+                    {priceTouched && (
+                      <button className="rb-srange-clear" onClick={() => setPriceRange(null)}>Clear</button>
+                    )}
+                    <span>${priceBounds.hi.toLocaleString()}+</span>
                   </div>
                 </div>
               )}
@@ -543,7 +587,7 @@ export default function SearchClient({ buildings, totalCount }) {
                 </div>
               )}
 
-              {priceOptions.length === 0 && petCount === 0 &&
+              {!priceBounds && petCount === 0 &&
                inclusionOptions.length === 0 && amenityOptions.length === 0 && (
                 <p className="rb-spanel-empty">No extra filters available for this city yet.</p>
               )}
@@ -1056,6 +1100,93 @@ export default function SearchClient({ buildings, totalCount }) {
           text-transform: uppercase;
           color: var(--text-mute);
         }
+        .rb-sbudget-head {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 10px;
+        }
+        .rb-sbudget-head h4 { margin: 0; }
+        .rb-sbudget-val {
+          font-size: 16px;
+          font-weight: 800;
+          color: var(--navy);
+          letter-spacing: -0.01em;
+        }
+
+        .rb-srange { position: relative; height: 26px; }
+        .rb-srange-track {
+          position: absolute;
+          left: 0; right: 0; top: 11px;
+          height: 4px;
+          border-radius: 100px;
+          background: var(--border);
+        }
+        .rb-srange-fill {
+          position: absolute;
+          top: 11px;
+          height: 4px;
+          border-radius: 100px;
+          background: var(--navy);
+        }
+        /* Both inputs span the full width and stack. Only the thumbs accept
+           pointer events, so neither handle can block the other. */
+        .rb-srange input[type="range"] {
+          position: absolute;
+          left: 0; top: 0;
+          width: 100%;
+          height: 26px;
+          margin: 0;
+          background: none;
+          appearance: none;
+          -webkit-appearance: none;
+          pointer-events: none;
+        }
+        .rb-srange input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          pointer-events: auto;
+          width: 20px; height: 20px;
+          border-radius: 50%;
+          background: #fff;
+          border: 2.5px solid var(--navy);
+          cursor: grab;
+          box-shadow: 0 1px 4px rgba(10,31,92,0.25);
+        }
+        .rb-srange input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; }
+        .rb-srange input[type="range"]::-moz-range-thumb {
+          pointer-events: auto;
+          width: 20px; height: 20px;
+          border-radius: 50%;
+          background: #fff;
+          border: 2.5px solid var(--navy);
+          cursor: grab;
+          box-shadow: 0 1px 4px rgba(10,31,92,0.25);
+        }
+        .rb-srange input[type="range"]::-moz-range-track { background: none; }
+
+        .rb-srange-ends {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          margin-top: 2px;
+          font-size: 12px;
+          color: var(--text-mute);
+        }
+        .rb-srange-clear {
+          background: none;
+          border: none;
+          font-family: inherit;
+          font-size: 12px;
+          font-weight: 700;
+          color: var(--navy);
+          text-decoration: underline;
+          text-underline-offset: 3px;
+          cursor: pointer;
+          padding: 0;
+        }
+
         .rb-schips { display: flex; flex-wrap: wrap; gap: 7px; }
         .rb-schip {
           display: inline-flex;
