@@ -1032,12 +1032,21 @@ export default function SearchClient({ buildings, totalCount }) {
         }
 
         .rb-spanel {
-          margin-top: 14px;
+          /* The parent is a wrapping flex ROW, so without a forced 100% basis
+             the panel sits inside the row alongside the controls and overlaps
+             them. This puts it on its own line beneath. */
+          flex: 0 0 100%;
+          width: 100%;
+          margin-top: 4px;
           padding-top: 16px;
           border-top: 1px solid var(--border);
           display: flex;
           flex-direction: column;
           gap: 16px;
+          /* The page is height:100vh, so an unbounded panel would eat the map
+             and results. Scroll instead. */
+          max-height: 46vh;
+          overflow-y: auto;
         }
         .rb-spanel-group h4 {
           margin: 0 0 8px;
