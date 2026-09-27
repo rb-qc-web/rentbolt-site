@@ -229,10 +229,14 @@ deploy if that proves too slow.
 
 Rules that are deliberate, not incidental:
 
-- **Monday subitem prices are not a fallback.** Once the feed is configured,
-  a building with no eligible feed price shows "Contact us for pricing". The
-  monday figure is the stale source this replaces; showing an old rent is
-  worse than showing nothing.
+- **Monday subitem prices are not a fallback for a building the feed knows.**
+  If the feed returns that building with no eligible price, it shows "Contact
+  us for pricing" — the monday figure is the stale source this replaces.
+- **But a building ABSENT from the feed keeps its monday price.** Absent means
+  the feed is asserting nothing, not that the price is gone. Without this,
+  every market not yet loaded into the inventory platform silently loses the
+  prices it already had — which is exactly what happened to Ottawa, Toronto,
+  London and KW on the first live run.
 - **A valid 200 replaces the whole snapshot**, so rented or expired inventory
   stops showing a price. Any failure — timeout, 401, 503, bad JSON, wrong
   shape — keeps the previous snapshot instead.

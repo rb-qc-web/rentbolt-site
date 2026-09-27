@@ -29,6 +29,11 @@ export async function GET(request) {
 
   return Response.json({
     feedConfigured: configured,
+    // Three distinct states, worth separating: a building the feed prices, one
+    // it explicitly says has no eligible price, and one it has never heard of
+    // (a market not yet loaded into the inventory platform, which keeps its
+    // monday price rather than losing it).
+    source: buildings.pricingSource || "feed not applied",
     meaning: configured
       ? "Prices come from the inventory feed. Monday subitem prices are ignored."
       : "RENTBOLT_PRICING_URL / RENTBOLT_PRICING_API_KEY not set — still using Monday subitem prices.",
