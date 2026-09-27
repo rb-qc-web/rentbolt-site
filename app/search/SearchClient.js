@@ -48,14 +48,37 @@ function formatBeds(beds) {
 }
 
 
-// Pet-friendliness is derived from the amenity/inclusion pills rather than the
-// `pets` column, because that column id exists only on the Montreal board —
-// the same trap that silently emptied the bed filters on four boards.
+// Everything below reads the per-board pill lists FIRST and treats the
+// dedicated monday columns as a bonus, because those column ids
+// (dropdown_mkvpaxpe pets, dropdown_mkvp2xa8 parking, the utility dropdowns)
+// exist only on the Montreal board. Keying a filter off them alone is the trap
+// that silently emptied the bed filters on four boards.
+function pills(b) {
+  return [...(b.inclusionsList || []), ...(b.amenitiesList || []), ...(b.appliancesList || [])];
+}
+function pillMatch(b, re) {
+  return pills(b).some(x => re.test(x));
+}
+
 function isPetFriendly(b) {
-  const pills = [...(b.inclusionsList || []), ...(b.amenitiesList || [])];
-  if (pills.some(x => /pet/i.test(x))) return true;
+  if (pillMatch(b, /pet/i)) return true;
   return /yes|allowed|friendly/i.test(b.pets || "");
 }
+
+function hasParking(b) {
+  if (pillMatch(b, /parking/i)) return true;
+  const v = String(b.parking || "").trim();
+  return v.length > 0 && !/^(no|none|n\/a|not available)$/i.test(v);
+}
+
+// Utilities included in rent. The monday booleans only exist on Montreal, so
+// each also accepts a matching inclusion pill from any board.
+const UTILITIES = [
+  { name: "Heating",     test: b => b.heatingIncl     || pillMatch(b, /heat/i) },
+  { name: "Water",       test: b => b.waterIncl       || pillMatch(b, /water/i) },
+  { name: "Electricity", test: b => b.electricityIncl || pillMatch(b, /electric|hydro/i) },
+  { name: "Internet",    test: b => b.internetIncl    || pillMatch(b, /internet|wi-?fi/i) },
+];
 
 // Every option list is built from the buildings actually present, with counts,
 // so a filter can never offer something that returns nothing.
@@ -129,6 +152,8 @@ export default function SearchClient({ buildings, totalCount }) {
   const [amenityPicks, setAmenityPicks] = useState([]);
   const [inclusionPicks, setInclusionPicks] = useState([]);
   const [petsOnly, setPetsOnly] = useState(false);
+  const [parkingOnly, setParkingOnly] = useState(false);
+  const [utilityPicks, setUtilityPicks] = useState([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
   const [search, setSearch] = useState("");
@@ -181,6 +206,13 @@ export default function SearchClient({ buildings, totalCount }) {
   const amenityOptions   = useMemo(() => tally(scopeForOptions, b => b.amenitiesList), [scopeForOptions]);
   const inclusionOptions = useMemo(() => tally(scopeForOptions, b => b.inclusionsList), [scopeForOptions]);
   const petCount         = useMemo(() => scopeForOptions.filter(isPetFriendly).length, [scopeForOptions]);
+  const parkingCount     = useMemo(() => scopeForOptions.filter(hasParking).length, [scopeForOptions]);
+  // Only offer a utility that at least one building in this city actually
+  // includes, so the list can never contain a dead option.
+  const utilityOptions   = useMemo(
+    () => UTILITIES.filter(u => scopeForOptions.some(u.test)).map(u => ({ name: u.name })),
+    [scopeForOptions]
+  );
 
   // Slider bounds come from what is actually listed, rounded outward to clean
   // $50 steps, so the handles always span the real range for this city.
@@ -202,10 +234,12 @@ export default function SearchClient({ buildings, totalCount }) {
   // Anything picked in one city may not exist in the next, so clear on change.
   useEffect(() => {
     setAmenityPicks([]); setInclusionPicks([]); setPetsOnly(false); setPriceRange(null);
+    setParkingOnly(false); setUtilityPicks([]);
   }, [city]);
 
   const extraCount =
-    (priceTouched ? 1 : 0) + amenityPicks.length + inclusionPicks.length + (petsOnly ? 1 : 0);
+    (priceTouched ? 1 : 0) + amenityPicks.length + inclusionPicks.length +
+    utilityPicks.length + (petsOnly ? 1 : 0) + (parkingOnly ? 1 : 0);
 
   const filtered = useMemo(() => {
     return buildings.filter(b => {
@@ -219,6 +253,9 @@ export default function SearchClient({ buildings, totalCount }) {
           (b.startingPrice < price[0] || b.startingPrice > price[1])) return false;
 
       if (petsOnly && !isPetFriendly(b)) return false;
+      if (parkingOnly && !hasParking(b)) return false;
+      if (utilityPicks.length && !utilityPicks.every(name =>
+            UTILITIES.find(u => u.name === name)?.test(b))) return false;
       if (amenityPicks.length && !amenityPicks.every(a => (b.amenitiesList || []).includes(a))) return false;
       if (inclusionPicks.length && !inclusionPicks.every(i => (b.inclusionsList || []).includes(i))) return false;
       if (bed >= 0) {
@@ -235,7 +272,7 @@ export default function SearchClient({ buildings, totalCount }) {
       }
       return true;
     });
-  }, [buildings, city, hood, bed, search, priceTouched, price, petsOnly, amenityPicks, inclusionPicks]);
+  }, [buildings, city, hood, bed, search, priceTouched, price, petsOnly, parkingOnly, utilityPicks, amenityPicks, inclusionPicks]);
 
   // INIT MAP (once)
   useEffect(() => {
@@ -442,6 +479,8 @@ export default function SearchClient({ buildings, totalCount }) {
     setAmenityPicks([]);
     setInclusionPicks([]);
     setPetsOnly(false);
+    setParkingOnly(false);
+    setUtilityPicks([]);
     setSearch("");
   };
 
@@ -618,6 +657,27 @@ export default function SearchClient({ buildings, totalCount }) {
                 />
               )}
 
+              {utilityOptions.length > 0 && (
+                <CheckMenu
+                  label="Utilities"
+                  options={utilityOptions}
+                  picks={utilityPicks}
+                  setPicks={setUtilityPicks}
+                  open={openMenu === "utilities"}
+                  onToggle={() => setOpenMenu(openMenu === "utilities" ? null : "utilities")}
+                />
+              )}
+
+              {parkingCount > 0 && (
+                <button
+                  type="button"
+                  className={`rb-sdd-btn${parkingOnly ? " on" : ""}`}
+                  onClick={() => setParkingOnly(v => !v)}
+                >
+                  Parking
+                </button>
+              )}
+
               {petCount > 0 && (
                 <button
                   type="button"
@@ -629,7 +689,8 @@ export default function SearchClient({ buildings, totalCount }) {
               )}
 
               {!priceBounds && inclusionOptions.length === 0 &&
-               amenityOptions.length === 0 && petCount === 0 && (
+               amenityOptions.length === 0 && utilityOptions.length === 0 &&
+               parkingCount === 0 && petCount === 0 && (
                 <p className="rb-spanel-empty">No extra filters available for this city yet.</p>
               )}
             </div>
