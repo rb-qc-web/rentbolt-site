@@ -1253,6 +1253,56 @@ export default function SearchClient({ buildings, totalCount }) {
           color: var(--navy);
         }
 
+        .rb-srange { position: relative; height: 24px; }
+        .rb-srange-track {
+          position: absolute;
+          left: 0; right: 0; top: 10px;
+          height: 4px;
+          border-radius: 100px;
+          background: var(--border);
+        }
+        .rb-srange-fill {
+          position: absolute;
+          top: 10px;
+          height: 4px;
+          border-radius: 100px;
+          background: var(--navy);
+        }
+        /* Both inputs span the full width and stack. Only the thumbs accept
+           pointer events, so neither handle can block the other. */
+        .rb-srange input[type="range"] {
+          position: absolute;
+          left: 0; top: 0;
+          width: 100%;
+          height: 24px;
+          margin: 0;
+          background: none;
+          appearance: none;
+          -webkit-appearance: none;
+          pointer-events: none;
+        }
+        .rb-srange input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          pointer-events: auto;
+          width: 18px; height: 18px;
+          border-radius: 50%;
+          background: #fff;
+          border: 2.5px solid var(--navy);
+          cursor: grab;
+          box-shadow: 0 1px 4px rgba(10,31,92,0.25);
+        }
+        .rb-srange input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; }
+        .rb-srange input[type="range"]::-moz-range-thumb {
+          pointer-events: auto;
+          width: 18px; height: 18px;
+          border-radius: 50%;
+          background: #fff;
+          border: 2.5px solid var(--navy);
+          cursor: grab;
+          box-shadow: 0 1px 4px rgba(10,31,92,0.25);
+        }
+        .rb-srange input[type="range"]::-moz-range-track { background: none; }
+
         .rb-spanel-empty { font-size: 13px; color: var(--text-mute); margin: 0; }
 
         .rb-shint {
