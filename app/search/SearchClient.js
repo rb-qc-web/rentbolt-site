@@ -47,6 +47,31 @@ function formatBeds(beds) {
   return beds.map(b => b === 0 ? "Studio" : `${b}BR`).join(" · ");
 }
 
+
+// Pet-friendliness is derived from the amenity/inclusion pills rather than the
+// `pets` column, because that column id exists only on the Montreal board —
+// the same trap that silently emptied the bed filters on four boards.
+function isPetFriendly(b) {
+  const pills = [...(b.inclusionsList || []), ...(b.amenitiesList || [])];
+  if (pills.some(x => /pet/i.test(x))) return true;
+  return /yes|allowed|friendly/i.test(b.pets || "");
+}
+
+// Every option list is built from the buildings actually present, with counts,
+// so a filter can never offer something that returns nothing.
+function tally(buildings, pick) {
+  const counts = {};
+  for (const b of buildings) {
+    for (const v of pick(b) || []) {
+      const k = String(v).trim();
+      if (k) counts[k] = (counts[k] || 0) + 1;
+    }
+  }
+  return Object.entries(counts)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([name, count]) => ({ name, count }));
+}
+
 export default function SearchClient({ buildings, totalCount }) {
   const searchParams = useSearchParams();
   const [city, setCity] = useState(() => {
@@ -57,6 +82,11 @@ export default function SearchClient({ buildings, totalCount }) {
   });
   const [bed, setBed] = useState(-1);
   const [hood, setHood] = useState("All neighbourhoods");
+  const [maxPrice, setMaxPrice] = useState(0);        // 0 = no limit
+  const [amenityPicks, setAmenityPicks] = useState([]);
+  const [inclusionPicks, setInclusionPicks] = useState([]);
+  const [petsOnly, setPetsOnly] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [activeId, setActiveId] = useState(null);
   const [hoverId, setHoverId] = useState(null);
@@ -91,10 +121,47 @@ export default function SearchClient({ buildings, totalCount }) {
   // against a borough that doesn't exist in the new city.
   useEffect(() => { setHood("All neighbourhoods"); }, [city]);
 
+  // Options reflect the current city so you never see an amenity that only
+  // exists in another market.
+  const scopeForOptions = useMemo(
+    () => (city === "All cities" ? buildings : buildings.filter(b => b.city === city)),
+    [buildings, city]
+  );
+  const amenityOptions   = useMemo(() => tally(scopeForOptions, b => b.amenitiesList), [scopeForOptions]);
+  const inclusionOptions = useMemo(() => tally(scopeForOptions, b => b.inclusionsList), [scopeForOptions]);
+  const petCount         = useMemo(() => scopeForOptions.filter(isPetFriendly).length, [scopeForOptions]);
+
+  // Price steps derived from real inventory, rounded to clean numbers, so the
+  // options always bracket what is actually listed.
+  const priceOptions = useMemo(() => {
+    const prices = scopeForOptions.map(b => b.startingPrice).filter(p => p > 0);
+    if (prices.length < 3) return [];
+    const max = Math.max(...prices);
+    const steps = [1200, 1500, 1800, 2100, 2400, 2800, 3200, 4000].filter(s => s < max);
+    return steps.map(s => ({ value: s, count: prices.filter(p => p <= s).length }));
+  }, [scopeForOptions]);
+
+  // Anything picked in one city may not exist in the next, so clear on change.
+  useEffect(() => {
+    setAmenityPicks([]); setInclusionPicks([]); setPetsOnly(false); setMaxPrice(0);
+  }, [city]);
+
+  const extraCount =
+    (maxPrice ? 1 : 0) + amenityPicks.length + inclusionPicks.length + (petsOnly ? 1 : 0);
+
   const filtered = useMemo(() => {
     return buildings.filter(b => {
       if (city !== "All cities" && b.city !== city) return false;
       if (hood !== "All neighbourhoods" && b.neighbourhood !== hood) return false;
+
+      // Only filters out buildings that HAVE a price above the cap. A building
+      // with no price yet is kept — it may well be in budget, and hiding it
+      // would punish listings for a data gap rather than for their rent.
+      if (maxPrice && b.startingPrice > 0 && b.startingPrice > maxPrice) return false;
+
+      if (petsOnly && !isPetFriendly(b)) return false;
+      if (amenityPicks.length && !amenityPicks.every(a => (b.amenitiesList || []).includes(a))) return false;
+      if (inclusionPicks.length && !inclusionPicks.every(i => (b.inclusionsList || []).includes(i))) return false;
       if (bed >= 0) {
         if (bed === 3) {
           if (!b.bedrooms?.some(x => x >= 3)) return false;
@@ -109,7 +176,7 @@ export default function SearchClient({ buildings, totalCount }) {
       }
       return true;
     });
-  }, [buildings, city, hood, bed, search]);
+  }, [buildings, city, hood, bed, search, maxPrice, petsOnly, amenityPicks, inclusionPicks]);
 
   // INIT MAP (once)
   useEffect(() => {
@@ -312,6 +379,10 @@ export default function SearchClient({ buildings, totalCount }) {
     setCity("All cities");
     setBed(-1);
     setHood("All neighbourhoods");
+    setMaxPrice(0);
+    setAmenityPicks([]);
+    setInclusionPicks([]);
+    setPetsOnly(false);
     setSearch("");
   };
 
@@ -385,6 +456,22 @@ export default function SearchClient({ buildings, totalCount }) {
               ))}
             </div>
 
+            {/* One panel rather than four more controls in the row: the bar
+                already wraps awkwardly at laptop widths. */}
+            <button
+              type="button"
+              className={`rb-smore${extraCount ? " on" : ""}`}
+              onClick={() => setPanelOpen(o => !o)}
+              aria-expanded={panelOpen}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <path d="M4 6h16M7 12h10M10 18h4" />
+              </svg>
+              Filters
+              {extraCount > 0 && <span className="rb-smore-count">{extraCount}</span>}
+            </button>
+
             <input
               type="text"
               className="rb-ssearch"
@@ -392,10 +479,76 @@ export default function SearchClient({ buildings, totalCount }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            {(city !== "All cities" || bed !== -1 || search || hood !== "All neighbourhoods") && (
+            {(city !== "All cities" || bed !== -1 || search || hood !== "All neighbourhoods" || extraCount > 0) && (
               <button className="rb-sreset" onClick={resetFilters}>Reset</button>
             )}
           </div>
+
+          {panelOpen && (
+            <div className="rb-spanel">
+              {priceOptions.length > 0 && (
+                <div className="rb-spanel-group">
+                  <h4>Monthly budget</h4>
+                  <div className="rb-schips">
+                    <button className={`rb-schip${maxPrice === 0 ? " on" : ""}`} onClick={() => setMaxPrice(0)}>Any</button>
+                    {priceOptions.map(o => (
+                      <button key={o.value}
+                        className={`rb-schip${maxPrice === o.value ? " on" : ""}`}
+                        onClick={() => setMaxPrice(maxPrice === o.value ? 0 : o.value)}>
+                        Under ${o.value.toLocaleString()} <em>{o.count}</em>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {petCount > 0 && (
+                <div className="rb-spanel-group">
+                  <h4>Pets</h4>
+                  <div className="rb-schips">
+                    <button className={`rb-schip${petsOnly ? " on" : ""}`} onClick={() => setPetsOnly(p => !p)}>
+                      Pet friendly <em>{petCount}</em>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {inclusionOptions.length > 0 && (
+                <div className="rb-spanel-group">
+                  <h4>What&apos;s included</h4>
+                  <div className="rb-schips">
+                    {inclusionOptions.map(o => (
+                      <button key={o.name}
+                        className={`rb-schip${inclusionPicks.includes(o.name) ? " on" : ""}`}
+                        onClick={() => setInclusionPicks(p => p.includes(o.name) ? p.filter(x => x !== o.name) : [...p, o.name])}>
+                        {o.name} <em>{o.count}</em>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {amenityOptions.length > 0 && (
+                <div className="rb-spanel-group">
+                  <h4>Amenities</h4>
+                  <div className="rb-schips">
+                    {amenityOptions.map(o => (
+                      <button key={o.name}
+                        className={`rb-schip${amenityPicks.includes(o.name) ? " on" : ""}`}
+                        onClick={() => setAmenityPicks(p => p.includes(o.name) ? p.filter(x => x !== o.name) : [...p, o.name])}>
+                        {o.name} <em>{o.count}</em>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {priceOptions.length === 0 && petCount === 0 &&
+               inclusionOptions.length === 0 && amenityOptions.length === 0 && (
+                <p className="rb-spanel-empty">No extra filters available for this city yet.</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -845,6 +998,85 @@ export default function SearchClient({ buildings, totalCount }) {
           padding: 3px 9px;
           background: var(--bg-soft);
           border-radius: 100px;
+        }
+
+        .rb-smore {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          padding: 10px 16px;
+          border-radius: 100px;
+          border: 1px solid var(--border);
+          background: #fff;
+          color: var(--navy);
+          font-size: 13px;
+          font-weight: 700;
+          font-family: inherit;
+          cursor: pointer;
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        .rb-smore:hover { border-color: var(--navy); }
+        .rb-smore.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+        .rb-smore-count {
+          background: var(--gold);
+          color: var(--navy-deep);
+          font-size: 11px;
+          min-width: 17px;
+          height: 17px;
+          border-radius: 100px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 5px;
+        }
+
+        .rb-spanel {
+          margin-top: 14px;
+          padding-top: 16px;
+          border-top: 1px solid var(--border);
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .rb-spanel-group h4 {
+          margin: 0 0 8px;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.07em;
+          text-transform: uppercase;
+          color: var(--text-mute);
+        }
+        .rb-schips { display: flex; flex-wrap: wrap; gap: 7px; }
+        .rb-schip {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 7px 14px;
+          border-radius: 100px;
+          border: 1px solid var(--border);
+          background: #fff;
+          color: var(--navy);
+          font-size: 13px;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+        }
+        .rb-schip:hover { border-color: var(--navy); }
+        .rb-schip.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+        /* Count of matches, so a chip never looks like it might return nothing. */
+        .rb-schip em {
+          font-style: normal;
+          font-size: 11px;
+          font-weight: 700;
+          color: var(--text-mute);
+        }
+        .rb-schip.on em { color: rgba(255,255,255,0.65); }
+        .rb-spanel-empty { font-size: 13px; color: var(--text-mute); margin: 0; }
+
+        @media (max-width: 768px) {
+          .rb-smore { padding: 9px 14px; }
+          .rb-schip { font-size: 12px; padding: 6px 12px; }
         }
 
         .rb-shint {
