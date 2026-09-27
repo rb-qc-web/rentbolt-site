@@ -99,6 +99,7 @@ column is ever added in monday.
 | `CACHE_REFRESH_SECRET` | manual cache clear |
 | `NEXT_PUBLIC_CARTO_API_KEY` | optional — switches the map to Carto Positron. Absent = keyless Esri Light Gray |
 | `RENTBOLT_PRICING_URL` / `RENTBOLT_PRICING_API_KEY` | the pricing feed. Absent = the site falls back to monday subitem prices. **No `NEXT_PUBLIC_` prefix** — these must never reach a browser |
+| `RENTBOLT_PRICING_REFRESH_MINUTES` | optional — pricing refresh interval. Default 1440 (daily) |
 
 Env vars load at **build** time. After changing one in Vercel you must
 redeploy, or the running deployment won't see it.
@@ -215,9 +216,16 @@ Each of these cost real debugging time. Don't undo them.
 ## Pricing
 
 Prices come from an inventory feed, not monday. `lib/pricing.js` fetches all
-buildings in one authenticated server-side request, at most once per 15
-minutes, and keeps the last good snapshot in Redis so it survives serverless
-invocations and any feed outage.
+buildings in one authenticated server-side request, **once a day**, and keeps
+the last good snapshot in Redis so it survives serverless invocations and any
+feed outage.
+
+Daily rather than the contract's 15 minutes, to keep load off the inventory
+platform. The cost is latency: a price that changes just after a fetch is not
+reflected until the next one, so a rented unit's price can show for up to 24
+hours. Hit `/api/cache-refresh` to pull immediately after reconfirming
+inventory. `RENTBOLT_PRICING_REFRESH_MINUTES` overrides the interval without a
+deploy if that proves too slow.
 
 Rules that are deliberate, not incidental:
 

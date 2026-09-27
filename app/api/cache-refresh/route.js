@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import { invalidatePricing } from "@/lib/pricing";
 
 const CACHE_KEY = "rentbolt:buildings:v22";
 const SECRET = process.env.CACHE_REFRESH_SECRET;
@@ -21,7 +22,18 @@ export async function GET(request) {
       token: process.env.UPSTASH_REDIS_REST_TOKEN,
     });
     await redis.del(CACHE_KEY);
-    return Response.json({ success: true, message: "Cache cleared. Next request will fetch fresh data from Monday." });
+
+    // Marks the pricing snapshot stale rather than deleting it, so the last
+    // known good prices survive if the very next feed fetch fails.
+    const pricingQueued = await invalidatePricing();
+
+    return Response.json({
+      success: true,
+      message: "Cache cleared. Next request will fetch fresh data from Monday.",
+      pricing: pricingQueued
+        ? "Pricing will also refetch on the next request."
+        : "No pricing snapshot to refresh (feed not configured, or never fetched).",
+    });
   } catch (err) {
     return Response.json({ error: err.message }, { status: 500 });
   }
