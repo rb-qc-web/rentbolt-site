@@ -21,6 +21,7 @@ Nothing writes back to monday.com. Two things live **outside** monday:
 | Data | Where | Why |
 |---|---|---|
 | Photo galleries | Redis `rentbolt:gallery:<buildingId>` | monday subitem boards don't reliably have the column we need (`InvalidColumnIdException`). Redis has no schema to fight. |
+| **Pricing** | the inventory feed (see below) | monday subitem prices were missing on 63% of listings and go stale silently. |
 | Saved-list leads | Redis `rentbolt:lead:<id>` + `rentbolt:leads` | Redis was already provisioned. Migrate to monday when the other lead forms are wired. |
 
 Everything else — pricing, status, amenities, descriptions — is monday only.
@@ -97,6 +98,7 @@ column is ever added in monday.
 | `CRON_SECRET` | authenticating the scheduled refresh |
 | `CACHE_REFRESH_SECRET` | manual cache clear |
 | `NEXT_PUBLIC_CARTO_API_KEY` | optional — switches the map to Carto Positron. Absent = keyless Esri Light Gray |
+| `RENTBOLT_PRICING_URL` / `RENTBOLT_PRICING_API_KEY` | the pricing feed. Absent = the site falls back to monday subitem prices. **No `NEXT_PUBLIC_` prefix** — these must never reach a browser |
 
 Env vars load at **build** time. After changing one in Vercel you must
 redeploy, or the running deployment won't see it.
@@ -132,6 +134,7 @@ Coverage: `/api/photo-status`.
 | `/api/cron-refresh` | scheduled rebuild, every 10 min |
 | `/api/cache-refresh` | clear the cache manually |
 | `/api/photo-status` | photo coverage per city, and who still needs photos |
+| `/api/pricing-status` | whether the pricing feed is on, and price coverage per city |
 
 **Diagnostics** — these exist because each one was written to chase a real bug.
 
@@ -208,6 +211,36 @@ Each of these cost real debugging time. Don't undo them.
   every visitor.
 
 ---
+
+## Pricing
+
+Prices come from an inventory feed, not monday. `lib/pricing.js` fetches all
+buildings in one authenticated server-side request, at most once per 15
+minutes, and keeps the last good snapshot in Redis so it survives serverless
+invocations and any feed outage.
+
+Rules that are deliberate, not incidental:
+
+- **Monday subitem prices are not a fallback.** Once the feed is configured,
+  a building with no eligible feed price shows "Contact us for pricing". The
+  monday figure is the stale source this replaces; showing an old rent is
+  worse than showing nothing.
+- **A valid 200 replaces the whole snapshot**, so rented or expired inventory
+  stops showing a price. Any failure — timeout, 401, 503, bad JSON, wrong
+  shape — keeps the previous snapshot instead.
+- **The payload is validated whole, then swapped.** Partial acceptance is
+  refused: half a price list published as fact is worse than a stale one.
+- **Bedroom labels are generated here**, not taken from the feed. The feed
+  groups several unit types under one bedroom count, so "2 Bed + Den" borrowed
+  from one unit would misdescribe the plain 2-beds beside it.
+- **Bedroom counts fall back to monday for filtering only** when the feed has
+  no eligible price for a building. A bedroom mix is a structural fact, not a
+  price — without this, a building drops out of every bed filter the moment
+  its inventory upload ages past the feed's 7-day freshness window, hiding
+  listings that are genuinely available.
+
+The feed's freshness window is **7 days** and is enforced on the feed side, not
+here. The site publishes whatever it receives.
 
 ## Adding a city's neighbourhoods
 

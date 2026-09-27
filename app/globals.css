@@ -1101,3 +1101,19 @@ button { font-family: inherit; cursor: pointer; }
   justify-content: center;
   padding: 0 5px;
 }
+
+
+/* No eligible price — shown instead of a figure, deliberately quieter so it
+   never reads as a price. */
+.rb-scard-price-none,
+.sv-price-none {
+  color: var(--text-mute) !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+}
+.bd-hero-price-none {
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  color: rgba(255,255,255,0.8) !important;
+}

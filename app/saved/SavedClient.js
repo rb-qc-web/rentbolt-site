@@ -85,8 +85,10 @@ export default function SavedClient({ buildings }) {
                   <div className="sv-body">
                     <div className="sv-loc">{b.city}{b.neighbourhood ? ` · ${b.neighbourhood}` : ""}</div>
                     <h3>{b.publicName}</h3>
-                    {b.startingPrice > 0 && (
+                    {b.startingPrice > 0 ? (
                       <div className="sv-price">From ${Number(b.startingPrice).toLocaleString()}<small>/mo</small></div>
+                    ) : (
+                      <div className="sv-price sv-price-none">Contact us for pricing</div>
                     )}
                   </div>
                 </a>

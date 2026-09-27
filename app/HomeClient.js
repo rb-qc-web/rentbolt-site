@@ -301,7 +301,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
                       </div>
                       <div className="rb-pfoot">
                         <div className="rb-pprice">
-                          {b.startingPrice > 0 ? <>From ${Number(b.startingPrice).toLocaleString()}<small>/mo</small></> : <>Contact for pricing</>}
+                          {b.startingPrice > 0 ? <>From ${Number(b.startingPrice).toLocaleString()}<small>/mo</small></> : <>Contact us for pricing</>}
                         </div>
                         <div className="rb-parrow">→</div>
                       </div>

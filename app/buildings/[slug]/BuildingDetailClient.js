@@ -228,13 +228,17 @@ export default function BuildingDetailClient({ building }) {
                 element on a listing and previously required scrolling past the
                 whole gallery to find. */}
             <div className="bd-hero-right">
-              {building.startingPrice > 0 && (
+              {building.startingPrice > 0 ? (
                 <div className="bd-hero-price">
                   <span className="bd-hero-price-label">From</span>
                   <span className="bd-hero-price-val">
                     ${Number(building.startingPrice).toLocaleString()}
                     <small>/mo</small>
                   </span>
+                </div>
+              ) : (
+                <div className="bd-hero-price">
+                  <span className="bd-hero-price-val bd-hero-price-none">Contact us for pricing</span>
                 </div>
               )}
               <FavouriteButton id={building.id} className="bd-hero-fav" />
