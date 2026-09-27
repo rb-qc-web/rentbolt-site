@@ -72,6 +72,49 @@ function tally(buildings, pick) {
     .map(([name, count]) => ({ name, count }));
 }
 
+
+function Caret() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
+/** Dropdown with a checkbox list. Filters live as you tick — no Apply step,
+ *  since the result count is visible behind the menu anyway. */
+function CheckMenu({ label, options, picks, setPicks, open, onToggle }) {
+  const toggle = name =>
+    setPicks(p => (p.includes(name) ? p.filter(x => x !== name) : [...p, name]));
+  return (
+    <div className="rb-sdd">
+      <button type="button" className={`rb-sdd-btn${picks.length ? " on" : ""}`} onClick={onToggle}>
+        {label}{picks.length > 0 && ` · ${picks.length}`}
+        <Caret />
+      </button>
+      {open && (
+        <div className="rb-sdd-menu">
+          <div className="rb-sdd-list">
+            {options.map(o => (
+              <label key={o.name} className="rb-sdd-item">
+                <input type="checkbox" checked={picks.includes(o.name)} onChange={() => toggle(o.name)} />
+                <span className="rb-sdd-box" aria-hidden="true" />
+                {o.name}
+              </label>
+            ))}
+          </div>
+          {picks.length > 0 && (
+            <div className="rb-sdd-foot">
+              <button onClick={() => setPicks([])}>Clear</button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SearchClient({ buildings, totalCount }) {
   const searchParams = useSearchParams();
   const [city, setCity] = useState(() => {
@@ -87,6 +130,7 @@ export default function SearchClient({ buildings, totalCount }) {
   const [inclusionPicks, setInclusionPicks] = useState([]);
   const [petsOnly, setPetsOnly] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null);
   const [search, setSearch] = useState("");
   const [activeId, setActiveId] = useState(null);
   const [hoverId, setHoverId] = useState(null);
@@ -116,6 +160,13 @@ export default function SearchClient({ buildings, totalCount }) {
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
       .map(([name, count]) => ({ name, count }));
   }, [buildings, city]);
+
+  useEffect(() => {
+    if (!openMenu) return;
+    const close = e => { if (!e.target.closest(".rb-sdd")) setOpenMenu(null); };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [openMenu]);
 
   // Reset the neighbourhood whenever the city changes, or it would filter
   // against a borough that doesn't exist in the new city.
@@ -493,102 +544,92 @@ export default function SearchClient({ buildings, totalCount }) {
           </div>
 
           {panelOpen && (
-            <div className="rb-spanel">
+            <div className="rb-srow2">
               {priceBounds && (
-                <div className="rb-spanel-group">
-                  <div className="rb-sbudget-head">
-                    <h4>Monthly budget</h4>
-                    <span className="rb-sbudget-val">
-                      ${price[0].toLocaleString()} &mdash; ${price[1].toLocaleString()}
-                      {price[1] >= priceBounds.hi && "+"}
-                    </span>
-                  </div>
+                <div className="rb-sdd">
+                  <button
+                    type="button"
+                    className={`rb-sdd-btn${priceTouched ? " on" : ""}`}
+                    onClick={() => setOpenMenu(openMenu === "budget" ? null : "budget")}
+                  >
+                    {priceTouched
+                      ? `$${price[0].toLocaleString()} – $${price[1].toLocaleString()}`
+                      : "Budget"}
+                    <Caret />
+                  </button>
+                  {openMenu === "budget" && (
+                    <div className="rb-sdd-menu rb-sdd-menu-budget">
+                      <div className="rb-sbudget-fields">
+                        <div>
+                          <span>Min</span>
+                          <strong>${price[0].toLocaleString()}</strong>
+                        </div>
+                        <div>
+                          <span>Max</span>
+                          <strong>${price[1].toLocaleString()}{price[1] >= priceBounds.hi && "+"}</strong>
+                        </div>
+                      </div>
 
-                  {/* Two overlaid range inputs. The track and fill are drawn
-                      underneath; only the thumbs take pointer events, so both
-                      handles stay grabbable across the whole width. */}
-                  <div className="rb-srange">
-                    <div className="rb-srange-track" />
-                    <div
-                      className="rb-srange-fill"
-                      style={{
-                        left: `${((price[0] - priceBounds.lo) / (priceBounds.hi - priceBounds.lo)) * 100}%`,
-                        right: `${100 - ((price[1] - priceBounds.lo) / (priceBounds.hi - priceBounds.lo)) * 100}%`,
-                      }}
-                    />
-                    <input
-                      type="range" min={priceBounds.lo} max={priceBounds.hi} step={50}
-                      value={price[0]}
-                      aria-label="Minimum monthly budget"
-                      onChange={e => {
-                        const v = Math.min(Number(e.target.value), price[1] - 50);
-                        setPriceRange([v, price[1]]);
-                      }}
-                    />
-                    <input
-                      type="range" min={priceBounds.lo} max={priceBounds.hi} step={50}
-                      value={price[1]}
-                      aria-label="Maximum monthly budget"
-                      onChange={e => {
-                        const v = Math.max(Number(e.target.value), price[0] + 50);
-                        setPriceRange([price[0], v]);
-                      }}
-                    />
-                  </div>
+                      {/* Two overlaid inputs; only the thumbs take pointer
+                          events so neither handle blocks the other. */}
+                      <div className="rb-srange">
+                        <div className="rb-srange-track" />
+                        <div className="rb-srange-fill" style={{
+                          left: `${((price[0] - priceBounds.lo) / (priceBounds.hi - priceBounds.lo)) * 100}%`,
+                          right: `${100 - ((price[1] - priceBounds.lo) / (priceBounds.hi - priceBounds.lo)) * 100}%`,
+                        }} />
+                        <input type="range" min={priceBounds.lo} max={priceBounds.hi} step={50}
+                          value={price[0]} aria-label="Minimum monthly budget"
+                          onChange={e => setPriceRange([Math.min(Number(e.target.value), price[1] - 50), price[1]])} />
+                        <input type="range" min={priceBounds.lo} max={priceBounds.hi} step={50}
+                          value={price[1]} aria-label="Maximum monthly budget"
+                          onChange={e => setPriceRange([price[0], Math.max(Number(e.target.value), price[0] + 50)])} />
+                      </div>
 
-                  <div className="rb-srange-ends">
-                    <span>${priceBounds.lo.toLocaleString()}</span>
-                    {priceTouched && (
-                      <button className="rb-srange-clear" onClick={() => setPriceRange(null)}>Clear</button>
-                    )}
-                    <span>${priceBounds.hi.toLocaleString()}+</span>
-                  </div>
-                </div>
-              )}
-
-              {petCount > 0 && (
-                <div className="rb-spanel-group">
-                  <h4>Pets</h4>
-                  <div className="rb-schips">
-                    <button className={`rb-schip${petsOnly ? " on" : ""}`} onClick={() => setPetsOnly(p => !p)}>
-                      Pet friendly <em>{petCount}</em>
-                    </button>
-                  </div>
+                      <div className="rb-sdd-foot">
+                        <span>${priceBounds.lo.toLocaleString()}</span>
+                        {priceTouched && <button onClick={() => setPriceRange(null)}>Clear</button>}
+                        <span>${priceBounds.hi.toLocaleString()}+</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
               {inclusionOptions.length > 0 && (
-                <div className="rb-spanel-group">
-                  <h4>What&apos;s included</h4>
-                  <div className="rb-schips">
-                    {inclusionOptions.map(o => (
-                      <button key={o.name}
-                        className={`rb-schip${inclusionPicks.includes(o.name) ? " on" : ""}`}
-                        onClick={() => setInclusionPicks(p => p.includes(o.name) ? p.filter(x => x !== o.name) : [...p, o.name])}>
-                        {o.name} <em>{o.count}</em>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <CheckMenu
+                  label="Inclusions"
+                  options={inclusionOptions}
+                  picks={inclusionPicks}
+                  setPicks={setInclusionPicks}
+                  open={openMenu === "inclusions"}
+                  onToggle={() => setOpenMenu(openMenu === "inclusions" ? null : "inclusions")}
+                />
               )}
 
               {amenityOptions.length > 0 && (
-                <div className="rb-spanel-group">
-                  <h4>Amenities</h4>
-                  <div className="rb-schips">
-                    {amenityOptions.map(o => (
-                      <button key={o.name}
-                        className={`rb-schip${amenityPicks.includes(o.name) ? " on" : ""}`}
-                        onClick={() => setAmenityPicks(p => p.includes(o.name) ? p.filter(x => x !== o.name) : [...p, o.name])}>
-                        {o.name} <em>{o.count}</em>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <CheckMenu
+                  label="Amenities"
+                  options={amenityOptions}
+                  picks={amenityPicks}
+                  setPicks={setAmenityPicks}
+                  open={openMenu === "amenities"}
+                  onToggle={() => setOpenMenu(openMenu === "amenities" ? null : "amenities")}
+                />
               )}
 
-              {!priceBounds && petCount === 0 &&
-               inclusionOptions.length === 0 && amenityOptions.length === 0 && (
+              {petCount > 0 && (
+                <button
+                  type="button"
+                  className={`rb-sdd-btn${petsOnly ? " on" : ""}`}
+                  onClick={() => setPetsOnly(v => !v)}
+                >
+                  Pet friendly
+                </button>
+              )}
+
+              {!priceBounds && inclusionOptions.length === 0 &&
+               amenityOptions.length === 0 && petCount === 0 && (
                 <p className="rb-spanel-empty">No extra filters available for this city yet.</p>
               )}
             </div>
@@ -802,6 +843,8 @@ export default function SearchClient({ buildings, totalCount }) {
         }
 
         .rb-sfilters {
+          position: relative;
+          z-index: 20;
           background: white;
           border-bottom: 1px solid var(--border);
           flex-shrink: 0;
@@ -1075,106 +1118,103 @@ export default function SearchClient({ buildings, totalCount }) {
           padding: 0 5px;
         }
 
-        .rb-spanel {
-          /* The parent is a wrapping flex ROW, so without a forced 100% basis
-             the panel sits inside the row alongside the controls and overlaps
-             them. This puts it on its own line beneath. */
+        .rb-srow2 {
+          /* Parent is a wrapping flex ROW, so a full basis puts this on its
+             own line instead of inside the controls row. */
           flex: 0 0 100%;
           width: 100%;
           margin-top: 4px;
-          padding-top: 16px;
+          padding-top: 14px;
           border-top: 1px solid var(--border);
           display: flex;
-          flex-direction: column;
-          gap: 16px;
-          /* The page is height:100vh, so an unbounded panel would eat the map
-             and results. Scroll instead. */
-          max-height: 46vh;
-          overflow-y: auto;
+          flex-wrap: wrap;
+          gap: 8px;
+          align-items: center;
         }
-        .rb-spanel-group h4 {
-          margin: 0 0 8px;
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.07em;
-          text-transform: uppercase;
-          color: var(--text-mute);
-        }
-        .rb-sbudget-head {
-          display: flex;
-          align-items: baseline;
-          justify-content: space-between;
-          gap: 12px;
-          margin-bottom: 10px;
-        }
-        .rb-sbudget-head h4 { margin: 0; }
-        .rb-sbudget-val {
-          font-size: 16px;
-          font-weight: 800;
+
+        .rb-sdd { position: relative; }
+        .rb-sdd-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          padding: 9px 15px;
+          border-radius: 100px;
+          border: 1px solid var(--border);
+          background: #fff;
           color: var(--navy);
-          letter-spacing: -0.01em;
+          font-size: 13px;
+          font-weight: 600;
+          font-family: inherit;
+          cursor: pointer;
+          white-space: nowrap;
         }
+        .rb-sdd-btn:hover { border-color: var(--navy); }
+        .rb-sdd-btn.on { background: var(--navy); color: #fff; border-color: var(--navy); }
 
-        .rb-srange { position: relative; height: 26px; }
-        .rb-srange-track {
+        .rb-sdd-menu {
           position: absolute;
-          left: 0; right: 0; top: 11px;
-          height: 4px;
-          border-radius: 100px;
-          background: var(--border);
+          top: calc(100% + 7px);
+          left: 0;
+          z-index: 50;
+          min-width: 230px;
+          background: #fff;
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          box-shadow: 0 8px 28px rgba(10,31,92,0.14);
+          padding: 8px;
         }
-        .rb-srange-fill {
-          position: absolute;
-          top: 11px;
-          height: 4px;
-          border-radius: 100px;
+        .rb-sdd-menu-budget { width: 280px; padding: 16px; }
+        .rb-sdd-list { max-height: 260px; overflow-y: auto; }
+
+        .rb-sdd-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 8px 10px;
+          border-radius: 8px;
+          font-size: 13px;
+          color: var(--navy);
+          cursor: pointer;
+        }
+        .rb-sdd-item:hover { background: var(--bg-soft); }
+        .rb-sdd-item input { position: absolute; opacity: 0; width: 0; height: 0; }
+        .rb-sdd-box {
+          width: 16px; height: 16px;
+          border-radius: 4px;
+          border: 1.5px solid #CBD2DF;
+          flex-shrink: 0;
+          position: relative;
+        }
+        .rb-sdd-item input:checked + .rb-sdd-box {
           background: var(--navy);
+          border-color: var(--navy);
         }
-        /* Both inputs span the full width and stack. Only the thumbs accept
-           pointer events, so neither handle can block the other. */
-        .rb-srange input[type="range"] {
+        .rb-sdd-item input:checked + .rb-sdd-box::after {
+          content: '';
           position: absolute;
-          left: 0; top: 0;
-          width: 100%;
-          height: 26px;
-          margin: 0;
-          background: none;
-          appearance: none;
-          -webkit-appearance: none;
-          pointer-events: none;
+          left: 4.5px; top: 1px;
+          width: 4px; height: 8px;
+          border: solid #fff;
+          border-width: 0 2px 2px 0;
+          transform: rotate(45deg);
         }
-        .rb-srange input[type="range"]::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          pointer-events: auto;
-          width: 20px; height: 20px;
-          border-radius: 50%;
-          background: #fff;
-          border: 2.5px solid var(--navy);
-          cursor: grab;
-          box-shadow: 0 1px 4px rgba(10,31,92,0.25);
+        .rb-sdd-item input:focus-visible + .rb-sdd-box {
+          outline: 2px solid var(--gold);
+          outline-offset: 2px;
         }
-        .rb-srange input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; }
-        .rb-srange input[type="range"]::-moz-range-thumb {
-          pointer-events: auto;
-          width: 20px; height: 20px;
-          border-radius: 50%;
-          background: #fff;
-          border: 2.5px solid var(--navy);
-          cursor: grab;
-          box-shadow: 0 1px 4px rgba(10,31,92,0.25);
-        }
-        .rb-srange input[type="range"]::-moz-range-track { background: none; }
 
-        .rb-srange-ends {
+        .rb-sdd-foot {
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 10px;
-          margin-top: 2px;
+          margin-top: 10px;
+          padding-top: 8px;
+          border-top: 1px solid var(--border);
           font-size: 12px;
           color: var(--text-mute);
         }
-        .rb-srange-clear {
+        .rb-sdd-foot button {
           background: none;
           border: none;
           font-family: inherit;
@@ -1187,37 +1227,33 @@ export default function SearchClient({ buildings, totalCount }) {
           padding: 0;
         }
 
-        .rb-schips { display: flex; flex-wrap: wrap; gap: 7px; }
-        .rb-schip {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 7px 14px;
-          border-radius: 100px;
+        .rb-sbudget-fields {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+        .rb-sbudget-fields > div {
+          flex: 1;
           border: 1px solid var(--border);
-          background: #fff;
-          color: var(--navy);
-          font-size: 13px;
-          font-weight: 600;
-          font-family: inherit;
-          cursor: pointer;
+          border-radius: 8px;
+          padding: 7px 11px;
         }
-        .rb-schip:hover { border-color: var(--navy); }
-        .rb-schip.on { background: var(--navy); color: #fff; border-color: var(--navy); }
-        /* Count of matches, so a chip never looks like it might return nothing. */
-        .rb-schip em {
-          font-style: normal;
-          font-size: 11px;
+        .rb-sbudget-fields span {
+          display: block;
+          font-size: 10px;
           font-weight: 700;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
           color: var(--text-mute);
+          margin-bottom: 2px;
         }
-        .rb-schip.on em { color: rgba(255,255,255,0.65); }
-        .rb-spanel-empty { font-size: 13px; color: var(--text-mute); margin: 0; }
+        .rb-sbudget-fields strong {
+          font-size: 14px;
+          font-weight: 700;
+          color: var(--navy);
+        }
 
-        @media (max-width: 768px) {
-          .rb-smore { padding: 9px 14px; }
-          .rb-schip { font-size: 12px; padding: 6px 12px; }
-        }
+        .rb-spanel-empty { font-size: 13px; color: var(--text-mute); margin: 0; }
 
         .rb-shint {
           display: flex;
