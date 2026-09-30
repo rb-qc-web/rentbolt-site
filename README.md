@@ -94,7 +94,8 @@ column is ever added in monday.
 | `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | cache, galleries, leads |
 | `CLOUDFLARE_ACCOUNT_ID` / `CLOUDFLARE_API_TOKEN` | photo uploads |
 | `CLOUDFLARE_ACCOUNT_HASH` | building delivery URLs (has a fallback) |
-| `ADMIN_PASSWORD` | `/admin/photos` and all `/api/admin/*` |
+| `ADMIN_PASSWORD` | `/admin/photos`, `/admin/leads` and all `/api/admin/*` |
+| `MONDAY_LEADS_BOARD_ID` | optional — mirrors each lead onto a monday board. Absent = leads live in Redis only |
 | `CRON_SECRET` | authenticating the scheduled refresh |
 | `CACHE_REFRESH_SECRET` | manual cache clear |
 | `NEXT_PUBLIC_CARTO_API_KEY` | optional — switches the map to Carto Positron. Absent = keyless Esri Light Gray |
@@ -126,6 +127,40 @@ Coverage: `/api/photo-status`.
 
 ---
 
+## Leads
+
+Four forms capture leads. All four post to one of two endpoints, and everything
+lands in one Redis sorted set (`rentbolt:leads`), newest-first:
+
+| Form | Kind | Endpoint |
+|---|---|---|
+| `/find-a-place`, and the modal on the home/search/detail pages | `tenant` | `/api/leads` |
+| `/landlords` partnership form | `landlord` | `/api/leads` |
+| "Book a visit" on a building page | `visit` | `/api/leads` |
+| `/saved` — the saved-homes list | `saved-list` | `/api/save-list` |
+
+Read them at **`/admin/leads`** (same `ADMIN_PASSWORD` as the photo tool),
+filterable by kind and exportable to CSV.
+
+Three deliberate decisions:
+
+- **Redis is the source of truth, not monday.** A board can be renamed or have
+  its columns re-created with new ids; none of that may cost a tenant's email
+  address. Set `MONDAY_LEADS_BOARD_ID` and each lead is *also* pushed to that
+  board — best-effort, and a failure is logged rather than shown to the visitor.
+- **The monday item carries no column values.** It is created with a name only,
+  and every field goes into an update (a comment) on the item. Column ids are
+  unique per board (see "the single biggest gotcha"), so any hardcoded mapping
+  here would be one board edit away from silently dropping fields.
+- **A form may only report success when the server confirmed it.** All four go
+  through `lib/submitLead.js`, which reads the response as text before parsing —
+  a 500 from Next returns an HTML page, and `res.json()` on that throws a
+  `SyntaxError` that would otherwise be shown to the visitor as the reason their
+  form failed. If Redis is unconfigured the visitor is told to email us instead.
+  Every form has a visible error state; none of them fake a thank-you.
+
+---
+
 ## Endpoints
 
 **Operational**
@@ -151,7 +186,11 @@ Coverage: `/api/photo-status`.
 **Admin** (all require the `x-admin-password` header)
 
 `/api/admin/ping` · `/api/admin/buildings` · `/api/admin/upload-url` ·
-`/api/admin/save-gallery` · `/api/admin/leads`
+`/api/admin/save-gallery` · `/api/admin/leads` (`?kind=tenant`, `?format=csv`)
+
+**Public POST**
+
+`/api/leads` (tenant / landlord / visit) · `/api/save-list` (saved homes)
 
 ---
 

@@ -1,33 +1,35 @@
-import { Redis } from "@upstash/redis";
+import { saveLead, forwardToMonday, leadsConfigured } from "@/lib/leadStore";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
 
-// A saved list plus an email is a far better lead than a contact form: it
-// says which specific buildings someone wants. Stored in Redis, which is
-// already provisioned; when the lead forms are wired to Monday these can be
-// migrated with the rest.
+// A saved list plus an email is the best lead the site produces: it says which
+// specific buildings someone wants. Shares the store and the Monday forward
+// with /api/leads so all four forms land in one place.
 
-function redis() {
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) return null;
-  return new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  });
-}
+const str = (v, max) => String(v ?? "").trim().slice(0, max);
 
 export async function POST(request) {
   let body;
   try { body = await request.json(); }
   catch { return Response.json({ error: "Invalid request" }, { status: 400 }); }
 
-  const name = String(body?.name || "").trim().slice(0, 120);
-  const email = String(body?.email || "").trim().toLowerCase();
-  const phone = String(body?.phone || "").trim().slice(0, 40);
-  const moveIn = String(body?.moveIn || "").trim().slice(0, 20);
+  const name = str(body?.name, 120);
+  const email = str(body?.email, 160).toLowerCase();
+  const phone = str(body?.phone, 40);
+  const moveIn = str(body?.moveIn, 20);
   const flexible = Boolean(body?.flexible);
-  const buildings = Array.isArray(body?.buildings) ? body.buildings.slice(0, 50) : [];
-  const note = String(body?.note || "").slice(0, 500);
+  const note = str(body?.note, 1500);
+
+  const buildings = (Array.isArray(body?.buildings) ? body.buildings : [])
+    .slice(0, 50)
+    .map(b => ({
+      id: str(b?.id, 40),
+      name: str(b?.name, 160),
+      city: str(b?.city, 60),
+      neighbourhood: str(b?.neighbourhood, 80),
+      price: Number.isFinite(Number(b?.price)) ? Number(b.price) : null,
+    }));
 
   if (!name) {
     return Response.json({ error: "Please enter your name." }, { status: 400 });
@@ -39,26 +41,33 @@ export async function POST(request) {
     return Response.json({ error: "Your list is empty." }, { status: 400 });
   }
 
-  const r = redis();
-  if (!r) return Response.json({ error: "Could not save right now." }, { status: 503 });
-
-  const lead = {
-    name,
-    email,
-    phone,
-    moveIn: flexible ? "Flexible" : (moveIn || ""),
-    note,
-    buildings,
-    createdAt: new Date().toISOString(),
-  };
-
-  try {
-    // Sorted set keyed by time so the admin view can page newest-first.
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    await r.set(`rentbolt:lead:${id}`, JSON.stringify(lead));
-    await r.zadd("rentbolt:leads", { score: Date.now(), member: id });
-    return Response.json({ ok: true });
-  } catch (err) {
-    return Response.json({ error: "Could not save right now." }, { status: 500 });
+  if (!leadsConfigured()) {
+    return Response.json(
+      { error: "We couldn't send your list right now. Please email rent@rentbolt.ca and we'll pick it up." },
+      { status: 503 },
+    );
   }
+
+  let saved;
+  try {
+    saved = await saveLead({
+      kind: "saved-list",
+      name,
+      email,
+      phone,
+      moveIn: flexible ? "Flexible" : moveIn,
+      flexible,
+      note,
+      buildings,
+    });
+  } catch {
+    return Response.json({ error: "We couldn't send your list right now. Please try again in a moment." }, { status: 500 });
+  }
+
+  const fwd = await forwardToMonday(saved);
+  if (!fwd.forwarded && fwd.reason !== "not configured") {
+    console.error("[leads] Monday forward failed:", fwd.reason);
+  }
+
+  return Response.json({ ok: true });
 }

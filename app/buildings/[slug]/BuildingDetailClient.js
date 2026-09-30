@@ -5,6 +5,7 @@ import FavouriteButton from "@/app/components/FavouriteButton";
 import SavedNavLink from "@/app/components/SavedNavLink";
 import { getBuildingPhoto } from "@/lib/cityPhotos";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
+import { submitLead } from "@/lib/submitLead";
 
 function Bolt() {
   return (
@@ -166,10 +167,23 @@ export default function BuildingDetailClient({ building }) {
     }
     setError("");
     setSubmitting(true);
-    // Placeholder: in the future, POST to /api/leads which writes to Monday
-    await new Promise(r => setTimeout(r, 800));
-    setSubmitted(true);
-    setSubmitting(false);
+    try {
+      await submitLead({
+        kind: "visit",
+        ...form,
+        building: {
+          id: building.id,
+          slug: building.slug,
+          name: building.publicName || building.name,
+          city: building.city,
+        },
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Falls back to the city image when a building has no uploaded photos.

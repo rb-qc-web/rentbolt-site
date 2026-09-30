@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { X, ChevronDown, Check, Loader2 } from "lucide-react";
+import { submitLead } from "@/lib/submitLead";
 
 const CITIES = [
   "Montréal",
@@ -106,6 +107,7 @@ export default function FindAPlaceModal({ open, onClose }) {
   const [form, setForm] = useState(INITIAL);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   // Reset when closed
   useEffect(() => {
@@ -114,6 +116,7 @@ export default function FindAPlaceModal({ open, onClose }) {
         setForm(INITIAL);
         setSubmitted(false);
         setSubmitting(false);
+        setError("");
       }, 300);
     }
   }, [open]);
@@ -145,12 +148,17 @@ export default function FindAPlaceModal({ open, onClose }) {
   const set = (field, val) => setForm((f) => ({ ...f, [field]: val }));
 
   const handleSubmit = async () => {
-    if (!form.name || !form.email || !form.city) return;
+    if (!form.name || !form.email || !form.city || submitting) return;
+    setError("");
     setSubmitting(true);
-    // No backend yet — simulate delay
-    await new Promise((r) => setTimeout(r, 900));
-    setSubmitting(false);
-    setSubmitted(true);
+    try {
+      await submitLead({ kind: "tenant", ...form });
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!open) return null;
@@ -190,6 +198,7 @@ export default function FindAPlaceModal({ open, onClose }) {
             set={set}
             submitting={submitting}
             onSubmit={handleSubmit}
+            error={error}
           />
         )}
       </div>
@@ -208,7 +217,7 @@ export default function FindAPlaceModal({ open, onClose }) {
   );
 }
 
-function FormBody({ form, set, submitting, onSubmit }) {
+function FormBody({ form, set, submitting, onSubmit, error }) {
   const canSubmit = form.name.trim() && form.email.trim() && form.city;
 
   return (
@@ -387,6 +396,11 @@ function FormBody({ form, set, submitting, onSubmit }) {
 
       {/* Sticky footer */}
       <div className="px-6 pb-7 pt-4 border-t border-gray-100 bg-white sticky bottom-0 rounded-b-3xl">
+        {error && (
+          <p className="mb-3 px-3.5 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-[13px] font-semibold text-center">
+            {error}
+          </p>
+        )}
         <button
           type="button"
           onClick={onSubmit}
@@ -412,7 +426,7 @@ function FormBody({ form, set, submitting, onSubmit }) {
             "Find My Place →"
           )}
         </button>
-        {(!form.name || !form.email || !form.city) && (
+        {!error && (!form.name || !form.email || !form.city) && (
           <p className="text-xs text-center text-gray-400 mt-2">
             City, name and email required
           </p>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { brand } from "@/lib/brand";
+import { submitLead } from "@/lib/submitLead";
 
 const CITIES = ["Montréal", "Gatineau", "Ottawa", "Kitchener-Waterloo", "London", "Hamilton"];
 const UNIT_TYPES = ["Studio", "1 Bedroom", "2 Bedrooms", "3 Bedrooms", "4+ Bedrooms", "Loft", "Townhouse"];
@@ -170,6 +171,7 @@ export default function FindAPlaceClient() {
   const [form, setForm] = useState(INITIAL);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [focused, setFocused] = useState(null);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -178,11 +180,17 @@ export default function FindAPlaceClient() {
   const canSubmit = form.name.trim() && form.email.trim() && form.city;
 
   const handleSubmit = async () => {
-    if (!canSubmit) return;
+    if (!canSubmit || submitting) return;
+    setError("");
     setSubmitting(true);
-    await new Promise(r => setTimeout(r, 900));
-    setSubmitting(false);
-    setSubmitted(true);
+    try {
+      await submitLead({ kind: "tenant", ...form });
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -413,7 +421,16 @@ export default function FindAPlaceClient() {
                   >
                     {submitting ? "Sending…" : "Find My Place →"}
                   </button>
-                  {(!form.name || !form.email || !form.city) && (
+                  {error && (
+                    <p style={{
+                      marginTop: 12, marginBottom: 0, padding: "10px 14px", borderRadius: 10,
+                      background: "#FEF2F2", border: "1px solid #FECACA", color: "#B42318",
+                      fontSize: 13, fontWeight: 600, textAlign: "center",
+                    }}>
+                      {error}
+                    </p>
+                  )}
+                  {!error && (!form.name || !form.email || !form.city) && (
                     <p style={{ textAlign: "center", fontSize: 12, color: "#8B92A5", marginTop: 10 }}>
                       City, name and email are required
                     </p>

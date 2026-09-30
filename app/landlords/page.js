@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { meta } from "@/lib/brand";
+import { submitLead } from "@/lib/submitLead";
 
 const navy = "#0A1F5C";
 const navyDark = "#040E2A";
@@ -150,16 +151,23 @@ function PartnershipForm() {
   const [focused, setFocused] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const canSubmit = form.name.trim() && form.email.trim();
 
   const handleSubmit = async () => {
-    if (!canSubmit) return;
+    if (!canSubmit || submitting) return;
+    setError("");
     setSubmitting(true);
-    await new Promise(r => setTimeout(r, 900));
-    setSubmitting(false);
-    setSubmitted(true);
+    try {
+      await submitLead({ kind: "landlord", ...form });
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -226,7 +234,13 @@ function PartnershipForm() {
       }}>
         {submitting ? "Sending…" : "Get in Touch →"}
       </button>
-      {!canSubmit && <p style={{ textAlign: "center", fontSize: 12, color: textMute, margin: 0 }}>Name and email required</p>}
+      {error && (
+        <p style={{
+          margin: 0, padding: "10px 14px", borderRadius: 10, background: "#FEF2F2",
+          border: "1px solid #FECACA", color: "#B42318", fontSize: 13, fontWeight: 600, textAlign: "center",
+        }}>{error}</p>
+      )}
+      {!error && !canSubmit && <p style={{ textAlign: "center", fontSize: 12, color: textMute, margin: 0 }}>Name and email required</p>}
     </div>
   );
 }

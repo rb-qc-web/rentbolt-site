@@ -5,6 +5,7 @@ import { useFavourites } from "@/lib/useFavourites";
 import FavouriteButton from "@/app/components/FavouriteButton";
 import { getBuildingPhoto } from "@/lib/cityPhotos";
 import { SiteHeader, SiteFooter } from "@/app/components/SiteChrome";
+import { submitLead } from "@/lib/submitLead";
 
 export default function SavedClient({ buildings }) {
   const { ids, ready, clear } = useFavourites();
@@ -25,24 +26,18 @@ export default function SavedClient({ buildings }) {
     e.preventDefault();
     setState({ status: "sending", msg: "" });
     try {
-      const res = await fetch("/api/save-list", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          moveIn: flexible ? "" : moveIn,
-          flexible,
-          note,
-          buildings: saved.map(b => ({
-            id: b.id, name: b.publicName, city: b.city,
-            neighbourhood: b.neighbourhood, price: b.startingPrice,
-          })),
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+      await submitLead({
+        name,
+        email,
+        phone,
+        moveIn: flexible ? "" : moveIn,
+        flexible,
+        note,
+        buildings: saved.map(b => ({
+          id: b.id, name: b.publicName, city: b.city,
+          neighbourhood: b.neighbourhood, price: b.startingPrice,
+        })),
+      }, "/api/save-list");
       setState({ status: "done", msg: "Sent. An advisor will be in touch shortly." });
     } catch (err) {
       setState({ status: "error", msg: err.message });
