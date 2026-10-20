@@ -180,7 +180,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             <div className="label">Active listings</div>
           </div>
           <div className="rb-figure">
-            <div className="num">5</div>
+            <div className="num">7</div>
             <div className="label">Major cities</div>
           </div>
           <div className="rb-figure">
