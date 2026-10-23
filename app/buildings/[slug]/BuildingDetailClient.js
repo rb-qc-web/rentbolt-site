@@ -392,7 +392,13 @@ export default function BuildingDetailClient({ building }) {
                     const icon = getIcon(inc, INCLUSION_ICONS);
                     return <span key={i} className="bd-pill bd-pill-gold">{icon && <span className="bd-pill-emoji">{icon}</span>}{inc}</span>;
                   })}
-                  {inclusions.length === 0 && <span style={{color:"var(--text-mute)",fontSize:14}}>Not specified</span>}
+                  {inclusions.length === 0 && (
+                    <span style={{color:"var(--text-mute)",fontSize:14}}>
+                      {/* An explicit "No Inclusions" beats "Not specified": a renter
+                          who reads "not specified" phones to ask. */}
+                      {building.noInclusions ? "Nothing included — utilities are extra" : "Not specified"}
+                    </span>
+                  )}
                 </div>
               )}
               {(building.parking || building.pets || building.isFurnished) && (
