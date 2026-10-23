@@ -4,7 +4,7 @@ import SavedNavLink from "@/app/components/SavedNavLink";
 
 function Bolt() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M13 2L4.5 13.5H11L10 22L19.5 10H13L13 2Z" fill="url(#chrome-bolt)" stroke="url(#chrome-bolt)" strokeLinejoin="round" strokeWidth="0.5"/>
       <defs>
         <linearGradient id="chrome-bolt" x1="0" y1="0" x2="24" y2="24">

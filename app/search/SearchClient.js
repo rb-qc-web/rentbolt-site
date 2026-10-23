@@ -709,7 +709,7 @@ export default function SearchClient({ buildings, totalCount }) {
             <div className="rb-shint">
               Save the places you like with the
               <span className="rb-shint-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
                      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21.2l7.7-7.7 1.1-1.1a5.5 5.5 0 0 0 0-7.8z" />
                 </svg>

@@ -7,7 +7,7 @@ import FindAPlaceModal from "@/components/FindAPlaceModal";
 
 function Bolt() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M13 2L4.5 13.5H11L10 22L19.5 10H13L13 2Z" fill="url(#bolt-grad)" stroke="url(#bolt-grad)" strokeLinejoin="round" strokeWidth="0.5"/>
       <defs>
         <linearGradient id="bolt-grad" x1="0" y1="0" x2="24" y2="24">
@@ -30,7 +30,7 @@ const ICONS = {
 
 function StepIcon({ name }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
          strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
       {ICONS[name]}
     </svg>
@@ -198,20 +198,20 @@ export default function HomeClient({ buildings = [], cities = [] }) {
       <div className="rb-trust">
         <div className="rb-trust-inner">
           <div className="rb-tpoint">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
             <span>Real local leasing advisors</span>
           </div>
           <div className="rb-tpoint">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="m9 12.5 2 2 4-4"/>
             </svg>
             <span>Professionally vetted listings</span>
           </div>
           <div className="rb-tpoint">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>
               <path d="M8 13h8"/><path d="M8 17h5"/>
             </svg>
