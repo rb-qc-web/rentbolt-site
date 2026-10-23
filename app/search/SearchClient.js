@@ -73,15 +73,6 @@ function hasParking(b) {
   return v.length > 0 && !/^(no|none|n\/a|not available)$/i.test(v);
 }
 
-// Utilities included in rent. The monday booleans only exist on Montreal, so
-// each also accepts a matching inclusion pill from any board.
-const UTILITIES = [
-  { name: "Heating",     test: b => b.heatingIncl     || pillMatch(b, /heat/i) },
-  { name: "Water",       test: b => b.waterIncl       || pillMatch(b, /water/i) },
-  { name: "Electricity", test: b => b.electricityIncl || pillMatch(b, /electric|hydro/i) },
-  { name: "Internet",    test: b => b.internetIncl    || pillMatch(b, /internet|wi-?fi/i) },
-];
-
 // Every option list is built from the buildings actually present, with counts,
 // so a filter can never offer something that returns nothing.
 function tally(buildings, pick) {
@@ -156,7 +147,6 @@ export default function SearchClient({ buildings, totalCount }) {
   const [inclusionPicks, setInclusionPicks] = useState([]);
   const [petsOnly, setPetsOnly] = useState(false);
   const [parkingOnly, setParkingOnly] = useState(false);
-  const [utilityPicks, setUtilityPicks] = useState([]);
   // The extra filters are open by default: they are the useful ones, and a
   // renter who never presses "Filters" never discovers them.
   const [panelOpen, setPanelOpen] = useState(true);
@@ -212,12 +202,6 @@ export default function SearchClient({ buildings, totalCount }) {
   const inclusionOptions = useMemo(() => tally(scopeForOptions, b => b.inclusionsList), [scopeForOptions]);
   const petCount         = useMemo(() => scopeForOptions.filter(isPetFriendly).length, [scopeForOptions]);
   const parkingCount     = useMemo(() => scopeForOptions.filter(hasParking).length, [scopeForOptions]);
-  // Only offer a utility that at least one building in this city actually
-  // includes, so the list can never contain a dead option.
-  const utilityOptions   = useMemo(
-    () => UTILITIES.filter(u => scopeForOptions.some(u.test)).map(u => ({ name: u.name })),
-    [scopeForOptions]
-  );
 
   // Slider bounds come from what is actually listed, rounded outward to clean
   // $50 steps, so the handles always span the real range for this city.
@@ -239,12 +223,12 @@ export default function SearchClient({ buildings, totalCount }) {
   // Anything picked in one city may not exist in the next, so clear on change.
   useEffect(() => {
     setAmenityPicks([]); setInclusionPicks([]); setPetsOnly(false); setPriceRange(null);
-    setParkingOnly(false); setUtilityPicks([]);
+    setParkingOnly(false);
   }, [city]);
 
   const extraCount =
     (priceTouched ? 1 : 0) + amenityPicks.length + inclusionPicks.length +
-    utilityPicks.length + (petsOnly ? 1 : 0) + (parkingOnly ? 1 : 0);
+    (petsOnly ? 1 : 0) + (parkingOnly ? 1 : 0);
 
   const filtered = useMemo(() => {
     return buildings.filter(b => {
@@ -259,8 +243,6 @@ export default function SearchClient({ buildings, totalCount }) {
 
       if (petsOnly && !isPetFriendly(b)) return false;
       if (parkingOnly && !hasParking(b)) return false;
-      if (utilityPicks.length && !utilityPicks.every(name =>
-            UTILITIES.find(u => u.name === name)?.test(b))) return false;
       if (amenityPicks.length && !amenityPicks.every(a => (b.amenitiesList || []).includes(a))) return false;
       if (inclusionPicks.length && !inclusionPicks.every(i => (b.inclusionsList || []).includes(i))) return false;
       if (bed >= 0) {
@@ -277,7 +259,7 @@ export default function SearchClient({ buildings, totalCount }) {
       }
       return true;
     });
-  }, [buildings, city, hood, bed, search, priceTouched, price, petsOnly, parkingOnly, utilityPicks, amenityPicks, inclusionPicks]);
+  }, [buildings, city, hood, bed, search, priceTouched, price, petsOnly, parkingOnly, amenityPicks, inclusionPicks]);
 
   // INIT MAP (once)
   useEffect(() => {
@@ -485,7 +467,6 @@ export default function SearchClient({ buildings, totalCount }) {
     setInclusionPicks([]);
     setPetsOnly(false);
     setParkingOnly(false);
-    setUtilityPicks([]);
     setSearch("");
   };
 
@@ -665,18 +646,6 @@ export default function SearchClient({ buildings, totalCount }) {
                 />
               )}
 
-              {utilityOptions.length > 0 && (
-                <CheckMenu
-                  label="Utilities"
-                  icon="💡"
-                  options={utilityOptions}
-                  picks={utilityPicks}
-                  setPicks={setUtilityPicks}
-                  open={openMenu === "utilities"}
-                  onToggle={() => setOpenMenu(openMenu === "utilities" ? null : "utilities")}
-                />
-              )}
-
               {parkingCount > 0 && (
                 <button
                   type="button"
@@ -700,7 +669,7 @@ export default function SearchClient({ buildings, totalCount }) {
               )}
 
               {!priceBounds && inclusionOptions.length === 0 &&
-               amenityOptions.length === 0 && utilityOptions.length === 0 &&
+               amenityOptions.length === 0 &&
                parkingCount === 0 && petCount === 0 && (
                 <p className="rb-spanel-empty">No extra filters available for this city yet.</p>
               )}
