@@ -63,8 +63,22 @@ Two fields already work around this:
 | Toronto | 18402583974 | `location_mm3yrv60` |
 | London | 18401824343 | `location_mm5eg13x` |
 | Kitchener-Waterloo | 5892819868 | `location_mm3yr7wf` |
+| Mississauga | 18431630361 | `location_mm3yrv60` |
+| Ajax | 18430413833 | `location_mm3yrv60` |
 
 Only items with status **Lease-Up** or **Stabilization** are published.
+
+Mississauga and Ajax were duplicated from the Toronto board, so they inherit
+Toronto's column ids exactly — including the dropdowns in `COL_EXTRA`. That is
+inheritance, not coincidence: a board rebuilt from scratch instead of duplicated
+would get fresh ids and need its own entry.
+
+Three Mississauga buildings sit on one street (1423 / 1447 / 1547 Mississauga
+Valley Blvd), so all three publish as "Mississauga Valley Boulevard Apartments".
+Known and accepted for now; the `publicNameOverride` hook below is the fix.
+
+The board list is duplicated in `/api/debug-boards` and `/api/debug-columns`.
+Adding a board means editing all three.
 
 ---
 

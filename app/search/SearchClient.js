@@ -21,7 +21,7 @@ function Bolt() {
   );
 }
 
-const CITY_FILTERS = ["All cities", "Montreal", "Ottawa", "Toronto", "London", "Kitchener-Waterloo"];
+const CITY_FILTERS = ["All cities", "Montreal", "Ottawa", "Toronto", "Mississauga", "Ajax", "London", "Kitchener-Waterloo"];
 const BED_FILTERS = [
   { label: "Any", val: -1 },
   { label: "Studio", val: 0 },
@@ -38,6 +38,8 @@ const CITY_CENTERS = {
   "Montreal": [45.5017, -73.5673],
   "Ottawa": [45.4215, -75.6972],
   "Toronto": [43.6532, -79.3832],
+  "Mississauga": [43.5890, -79.6441],
+  "Ajax": [43.8509, -79.0204],
   "London": [42.9849, -81.2453],
   "Kitchener-Waterloo": [43.4643, -80.5204],
 };

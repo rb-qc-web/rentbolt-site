@@ -15,6 +15,8 @@ const BOARDS = {
   toronto:  { id: 18402583974, city: "Toronto" },
   london:   { id: 18401824343, city: "London" },
   kwcg:     { id: 5892819868,  city: "Kitchener-Waterloo" },
+  mississauga: { id: 18431630361, city: "Mississauga" },
+  ajax:        { id: 18430413833, city: "Ajax" },
 };
 
 // Fields the site actually reads, and why they matter to a visitor.

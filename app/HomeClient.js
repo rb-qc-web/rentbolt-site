@@ -44,7 +44,7 @@ const STEPS = [
   { icon: "key", detail: "You’re all set! Your property manager takes it from here, but we’re still here if there’s anything we can help you with.", title: "Move in", desc: "Sign your lease, get your keys, settle into your new home." },
 ];
 
-const CITY_FILTERS = ["All cities", "Montreal", "Toronto", "Ottawa", "London", "Kitchener-Waterloo"];
+const CITY_FILTERS = ["All cities", "Montreal", "Toronto", "Mississauga", "Ajax", "Ottawa", "London", "Kitchener-Waterloo"];
 
 // City photos now in lib/cityPhotos.js
 
@@ -145,11 +145,11 @@ export default function HomeClient({ buildings = [], cities = [] }) {
                 <option value="">All cities</option>
                 <option value="Montreal">Montreal</option>
                 <option value="Toronto">Toronto</option>
+                <option value="Mississauga">Mississauga</option>
+                <option value="Ajax">Ajax</option>
                 <option value="Ottawa">Ottawa</option>
                 <option value="London">London</option>
                 <option value="Kitchener-Waterloo">Kitchener-Waterloo</option>
-                <option value="Hamilton">Hamilton</option>
-                <option value="Gatineau">Gatineau</option>
               </select>
             </div>
             <button className="rb-search-btn" type="submit">Start search</button>
@@ -329,7 +329,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             <p>Thousands of verified listings across major Canadian markets.</p>
           </div>
           <div className="rb-cgrid">
-            {["Montreal", "Ottawa", "Toronto", "London", "Kitchener-Waterloo"].map(city => (
+            {["Montreal", "Ottawa", "Toronto", "Mississauga", "Ajax", "London", "Kitchener-Waterloo"].map(city => (
               <a key={city} href="/search" className="rb-city">
                 <img src={CITY_PHOTO_MAP[city] || CITY_PHOTO_MAP["Montreal"]} alt={city} />
                 <div className="rb-ccontent">

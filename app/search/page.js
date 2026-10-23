@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Find an Apartment — RentBolt",
-  description: "Browse all apartments and rental buildings on a live map across Montreal, Toronto, Ottawa, London and Kitchener-Waterloo.",
+  description: "Browse all apartments and rental buildings on a live map across Montreal, Toronto, Mississauga, Ajax, Ottawa, London and Kitchener-Waterloo.",
 };
 
 export default async function SearchPage() {

@@ -9,6 +9,8 @@ const BOARDS = {
   toronto:  { id: 18402583974, city: "Toronto",            locationColId: "location_mm3yrv60" },
   london:   { id: 18401824343, city: "London",             locationColId: "location_mm5eg13x" },
   kwcg:     { id: 5892819868,  city: "Kitchener-Waterloo", locationColId: "location_mm3yr7wf" },
+  mississauga: { id: 18431630361, city: "Mississauga",     locationColId: "location_mm3yrv60" },
+  ajax:        { id: 18430413833, city: "Ajax",            locationColId: "location_mm3yrv60" },
 };
 
 const ACTIVE = ["Lease-Up", "Stabilization"];
