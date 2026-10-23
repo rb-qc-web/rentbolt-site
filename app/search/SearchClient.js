@@ -6,6 +6,7 @@ import SavedNavLink from "@/app/components/SavedNavLink";
 import { useSearchParams } from "next/navigation";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 import { getBuildingPhoto } from "@/lib/cityPhotos";
+import { canonLabel, canonKey, listHas } from "@/lib/labels";
 
 function Bolt() {
   return (
@@ -63,8 +64,26 @@ function pillMatch(b, re) {
 }
 
 function isPetFriendly(b) {
-  if (pillMatch(b, /pet/i)) return true;
-  return /yes|allowed|friendly/i.test(b.pets || "");
+  // An explicit "Pet friendly" inclusion pill settles it.
+  if (pills(b).some(x => /pet.?friendly/i.test(x))) return true;
+
+  const t = String(b.pets || "").toLowerCase().trim();
+  if (!t) return false;
+
+  // Naming a species is almost always permission — "Cats Only", "Cats & Small
+  // dogs", "Cats Yes, Dogs No", even "No Pets - Cats are tolerated" all mean
+  // SOME pet is welcome. The exception is a flat refusal that happens to name
+  // the animals it is refusing.
+  if (/\bcats?\b|\bdogs?\b/.test(t)) {
+    if (/^no\b/.test(t) && !/\b(yes|ok|okay|allowed|tolerated|only|small|welcome)\b/.test(t)) return false;
+    return true;
+  }
+
+  // Checked before the positives: "No Pets Allowed" contains "allowed", which
+  // is why this filter used to show buildings that ban pets.
+  if (/\bno\b|\bnone\b/.test(t)) return false;
+
+  return /\byes\b|allowed|friendly|welcome/.test(t);
 }
 
 function hasParking(b) {
@@ -75,17 +94,26 @@ function hasParking(b) {
 
 // Every option list is built from the buildings actually present, with counts,
 // so a filter can never offer something that returns nothing.
+//
+// Grouping is by canonical label, not raw text: otherwise "Laundry room" and
+// "Laundry Room" sit in the menu as two separate options, and picking both
+// matches nothing.
 function tally(buildings, pick) {
   const counts = {};
+  const display = {};
   for (const b of buildings) {
     for (const v of pick(b) || []) {
-      const k = String(v).trim();
-      if (k) counts[k] = (counts[k] || 0) + 1;
+      const raw = String(v).trim();
+      if (!raw) continue;
+      const k = canonKey(raw);
+      if (!k) continue;
+      counts[k] = (counts[k] || 0) + 1;
+      if (!display[k]) display[k] = canonLabel(raw);
     }
   }
   return Object.entries(counts)
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .map(([name, count]) => ({ name, count }));
+    .sort((a, b) => b[1] - a[1] || display[a[0]].localeCompare(display[b[0]]))
+    .map(([k, count]) => ({ name: display[k], count }));
 }
 
 
@@ -199,7 +227,13 @@ export default function SearchClient({ buildings, totalCount }) {
     [buildings, city]
   );
   const amenityOptions   = useMemo(() => tally(scopeForOptions, b => b.amenitiesList), [scopeForOptions]);
-  const inclusionOptions = useMemo(() => tally(scopeForOptions, b => b.inclusionsList), [scopeForOptions]);
+  // "Pet friendly" is an Inclusions option on the Ontario boards and also has
+  // its own toggle. Leaving it in both means picking it here quietly excludes
+  // every Montreal building, whose board words pets differently.
+  const inclusionOptions = useMemo(
+    () => tally(scopeForOptions, b => (b.inclusionsList || []).filter(x => !/pet.?friendly/i.test(x))),
+    [scopeForOptions]
+  );
   const petCount         = useMemo(() => scopeForOptions.filter(isPetFriendly).length, [scopeForOptions]);
   const parkingCount     = useMemo(() => scopeForOptions.filter(hasParking).length, [scopeForOptions]);
 
@@ -243,8 +277,8 @@ export default function SearchClient({ buildings, totalCount }) {
 
       if (petsOnly && !isPetFriendly(b)) return false;
       if (parkingOnly && !hasParking(b)) return false;
-      if (amenityPicks.length && !amenityPicks.every(a => (b.amenitiesList || []).includes(a))) return false;
-      if (inclusionPicks.length && !inclusionPicks.every(i => (b.inclusionsList || []).includes(i))) return false;
+      if (amenityPicks.length && !amenityPicks.every(a => listHas(b.amenitiesList, a))) return false;
+      if (inclusionPicks.length && !inclusionPicks.every(i => listHas(b.inclusionsList, i))) return false;
       if (bed >= 0) {
         if (bed === 3) {
           if (!b.bedrooms?.some(x => x >= 3)) return false;
