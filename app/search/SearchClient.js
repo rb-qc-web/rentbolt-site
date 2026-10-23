@@ -109,12 +109,13 @@ function Caret() {
 
 /** Dropdown with a checkbox list. Filters live as you tick — no Apply step,
  *  since the result count is visible behind the menu anyway. */
-function CheckMenu({ label, options, picks, setPicks, open, onToggle }) {
+function CheckMenu({ label, icon, options, picks, setPicks, open, onToggle }) {
   const toggle = name =>
     setPicks(p => (p.includes(name) ? p.filter(x => x !== name) : [...p, name]));
   return (
     <div className="rb-sdd">
       <button type="button" className={`rb-sdd-btn${picks.length ? " on" : ""}`} onClick={onToggle}>
+        {icon && <span className="rb-sdd-emoji" aria-hidden="true">{icon}</span>}
         {label}{picks.length > 0 && ` · ${picks.length}`}
         <Caret />
       </button>
@@ -156,7 +157,9 @@ export default function SearchClient({ buildings, totalCount }) {
   const [petsOnly, setPetsOnly] = useState(false);
   const [parkingOnly, setParkingOnly] = useState(false);
   const [utilityPicks, setUtilityPicks] = useState([]);
-  const [panelOpen, setPanelOpen] = useState(false);
+  // The extra filters are open by default: they are the useful ones, and a
+  // renter who never presses "Filters" never discovers them.
+  const [panelOpen, setPanelOpen] = useState(true);
   const [openMenu, setOpenMenu] = useState(null);
   const [search, setSearch] = useState("");
   const [activeId, setActiveId] = useState(null);
@@ -593,6 +596,7 @@ export default function SearchClient({ buildings, totalCount }) {
                     className={`rb-sdd-btn${priceTouched ? " on" : ""}`}
                     onClick={() => setOpenMenu(openMenu === "budget" ? null : "budget")}
                   >
+                    <span className="rb-sdd-emoji" aria-hidden="true">💰</span>
                     {priceTouched
                       ? `$${price[0].toLocaleString()} – $${price[1].toLocaleString()}`
                       : "Budget"}
@@ -640,6 +644,7 @@ export default function SearchClient({ buildings, totalCount }) {
               {inclusionOptions.length > 0 && (
                 <CheckMenu
                   label="Inclusions"
+                  icon="✅"
                   options={inclusionOptions}
                   picks={inclusionPicks}
                   setPicks={setInclusionPicks}
@@ -651,6 +656,7 @@ export default function SearchClient({ buildings, totalCount }) {
               {amenityOptions.length > 0 && (
                 <CheckMenu
                   label="Amenities"
+                  icon="🏢"
                   options={amenityOptions}
                   picks={amenityPicks}
                   setPicks={setAmenityPicks}
@@ -662,6 +668,7 @@ export default function SearchClient({ buildings, totalCount }) {
               {utilityOptions.length > 0 && (
                 <CheckMenu
                   label="Utilities"
+                  icon="💡"
                   options={utilityOptions}
                   picks={utilityPicks}
                   setPicks={setUtilityPicks}
@@ -676,6 +683,7 @@ export default function SearchClient({ buildings, totalCount }) {
                   className={`rb-sdd-btn${parkingOnly ? " on" : ""}`}
                   onClick={() => setParkingOnly(v => !v)}
                 >
+                  <span className="rb-sdd-emoji" aria-hidden="true">🅿️</span>
                   Parking
                 </button>
               )}
@@ -686,6 +694,7 @@ export default function SearchClient({ buildings, totalCount }) {
                   className={`rb-sdd-btn${petsOnly ? " on" : ""}`}
                   onClick={() => setPetsOnly(v => !v)}
                 >
+                  <span className="rb-sdd-emoji" aria-hidden="true">🐾</span>
                   Pet friendly
                 </button>
               )}
@@ -1210,6 +1219,13 @@ export default function SearchClient({ buildings, totalCount }) {
           font-family: inherit;
           cursor: pointer;
           white-space: nowrap;
+        }
+        /* The emoji is decoration, not a glyph in the label: a slightly smaller
+           size and its own tight gap stop it reading as part of the word. */
+        .rb-sdd-emoji {
+          font-size: 12px;
+          line-height: 1;
+          margin-right: -2px;
         }
         .rb-sdd-btn:hover { border-color: var(--navy); }
         .rb-sdd-btn.on { background: var(--navy); color: #fff; border-color: var(--navy); }
