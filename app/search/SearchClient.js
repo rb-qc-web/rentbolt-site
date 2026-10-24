@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 import { getBuildingPhoto } from "@/lib/cityPhotos";
 import { canonLabel, canonKey, listHas } from "@/lib/labels";
+import { priceForBed, effectivePrice } from "@/lib/unitTypes";
 
 function Bolt() {
   return (
@@ -269,11 +270,17 @@ export default function SearchClient({ buildings, totalCount }) {
       if (city !== "All cities" && b.city !== city) return false;
       if (hood !== "All neighbourhoods" && b.neighbourhood !== hood) return false;
 
+      // Budget is judged against the bedroom type being searched for, not the
+      // building's cheapest unit. Le Vittorio's studio is $1,525 and its 2BR
+      // is $2,625; a 2BR search from $2,500 used to drop the building on the
+      // strength of a studio nobody asked about.
+      //
       // Only filters buildings that HAVE a price. One with no price yet is
       // kept — it may well be in budget, and hiding it would punish the
       // listing for a data gap rather than for its rent.
-      if (priceTouched && b.startingPrice > 0 &&
-          (b.startingPrice < price[0] || b.startingPrice > price[1])) return false;
+      const budgetPrice = effectivePrice(b, bed);
+      if (priceTouched && budgetPrice > 0 &&
+          (budgetPrice < price[0] || budgetPrice > price[1])) return false;
 
       if (petsOnly && !isPetFriendly(b)) return false;
       if (parkingOnly && !hasParking(b)) return false;
@@ -294,7 +301,6 @@ export default function SearchClient({ buildings, totalCount }) {
       return true;
     });
   }, [buildings, city, hood, bed, search, priceTouched, price, petsOnly, parkingOnly, amenityPicks, inclusionPicks]);
-
   // INIT MAP (once)
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -766,11 +772,22 @@ export default function SearchClient({ buildings, totalCount }) {
                       <span>{formatBeds(b.bedrooms)}</span>
                       {b.isFurnished && <span>Furnished</span>}
                     </div>
-                  {b.startingPrice > 0 ? (
-                    <div className="rb-scard-price">from ${Number(b.startingPrice).toLocaleString()}/mo</div>
-                  ) : (
-                    <div className="rb-scard-price rb-scard-price-none">Contact us for pricing</div>
-                  )}
+                  {(() => {
+                    // With a bed filter on, show THAT unit's price. Otherwise a
+                    // 2BR search from $2,500 returns Le Vittorio reading
+                    // "from $1,525/mo" and looks like a bug of its own.
+                    const bedPrice = priceForBed(b, bed);
+                    const shown = bedPrice ?? b.startingPrice;
+                    if (!(shown > 0)) {
+                      return <div className="rb-scard-price rb-scard-price-none">Contact us for pricing</div>;
+                    }
+                    const prefix = bedPrice ? `${BED_FILTERS.find(f => f.val === bed)?.label} from` : "from";
+                    return (
+                      <div className="rb-scard-price">
+                        {prefix} ${Number(shown).toLocaleString()}/mo
+                      </div>
+                    );
+                  })()}
                   </div>
                 </a>
               ))}
