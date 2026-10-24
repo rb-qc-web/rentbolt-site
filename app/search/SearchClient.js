@@ -24,6 +24,26 @@ function Bolt() {
 }
 
 const CITY_FILTERS = ["All cities", "Montreal", "Ottawa", "Toronto", "Mississauga", "Ajax", "London", "Kitchener-Waterloo"];
+// Filters live in the URL so a refresh, a back button or a shared link all
+// restore the same search. replaceState rather than push: changing a filter is
+// not a new page, and pushing would make Back step through every tweak.
+const LAST_CITY_KEY = "rentbolt:lastCity";
+
+const readParams = () =>
+  typeof window === "undefined" ? new URLSearchParams() : new URLSearchParams(window.location.search);
+
+// "|" rather than "," because some labels contain commas.
+const listParam = (p, key) => {
+  const v = p.get(key);
+  return v ? v.split("|").map(x => x.trim()).filter(Boolean) : [];
+};
+
+// localStorage throws in private mode and can be blocked outright, so every
+// access is guarded and the page works fine without it.
+function readLastCity() {
+  try { return localStorage.getItem(LAST_CITY_KEY) || ""; } catch { return ""; }
+}
+
 const BED_FILTERS = [
   { label: "Any", val: -1 },
   { label: "Studio", val: 0 },
@@ -163,24 +183,32 @@ function CheckMenu({ label, icon, options, picks, setPicks, open, onToggle }) {
 
 export default function SearchClient({ buildings, totalCount }) {
   const searchParams = useSearchParams();
-  const [city, setCity] = useState(() => {
-    const param = typeof window !== "undefined"
-      ? new URLSearchParams(window.location.search).get("city")
-      : null;
-    return param || "All cities";
+  // A link's ?city= wins; otherwise reopen on whatever city was last used,
+  // because people work one market at a time and resetting to All cities on
+  // every refresh threw that away.
+  const [city, setCity] = useState(() => readParams().get("city") || readLastCity() || "All cities");
+  const [bed, setBed] = useState(() => {
+    const n = parseInt(readParams().get("beds") ?? "", 10);
+    return [0, 1, 2, 3].includes(n) ? n : -1;
   });
-  const [bed, setBed] = useState(-1);
-  const [hood, setHood] = useState("All neighbourhoods");
-  const [priceRange, setPriceRange] = useState(null);  // null = untouched
-  const [amenityPicks, setAmenityPicks] = useState([]);
-  const [inclusionPicks, setInclusionPicks] = useState([]);
-  const [petsOnly, setPetsOnly] = useState(false);
-  const [parkingOnly, setParkingOnly] = useState(false);
+  const [hood, setHood] = useState(() => readParams().get("hood") || "All neighbourhoods");
+  const [priceRange, setPriceRange] = useState(() => {   // null = untouched
+    const p = readParams();
+    const lo = parseInt(p.get("min") ?? "", 10);
+    const hi = parseInt(p.get("max") ?? "", 10);
+    return Number.isFinite(lo) && Number.isFinite(hi) && hi > lo ? [lo, hi] : null;
+  });
+  const [amenityPicks, setAmenityPicks] = useState(() => listParam(readParams(), "amenities"));
+  const [inclusionPicks, setInclusionPicks] = useState(() => listParam(readParams(), "inclusions"));
+  const [petsOnly, setPetsOnly] = useState(() => readParams().get("pets") === "1");
+  const [parkingOnly, setParkingOnly] = useState(() => readParams().get("parking") === "1");
   // The extra filters are open by default: they are the useful ones, and a
   // renter who never presses "Filters" never discovers them.
   const [panelOpen, setPanelOpen] = useState(true);
   const [openMenu, setOpenMenu] = useState(null);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => readParams().get("q") || "");
+  // Guards the city-change resets below so a restored search survives mount.
+  const firstRun = useRef(true);
   const [activeId, setActiveId] = useState(null);
   const [hoverId, setHoverId] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -219,7 +247,10 @@ export default function SearchClient({ buildings, totalCount }) {
 
   // Reset the neighbourhood whenever the city changes, or it would filter
   // against a borough that doesn't exist in the new city.
-  useEffect(() => { setHood("All neighbourhoods"); }, [city]);
+  useEffect(() => {
+    if (firstRun.current) return;   // a neighbourhood restored from the URL is not a city change
+    setHood("All neighbourhoods");
+  }, [city]);
 
   // Options reflect the current city so you never see an amenity that only
   // exists in another market.
@@ -257,8 +288,38 @@ export default function SearchClient({ buildings, totalCount }) {
 
   // Anything picked in one city may not exist in the next, so clear on change.
   useEffect(() => {
+    if (firstRun.current) return;   // keep whatever the URL restored
     setAmenityPicks([]); setInclusionPicks([]); setPetsOnly(false); setPriceRange(null);
     setParkingOnly(false);
+  }, [city]);
+
+  // Declared after the two effects above so both see firstRun as true on mount
+  // and skip their reset; from here on a city change clears as it should.
+  useEffect(() => { firstRun.current = false; }, []);
+
+  // Mirror the live filters into the URL. Only non-default values are written,
+  // so an untouched search stays at a clean /search.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const p = new URLSearchParams();
+    if (city !== "All cities") p.set("city", city);
+    if (bed >= 0) p.set("beds", String(bed));
+    if (hood !== "All neighbourhoods") p.set("hood", hood);
+    if (search.trim()) p.set("q", search.trim());
+    if (priceTouched) { p.set("min", String(price[0])); p.set("max", String(price[1])); }
+    if (inclusionPicks.length) p.set("inclusions", inclusionPicks.join("|"));
+    if (amenityPicks.length) p.set("amenities", amenityPicks.join("|"));
+    if (parkingOnly) p.set("parking", "1");
+    if (petsOnly) p.set("pets", "1");
+    const qs = p.toString();
+    window.history.replaceState(null, "", qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
+  }, [city, bed, hood, search, priceTouched, price[0], price[1],
+      inclusionPicks, amenityPicks, parkingOnly, petsOnly]);
+
+  // Remembered separately from the URL so a bare /search still opens on the
+  // city they were last working in.
+  useEffect(() => {
+    try { localStorage.setItem(LAST_CITY_KEY, city); } catch { /* private mode */ }
   }, [city]);
 
   const extraCount =
