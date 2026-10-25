@@ -4,6 +4,7 @@ import { useState } from "react";
 import { brand } from "@/lib/brand";
 import { submitLead } from "@/lib/submitLead";
 import { CITY_LABELS } from "@/lib/cityContent";
+import { SiteHeader, SiteFooter } from "@/app/components/SiteChrome";
 
 const CITIES = CITY_LABELS;
 const UNIT_TYPES = ["Studio", "1 Bedroom", "2 Bedrooms", "3 Bedrooms", "4+ Bedrooms", "Loft", "Townhouse"];
@@ -197,37 +198,15 @@ export default function FindAPlaceClient() {
   return (
     <>
       {/* HEADER */}
-      <header style={{
-        position: "sticky", top: 0, zIndex: 100, background: "#fff",
-        borderBottom: "1px solid #E8EBF0", padding: "0 32px", height: 64,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <Bolt />
-          <span style={{ fontWeight: 800, fontSize: 20, color: brand.navy, letterSpacing: "-0.5px" }}>RENTBOLT</span>
-        </a>
-        <a href="/" style={{ fontSize: 13, fontWeight: 600, color: "#5A6278", textDecoration: "none" }}>
-          ← Back to listings
-        </a>
-        <button className="rb-hamburger" onClick={() => setMobileMenu(m => !m)} aria-label="Menu">
-          <span className={`rb-ham-icon${mobileMenu ? " open" : ""}`}><span/><span/><span/></span>
-        </button>
-      </header>
-      {mobileMenu && (
-        <div className="rb-mobile-drawer">
-          <a href="/" onClick={() => setMobileMenu(false)}>Home</a>
-          <a href="/landlords" onClick={() => setMobileMenu(false)}>Property Owners</a>
-          <a href="/contact" onClick={() => setMobileMenu(false)}>Contact</a>
-        </div>
-      )}
-
+      <SiteHeader />
       <main style={{ minHeight: "100vh", background: "#F7F8FA", paddingBottom: 80 }}>
         {submitted ? <SuccessState name={form.name} /> : (
           <>
             {/* HERO */}
             <div style={{
               background: `linear-gradient(135deg, ${brand.navyDark} 0%, ${brand.navy} 60%, #1A3278 100%)`,
-              color: "#fff", padding: "56px 32px 52px", textAlign: "center",
+              // 56 + the fixed header's height, which this page no longer provides itself
+              color: "#fff", padding: "130px 32px 52px", textAlign: "center",
             }}>
               <p style={{ fontSize: 12, fontWeight: 700, color: brand.gold, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 12 }}>
                 Let's find your home
@@ -444,12 +423,7 @@ export default function FindAPlaceClient() {
         )}
       </main>
 
-      <footer style={{
-        background: brand.navyDark, color: "rgba(255,255,255,0.5)",
-        textAlign: "center", padding: "24px 32px", fontSize: 13,
-      }}>
-        © 2026 RentBolt · <a href="mailto:hello@rentbolt.ca" style={{ color: brand.gold, textDecoration: "none" }}>hello@rentbolt.ca</a>
-      </footer>
+      <SiteFooter />
     </>
   );
 }

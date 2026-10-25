@@ -4,6 +4,7 @@ import { useState } from "react";
 import { meta } from "@/lib/brand";
 import { submitLead } from "@/lib/submitLead";
 import { CITY_LABELS, MARKETS } from "@/lib/cityContent";
+import { SiteHeader, SiteFooter } from "@/app/components/SiteChrome";
 
 const navy = "#0A1F5C";
 const navyDark = "#040E2A";
@@ -251,44 +252,7 @@ export default function LandlordsPage() {
   return (
     <>
       {/* ── HEADER ── */}
-      <header style={{
-        position: "sticky", top: 0, zIndex: 100, background: "#fff",
-        borderBottom: `1px solid ${border}`, padding: "0 32px", height: 64,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <Bolt />
-          <span style={{ fontWeight: 800, fontSize: 20, color: navy, letterSpacing: "-0.5px" }}>RENTBOLT</span>
-        </a>
-        <nav style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {[
-            { href: "/", label: "Properties" },
-            { href: "/landlords", label: "Property Owners" },
-            { href: "/contact", label: "Contact" },
-          ].map(l => (
-            <a key={l.href} href={l.href} style={{
-              padding: "8px 16px", fontSize: 14, fontWeight: 600, color: textMid,
-              textDecoration: "none", borderRadius: 8,
-            }}>{l.label}</a>
-          ))}
-          <a href="/find-a-place" style={{
-            marginLeft: 8, padding: "10px 20px", background: gold, color: navy,
-            fontWeight: 800, fontSize: 14, borderRadius: 10, textDecoration: "none",
-          }}>Find a Place</a>
-        </nav>
-        <button className="rb-hamburger" onClick={() => setMobileMenu(m => !m)} aria-label="Menu" style={{color: navy}}>
-          <span className={`rb-ham-icon${mobileMenu ? " open" : ""}`}><span/><span/><span/></span>
-        </button>
-      </header>
-      {mobileMenu && (
-        <div className="rb-mobile-drawer">
-          <a href="/" onClick={() => setMobileMenu(false)}>Properties</a>
-          <a href="/landlords" onClick={() => setMobileMenu(false)}>Property Owners</a>
-          <a href="/contact" onClick={() => setMobileMenu(false)}>Contact</a>
-          <a href="/find-a-place" className="rb-mobile-cta">Find a Place →</a>
-        </div>
-      )}
-
+      <SiteHeader />
       {/* ── HERO ── */}
       <section style={{
         background: `linear-gradient(135deg, ${navyDark} 0%, ${navy} 55%, #1A3278 100%)`,
@@ -500,8 +464,8 @@ export default function LandlordsPage() {
               <a href={`tel:${meta.phone}`} style={{ fontSize: 14, color: textMid, textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ color: gold }}>📱</span> {meta.phone}
               </a>
-              <a href={`mailto:${meta.email}`} style={{ fontSize: 14, color: textMid, textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ color: gold }}>✉️</span> {meta.email}
+              <a href={`mailto:${meta.emailPublic}`} style={{ fontSize: 14, color: textMid, textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ color: gold }}>✉️</span> {meta.emailPublic}
               </a>
             </div>
           </div>
@@ -518,46 +482,7 @@ export default function LandlordsPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer style={{ background: navyDark, color: "rgba(255,255,255,0.5)", padding: "48px 32px 28px" }}>
-        <div style={{ maxWidth: 960, margin: "0 auto" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 48, marginBottom: 40 }} className="lp-grid-footer">
-            <div>
-              <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", marginBottom: 16 }}>
-                <Bolt />
-                <span style={{ fontWeight: 800, fontSize: 18, color: "#fff", letterSpacing: "-0.5px" }}>RENTBOLT</span>
-              </a>
-              <p style={{ fontSize: 13, lineHeight: 1.7, margin: "0 0 16px", maxWidth: 280 }}>
-                Connecting property owners with quality tenants across Canada. Licensed brokerage in Quebec & Ontario.
-              </p>
-              <div style={{ display: "flex", gap: 16 }}>
-                {Object.entries(meta.social).map(([k, v]) => (
-                  <a key={k} href={v} target="_blank" rel="noopener noreferrer"
-                    style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none", textTransform: "capitalize" }}>{k}</a>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 style={{ fontSize: 11, fontWeight: 700, color: gold, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 16 }}>Company</h4>
-              {[
-                { href: "/", label: "Find a Home" },
-                { href: "/landlords", label: "Property Owners" },
-                { href: "/contact", label: "Contact" },
-              ].map(l => (
-                <a key={l.href} href={l.href} style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", textDecoration: "none", marginBottom: 10 }}>{l.label}</a>
-              ))}
-            </div>
-            <div>
-              <h4 style={{ fontSize: 11, fontWeight: 700, color: gold, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 16 }}>Get in Touch</h4>
-              <a href={`tel:${meta.phone}`} style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", textDecoration: "none", marginBottom: 10 }}>{meta.phone}</a>
-              <a href={`mailto:${meta.email}`} style={{ display: "block", fontSize: 13, color: "rgba(255,255,255,0.5)", textDecoration: "none", marginBottom: 10 }}>{meta.email}</a>
-              <p style={{ fontSize: 13, margin: "10px 0 0" }}>{meta.address}</p>
-            </div>
-          </div>
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 24, fontSize: 12, textAlign: "center" }}>
-            © 2026 RentBolt · All rights reserved
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     
       <style>{`
         @media (max-width: 768px) {

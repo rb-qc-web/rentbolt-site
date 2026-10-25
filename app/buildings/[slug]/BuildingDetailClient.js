@@ -8,6 +8,7 @@ import SavedNavLink from "@/app/components/SavedNavLink";
 import { getBuildingPhoto } from "@/lib/cityPhotos";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 import { submitLead } from "@/lib/submitLead";
+import { SiteHeader, SiteFooter } from "@/app/components/SiteChrome";
 
 function Bolt() {
   return (
@@ -197,18 +198,7 @@ export default function BuildingDetailClient({ building }) {
   return (
     <>
       {/* HEADER */}
-      <header className="bd-header">
-        <a href="/" className="bd-logo">
-          <Bolt />
-          RentBolt
-        </a>
-        <nav className="bd-nav">
-          <a href="/search">Search</a>
-          <a href="/landlords">Property Owners</a>
-            <SavedNavLink />
-          <a href="/find-a-place" className="bd-nav-cta">Find a Place</a>
-        </nav>
-      </header>
+      <SiteHeader />
 
       {/* LIGHTBOX */}
       {lightboxOpen && (
@@ -534,25 +524,7 @@ export default function BuildingDetailClient({ building }) {
       </section>
 
       {/* FOOTER */}
-      <footer className="bd-footer">
-        <div className="bd-footer-inner">
-          <div className="bd-footer-brand">
-            <a href="/" className="bd-logo">
-              <Bolt />
-              RentBolt
-            </a>
-            <p>Premium multi-residential leasing across Canada. Licensed brokerage in Quebec & Ontario.</p>
-          </div>
-          <div className="bd-footer-links">
-            <a href="/">Home</a>
-            <a href="/search">Search</a>
-            <a href="/landlords">Property Owners</a>
-            <a href="mailto:hello@rentbolt.ca">hello@rentbolt.ca</a>
-            <a href="tel:+14387937514">(438) 793-7514</a>
-          </div>
-        </div>
-        <div className="bd-footer-legal">© 2026 RentBolt · All rights reserved</div>
-      </footer>
+      <SiteFooter />
 
       <FindAPlaceModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </>

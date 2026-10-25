@@ -10,6 +10,7 @@ import FindAPlaceModal from "@/components/FindAPlaceModal";
 import { getBuildingPhoto } from "@/lib/cityPhotos";
 import { canonLabel, canonKey, listHas } from "@/lib/labels";
 import { CITY_NAMES } from "@/lib/cityContent";
+import { SiteHeader } from "@/app/components/SiteChrome";
 import { priceForBed, effectivePrice } from "@/lib/unitTypes";
 
 function Bolt() {
@@ -586,17 +587,7 @@ export default function SearchClient({ buildings, totalCount }) {
   return (
     <div className="rb-search-page">
       {/* HEADER */}
-      <header className="rb-sheader">
-        <a href="/" className="rb-slogo">
-          <Bolt />
-          RentBolt
-        </a>
-        <div className="rb-sheader-actions">
-          <a href="/" className="rb-sback">← Home</a>
-          <SavedNavLink />
-          <a href="/find-a-place" className="rb-snav-cta">Find a Place</a>
-        </div>
-      </header>
+      <SiteHeader variant="static" />
 
       {/* FILTERS BAR */}
       <div className="rb-sfilters">

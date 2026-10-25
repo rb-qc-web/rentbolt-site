@@ -5,6 +5,7 @@ import SavedNavLink from "@/app/components/SavedNavLink";
 import { getBuildingPhoto, CITY_PHOTOS as CITY_PHOTO_MAP } from "@/lib/cityPhotos";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 import { CITY_NAMES, CITY_PAGES } from "@/lib/cityContent";
+import { SiteHeader, SiteFooter } from "@/app/components/SiteChrome";
 
 function Bolt() {
   return (
@@ -95,38 +96,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
 
   return (
     <>
-      {/* HEADER */}
-      <header className={`rb-header${scrolled ? " scrolled" : ""}`}>
-        <a href="/" className="rb-logo">
-          <Bolt />
-          RentBolt
-        </a>
-        <nav className="rb-nav">
-          <a href="#properties">Properties</a>
-          <a href="#how">How it works</a>
-          <a href="/landlords">Property Owners</a>
-            <SavedNavLink />
-          <a href="/contact">Contact</a>
-          <a href="/find-a-place" className="rb-nav-cta">Start Search</a>
-        </nav>
-        {/* Hamburger */}
-        <button className="rb-hamburger" onClick={() => setMobileMenu(m => !m)} aria-label="Menu">
-          <span className={`rb-ham-icon${mobileMenu ? " open" : ""}`}>
-            <span/><span/><span/>
-          </span>
-        </button>
-      </header>
-      {/* Mobile drawer */}
-      {mobileMenu && (
-        <div className="rb-mobile-drawer">
-          <a href="#properties" onClick={() => setMobileMenu(false)}>Properties</a>
-          <a href="#how" onClick={() => setMobileMenu(false)}>How it works</a>
-          <a href="/landlords" onClick={() => setMobileMenu(false)}>Property Owners</a>
-          <a href="/contact" onClick={() => setMobileMenu(false)}>Contact</a>
-          <a href="/find-a-place" className="rb-mobile-cta">Start Search →</a>
-        </div>
-      )}
-
+      <SiteHeader variant="hero" />
       {/* HERO */}
       <section className={`rb-hero${heroPhotos.length ? " rb-hero-split" : ""}`}>
         <div className="rb-hero-container">
@@ -372,53 +342,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
       </section>
 
       {/* FOOTER */}
-      <footer className="rb-footer" id="contact">
-        <div className="rb-fgrid">
-          <div className="rb-fbrand">
-            <a href="/" className="rb-logo">
-              <Bolt />
-              RentBolt
-            </a>
-            <p className="rb-fdesc">
-              Apartments, rooms and homes for rent across Canada. Your trusted partner for apartment hunting.
-            </p>
-          </div>
-          <div className="rb-fcol">
-            <h4>Renters</h4>
-            <ul>
-              <li><a href="#properties">Browse apartments</a></li>
-              <li><a href="#how">How it works</a></li>
-              <li><a href="#cities">Cities</a></li>
-              <li><a href="/find-a-place">Start Search</a></li>
-            </ul>
-          </div>
-          <div className="rb-fcol">
-            <h4>Property Owners</h4>
-            <ul>
-              <li><a href="/landlords">Our services</a></li>
-              <li><a href="https://calendly.com/rentwithbolt/discoverycall">Discovery call</a></li>
-              <li><a href="#landlords">Why RentBolt</a></li>
-            </ul>
-          </div>
-          <div className="rb-fcol">
-            <h4>Get in touch</h4>
-            <ul>
-              <li><a href="tel:+14387937514">(438) 793-7514</a></li>
-              <li><a href="mailto:hello@rentbolt.ca">hello@rentbolt.ca</a></li>
-              <li><a href="#">227 Galt #320</a></li>
-              <li><a href="#">Montréal, QC H4G 2P3</a></li>
-            </ul>
-          </div>
-        </div>
-        <div className="rb-fbottom">
-          <div>© 2026 RentBolt · All rights reserved</div>
-          <div className="rb-flinks">
-            <a href="#">Terms</a>
-            <a href="#">Privacy</a>
-            <a href="#">EN / FR</a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
 
       <FindAPlaceModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </>

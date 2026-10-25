@@ -38,6 +38,16 @@ button { font-family: inherit; cursor: pointer; }
   display: flex; justify-content: space-between; align-items: center;
   transition: all 0.3s ease;
 }
+/* Sits in normal flow rather than fixed, for the search page's full-height
+   flex layout where a fixed bar would overlay the filters and break the map. */
+.rb-header-static {
+  position: relative;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 14px 32px;
+  flex-shrink: 0;
+}
+
 .rb-header.scrolled {
   background: rgba(255,255,255,0.96);
   backdrop-filter: blur(16px);

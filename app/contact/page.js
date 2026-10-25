@@ -1,5 +1,6 @@
 import { meta, brand } from "@/lib/brand";
 import { marketsIn } from "@/lib/cityContent";
+import { SiteHeader, SiteFooter } from "@/app/components/SiteChrome";
 
 export const metadata = {
   title: "Contact | RentBolt",
@@ -40,8 +41,8 @@ const CHANNELS = [
   {
     icon: "✉️",
     label: "Email",
-    value: meta.email,
-    href: `mailto:${meta.email}`,
+    value: meta.emailPublic,
+    href: `mailto:${meta.emailPublic}`,
     sub: "We respond within one business day",
   },
   {
@@ -73,41 +74,15 @@ export default function ContactPage() {
   return (
     <>
       {/* HEADER */}
-      <header style={{
-        position: "sticky", top: 0, zIndex: 100, background: "#fff",
-        borderBottom: `1px solid ${border}`, padding: "0 32px", height: 64,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-          <Bolt />
-          <span style={{ fontWeight: 800, fontSize: 20, color: navy, letterSpacing: "-0.5px" }}>RENTBOLT</span>
-        </a>
-        <nav style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {[
-            { href: "/", label: "Properties" },
-            { href: "/landlords", label: "Property Owners" },
-            { href: "/contact", label: "Contact" },
-          ].map(l => (
-            <a key={l.href} href={l.href} style={{
-              padding: "8px 16px", fontSize: 14, fontWeight: 600,
-              color: l.href === "/contact" ? navy : textMid,
-              textDecoration: "none", borderRadius: 8,
-              fontWeight: l.href === "/contact" ? 800 : 600,
-            }}>{l.label}</a>
-          ))}
-          <a href="/find-a-place" style={{
-            marginLeft: 8, padding: "10px 20px", background: gold, color: navy,
-            fontWeight: 800, fontSize: 14, borderRadius: 10, textDecoration: "none",
-          }}>Find a Place</a>
-        </nav>
-      </header>
+      <SiteHeader />
 
       <main style={{ background: bg, minHeight: "100vh", paddingBottom: 80 }}>
 
         {/* HERO */}
         <div style={{
           background: `linear-gradient(135deg, ${navyDark} 0%, ${navy} 100%)`,
-          padding: "64px 32px 56px", textAlign: "center", color: "#fff",
+          // 64 + the fixed header's height, which this page no longer provides itself
+          padding: "138px 32px 56px", textAlign: "center", color: "#fff",
         }}>
           <p style={{ fontSize: 12, fontWeight: 700, color: gold, letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 14 }}>
             Get in touch
@@ -197,9 +172,7 @@ export default function ContactPage() {
       </main>
 
       {/* FOOTER */}
-      <footer style={{ background: navyDark, color: "rgba(255,255,255,0.5)", textAlign: "center", padding: "28px 32px", fontSize: 13 }}>
-        © 2026 RentBolt · <a href={`mailto:${meta.email}`} style={{ color: gold, textDecoration: "none" }}>{meta.email}</a>
-      </footer>
+      <SiteFooter />
 
       <style>{`
         @media (max-width: 768px) {

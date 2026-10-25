@@ -261,7 +261,9 @@
         .bd-hero {
           background: linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 100%);
           color: white;
-          padding: 20px 32px 24px;
+          /* Clears the fixed site header. The page used to carry its own
+             in-flow header, so 20px was enough; the shared one overlays. */
+          padding: 94px 32px 24px;
           position: relative;
           overflow: hidden;
         }
@@ -837,7 +839,7 @@
         }
 
         @media (max-width: 768px) {
-          .bd-hero { padding: 24px 16px 40px; }
+          .bd-hero { padding: 88px 16px 40px; }
           .bd-hero-price {
           display: flex;
           flex-direction: column;
