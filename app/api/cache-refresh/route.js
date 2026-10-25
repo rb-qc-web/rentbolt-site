@@ -1,7 +1,7 @@
 import { Redis } from "@upstash/redis";
 import { invalidatePricing } from "@/lib/pricing";
 
-const CACHE_KEY = "rentbolt:buildings:v26";
+const CACHE_KEY = "rentbolt:buildings:v27";
 const SECRET = process.env.CACHE_REFRESH_SECRET;
 
 export async function GET(request) {
