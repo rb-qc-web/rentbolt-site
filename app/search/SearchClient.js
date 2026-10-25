@@ -9,7 +9,7 @@ import { useSearchParams } from "next/navigation";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 import { getBuildingPhoto } from "@/lib/cityPhotos";
 import { canonLabel, canonKey, listHas } from "@/lib/labels";
-import { CITY_NAMES } from "@/lib/cityContent";
+import { CITY_NAMES, cityLabel } from "@/lib/cityContent";
 import { SiteHeader } from "@/app/components/SiteChrome";
 import { priceForBed, effectivePrice } from "@/lib/unitTypes";
 
@@ -603,7 +603,7 @@ export default function SearchClient({ buildings, totalCount }) {
                 aria-label="Filter by city"
               >
                 {CITY_FILTERS.map(c => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>{c === "All cities" ? c : cityLabel(c)}</option>
                 ))}
               </select>
               <svg className="rb-scity-caret" width="14" height="14" viewBox="0 0 24 24"

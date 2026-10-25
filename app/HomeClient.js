@@ -120,7 +120,8 @@ export default function HomeClient({ buildings = [], cities = [] }) {
               <select name="city">
                 <option value="">All cities</option>
 
-                {CITY_NAMES.map(c => <option key={c} value={c}>{c}</option>)}
+                {/* value is the data city, label is what people read */
+                 CITY_PAGES.map(c => <option key={c.slug} value={c.city}>{c.display}</option>)}
               </select>
             </div>
             <button className="rb-search-btn" type="submit">Start search</button>
@@ -300,12 +301,15 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             <p>Thousands of verified listings across major Canadian markets.</p>
           </div>
           <div className="rb-cgrid">
-            {CITY_NAMES.map(city => (
-              <a key={city} href={`/apartments/${CITY_SLUGS[city]}`} className="rb-city">
-                <img src={CITY_PHOTO_MAP[city] || CITY_PHOTO_MAP["Montreal"]} alt={city} />
+            {/* Reads the display labels rather than the data values, so a card
+                cannot say "London" while every other surface says "London, ON".
+                Replaces a hardcoded Montreal special case. */}
+            {CITY_PAGES.map(c => (
+              <a key={c.slug} href={`/apartments/${c.slug}`} className="rb-city">
+                <img src={CITY_PHOTO_MAP[c.city] || CITY_PHOTO_MAP["Montreal"]} alt={c.display} />
                 <div className="rb-ccontent">
-                  <h3>{city === "Montreal" ? "Montréal" : city}</h3>
-                  <p>{cityCounts[city] || 0} apartments</p>
+                  <h3>{c.display}</h3>
+                  <p>{cityCounts[c.city] || 0} apartment{cityCounts[c.city] === 1 ? "" : "s"}</p>
                 </div>
               </a>
             ))}
