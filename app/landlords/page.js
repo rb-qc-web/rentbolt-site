@@ -99,9 +99,12 @@ const FAQS = [
 // Who they are, not how many doors they have. Unit count is a question for the
 // first call; this is the one that routes the enquiry to the right person.
 const ROLE_TYPES = [
-  { label: "I am or represent a property owner", value: "Property owner" },
-  { label: "I am or represent a property developer", value: "Property developer" },
-  { label: "I am or represent a property management company", value: "Property management company" },
+  // "or ownership group" carries the representing case — the person filling
+  // this in is often an asset manager or a VP, not the owner personally —
+  // without repeating "I am or represent" on all three lines.
+  { label: "Property owner or ownership group", value: "Property owner" },
+  { label: "Property developer", value: "Property developer" },
+  { label: "Property management company", value: "Property management company" },
 ];
 
 const INIT_FORM = { name: "", email: "", phone: "", company: "", city: "", role: "", message: "" };
@@ -217,7 +220,10 @@ function PartnershipForm() {
 
       {/* Stacked rather than a segmented control: these labels are sentences
           and would wrap to three illegible lines across four columns. */}
-      <div role="radiogroup" aria-label="Which best describes you?" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div role="radiogroup" aria-labelledby="rb-role-q" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <p id="rb-role-q" style={{ fontSize: 13, fontWeight: 700, color: navy, margin: "4px 0 2px" }}>
+          Which best describes you?
+        </p>
         {ROLE_TYPES.map(r => {
           const on = form.role === r.value;
           return (
