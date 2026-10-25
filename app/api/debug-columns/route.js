@@ -24,7 +24,6 @@ const EXPECTED = {
   status2:                "Status — controls whether a building appears at all",
   location:               "Coordinates — no location means no map pin, no search result",
   text3:                  "Promo — drives the In-Demand tag",
-  long_text1:             "Building info — description fallback",
   dropdown_mkvqrg13:      "Neighbourhood",
   dropdown_mkvpnqth:      "Units available — powers the bed filters",
   dropdown_mkvpebxp:      "Amenities",
