@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { brand } from "@/lib/brand";
 import { submitLead } from "@/lib/submitLead";
+import { CITY_LABELS } from "@/lib/cityContent";
 
-const CITIES = ["Montréal", "Gatineau", "Ottawa", "Kitchener-Waterloo", "London", "Hamilton"];
+const CITIES = CITY_LABELS;
 const UNIT_TYPES = ["Studio", "1 Bedroom", "2 Bedrooms", "3 Bedrooms", "4+ Bedrooms", "Loft", "Townhouse"];
 const MUST_HAVES = ["Parking", "In-suite laundry", "Balcony", "AC", "Dishwasher", "Gym", "Pool", "Storage", "EV charging", "Concierge", "Elevator", "Rooftop"];
 const PET_TYPES = ["Cat", "Small Dog (<25 lbs)", "Large Dog (>25 lbs)"];

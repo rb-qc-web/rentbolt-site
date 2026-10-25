@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { meta } from "@/lib/brand";
 import { submitLead } from "@/lib/submitLead";
+import { CITY_LABELS, MARKETS } from "@/lib/cityContent";
 
 const navy = "#0A1F5C";
 const navyDark = "#040E2A";
@@ -78,7 +79,7 @@ const FAQS = [
   },
   {
     q: "What markets do you cover?",
-    a: "We're active across Canada and continuously expanding. Reach out if you're unsure whether we cover your market — chances are we do or will soon.",
+    a: "Montréal, Ottawa, Toronto, Mississauga, Ajax, London and Kitchener-Waterloo, with more opening as we grow. If your building is just outside one of those, ask — it is often still worth a conversation.",
   },
   {
     q: "Who qualifies the tenants?",
@@ -206,7 +207,7 @@ function PartnershipForm() {
           <select value={form.city} onChange={e => set("city", e.target.value)}
             style={{ ...inputStyle, appearance: "none", paddingRight: 36, cursor: "pointer", color: form.city ? navy : textMute }}>
             <option value="">City / Market</option>
-            {["Montréal", "Gatineau", "Ottawa", "Toronto", "Mississauga", "Ajax / Durham", "Kitchener-Waterloo", "London", "Other"].map(c =>
+            {[...CITY_LABELS, "Other"].map(c =>
               <option key={c} value={c}>{c}</option>
             )}
           </select>
@@ -394,16 +395,7 @@ export default function LandlordsPage() {
             {/* Tags track actual inventory rather than ambition: a market tagged
                 "Expanding" with nothing behind it is a claim someone has to
                 defend on the first call. */}
-            {[
-              { city: "Montréal", tag: "QC — Flagship" },
-              { city: "Gatineau", tag: "QC — Growing" },
-              { city: "Ottawa", tag: "ON — Active" },
-              { city: "Toronto", tag: "ON — Active" },
-              { city: "Kitchener-Waterloo", tag: "ON — Active" },
-              { city: "London", tag: "ON — Active" },
-              { city: "Mississauga", tag: "ON — Growing" },
-              { city: "Ajax / Durham", tag: "ON — Growing" },
-            ].map(m => (
+            {MARKETS.map(m => (
               <div key={m.city} style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.08)",

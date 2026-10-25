@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
 import { getBuildingPhoto } from "@/lib/cityPhotos";
 import { canonLabel, canonKey, listHas } from "@/lib/labels";
+import { CITY_NAMES } from "@/lib/cityContent";
 import { priceForBed, effectivePrice } from "@/lib/unitTypes";
 
 function Bolt() {
@@ -25,7 +26,7 @@ function Bolt() {
   );
 }
 
-const CITY_FILTERS = ["All cities", "Montreal", "Ottawa", "Toronto", "Mississauga", "Ajax", "London", "Kitchener-Waterloo"];
+const CITY_FILTERS = ["All cities", ...CITY_NAMES];
 // Filters live in the URL so a refresh, a back button or a shared link all
 // restore the same search. replaceState rather than push: changing a filter is
 // not a new page, and pushing would make Back step through every tweak.

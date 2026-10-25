@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import SavedNavLink from "@/app/components/SavedNavLink";
 import { getBuildingPhoto, CITY_PHOTOS as CITY_PHOTO_MAP } from "@/lib/cityPhotos";
 import FindAPlaceModal from "@/components/FindAPlaceModal";
+import { CITY_NAMES, CITY_PAGES } from "@/lib/cityContent";
 
 function Bolt() {
   return (
@@ -47,13 +48,9 @@ const STEPS = [
 // Every city card used to point at an unfiltered /search, so clicking
 // "Toronto" showed everything. They now land on that city's own page, which is
 // also what gives those pages internal links from the strongest page on the site.
-const CITY_SLUGS = {
-  "Montreal": "montreal", "Ottawa": "ottawa", "Toronto": "toronto",
-  "Mississauga": "mississauga", "Ajax": "ajax", "London": "london",
-  "Kitchener-Waterloo": "kitchener-waterloo",
-};
+const CITY_SLUGS = Object.fromEntries(CITY_PAGES.map(c => [c.city, c.slug]));
 
-const CITY_FILTERS = ["All cities", "Montreal", "Toronto", "Mississauga", "Ajax", "Ottawa", "London", "Kitchener-Waterloo"];
+const CITY_FILTERS = ["All cities", ...CITY_NAMES];
 
 // City photos now in lib/cityPhotos.js
 
@@ -152,13 +149,8 @@ export default function HomeClient({ buildings = [], cities = [] }) {
               <label>City</label>
               <select name="city">
                 <option value="">All cities</option>
-                <option value="Montreal">Montreal</option>
-                <option value="Toronto">Toronto</option>
-                <option value="Mississauga">Mississauga</option>
-                <option value="Ajax">Ajax</option>
-                <option value="Ottawa">Ottawa</option>
-                <option value="London">London</option>
-                <option value="Kitchener-Waterloo">Kitchener-Waterloo</option>
+
+                {CITY_NAMES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <button className="rb-search-btn" type="submit">Start search</button>
@@ -338,7 +330,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
             <p>Thousands of verified listings across major Canadian markets.</p>
           </div>
           <div className="rb-cgrid">
-            {["Montreal", "Ottawa", "Toronto", "Mississauga", "Ajax", "London", "Kitchener-Waterloo"].map(city => (
+            {CITY_NAMES.map(city => (
               <a key={city} href={`/apartments/${CITY_SLUGS[city]}`} className="rb-city">
                 <img src={CITY_PHOTO_MAP[city] || CITY_PHOTO_MAP["Montreal"]} alt={city} />
                 <div className="rb-ccontent">

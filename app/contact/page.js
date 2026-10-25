@@ -1,4 +1,5 @@
 import { meta, brand } from "@/lib/brand";
+import { marketsIn } from "@/lib/cityContent";
 
 export const metadata = {
   title: "Contact | RentBolt",
@@ -58,13 +59,13 @@ const OFFICES = [
     province: "Quebec",
     flag: "🔵",
     address: meta.addressQC,
-    markets: ["Montréal", "Gatineau"],
+    markets: marketsIn("QC").map(m => m.name),
   },
   {
     province: "Ontario",
     flag: "🔴",
     address: meta.addressON,
-    markets: ["Ottawa", "Toronto", "Mississauga", "Ajax / Durham", "Kitchener-Waterloo", "London"],
+    markets: marketsIn("ON").map(m => m.name),
   },
 ];
 

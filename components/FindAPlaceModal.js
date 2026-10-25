@@ -3,15 +3,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { X, ChevronDown, Check, Loader2 } from "lucide-react";
 import { submitLead } from "@/lib/submitLead";
+import { CITY_LABELS } from "@/lib/cityContent";
 
-const CITIES = [
-  "Montréal",
-  "Gatineau",
-  "Ottawa",
-  "Kitchener-Waterloo",
-  "London",
-  "Hamilton",
-];
+const CITIES = CITY_LABELS;
 
 const UNIT_TYPES = [
   "Studio",
