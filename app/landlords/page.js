@@ -35,7 +35,7 @@ const WHY = [
   {
     icon: "💸",
     title: "100% results based",
-    desc: "No retainer. No subscription. No upfront fees. Our commission is tied entirely to a completed signed lease.",
+    desc: "No upfront fee, subscription, or pay-per lead. Our service fee is tied entirely to a completed signed lease.",
   },
   {
     icon: "🌍",
