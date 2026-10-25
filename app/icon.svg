@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- The bolt sits on a navy tile rather than on transparency. A browser tab,
+       a bookmark bar and a phone home screen are all light backgrounds, and the
+       gold mark alone (#C9A84C) all but disappears against white at 16px. -->
+  <defs>
+    <linearGradient id="rb-bolt" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E2C87E"/>
+      <stop offset="100%" stop-color="#C9A84C"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0A1F5C"/>
+  <!-- Same path as the site logo, scaled from its 28x32 box and centred. -->
+  <g transform="translate(14.5, 10.5) scale(1.17)">
+    <path d="M16.5 1L3 18H12.5L10.5 31L25 13H15L16.5 1Z"
+          fill="url(#rb-bolt)" stroke="#B8972F" stroke-width="0.5"
+          stroke-linejoin="round"/>
+  </g>
+</svg>
