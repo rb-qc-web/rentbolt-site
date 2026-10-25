@@ -672,9 +672,14 @@ button { font-family: inherit; cursor: pointer; }
 .rb-cgrid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  /* Rows size themselves rather than dividing a fixed height between a fixed
+     number of them. The old `grid-template-rows: 1fr 1fr; height: 540px` only
+     worked for exactly five cities — adding Mississauga and Ajax pushed two
+     cards into an implicit third row with no height left for it, which
+     compressed every row and spilled the titles out of their cards.
+     260px x 2 + the gap reproduces the original 540px for the tall first card. */
+  grid-auto-rows: 260px;
   gap: 20px;
-  height: 540px;
 }
 .rb-city {
   border-radius: 12px;
