@@ -1,4 +1,5 @@
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { meta } from "@/lib/brand";
 
 export const metadata = {
@@ -37,7 +38,13 @@ export default function RootLayout({ children }) {
         <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
         <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        {/* Cookieless and does not identify individuals, so no consent banner
+            is required — which matters with Quebec's Law 25 and the bulk of
+            the inventory being Montreal. */}
+        <Analytics />
+      </body>
     </html>
   );
 }
