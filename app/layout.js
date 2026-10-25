@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { meta } from "@/lib/brand";
+import { OrganizationLd } from "@/app/components/StructuredData";
 
 export const metadata = {
   title: {
@@ -43,6 +44,7 @@ export default function RootLayout({ children }) {
         {/* Cookieless and does not identify individuals, so no consent banner
             is required — which matters with Quebec's Law 25 and the bulk of
             the inventory being Montreal. */}
+        <OrganizationLd />
         <Analytics />
       </body>
     </html>

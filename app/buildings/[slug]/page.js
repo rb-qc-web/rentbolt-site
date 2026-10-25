@@ -1,6 +1,7 @@
 import { fetchBuildingBySlug } from "@/lib/monday";
 import { notFound } from "next/navigation";
 import BuildingDetailClient from "./BuildingDetailClient";
+import { BuildingLd } from "@/app/components/StructuredData";
 
 // Render on-demand instead of pre-building all pages (faster build)
 // Aligned with the 10-minute data cron so pricing and status don't go stale.
@@ -31,5 +32,10 @@ export default async function BuildingPage({ params }) {
   const building = await fetchBuildingBySlug(params.slug);
   if (!building) notFound();
 
-  return <BuildingDetailClient building={building} />;
+  return (
+    <>
+      <BuildingLd building={building} />
+      <BuildingDetailClient building={building} />
+    </>
+  );
 }
