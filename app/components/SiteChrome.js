@@ -34,7 +34,7 @@ function Bolt() {
 const NAV = [
   { href: "/search",     label: "Properties" },
   { href: "/#how",       label: "How it works" },
-  { href: "/landlords",  label: "Property Owners" },
+  { href: "/landlords",  label: "Property Partners" },
   { href: "/contact",    label: "Contact" },
 ];
 
