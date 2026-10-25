@@ -251,7 +251,8 @@ function Details({ lead }) {
   add("Phone", lead.phone);
   add("Company", lead.company);
   add("City", lead.city || lead.building?.city);
-  add("Portfolio", lead.portfolio);
+  add("Role", lead.role);
+  add("Portfolio", lead.portfolio);   // legacy leads only
   add("Unit types", lead.unitTypes);
   if (lead.budgetMin || lead.budgetMax) {
     rows.push(["Budget", `$${lead.budgetMin ?? "?"} – $${lead.budgetMax ?? "?"}`]);

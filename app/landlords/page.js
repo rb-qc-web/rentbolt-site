@@ -96,14 +96,15 @@ const FAQS = [
   },
 ];
 
-const PORTFOLIO_TYPES = [
-  { label: "1–5", value: "1-5" },
-  { label: "6–20", value: "6-20" },
-  { label: "21–100", value: "21-100" },
-  { label: "100+", value: "100+" },
+// Who they are, not how many doors they have. Unit count is a question for the
+// first call; this is the one that routes the enquiry to the right person.
+const ROLE_TYPES = [
+  { label: "I am or represent a property owner", value: "Property owner" },
+  { label: "I am or represent a property developer", value: "Property developer" },
+  { label: "I am or represent a property management company", value: "Property management company" },
 ];
 
-const INIT_FORM = { name: "", email: "", phone: "", company: "", city: "", portfolio: "", message: "" };
+const INIT_FORM = { name: "", email: "", phone: "", company: "", city: "", role: "", message: "" };
 
 function Bolt() {
   return (
@@ -203,27 +204,44 @@ function PartnershipForm() {
           onFocus={() => setFocused("company")} onBlur={() => setFocused(null)}
           style={{ ...inputStyle, borderColor: focused === "company" ? navy : border }} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="lp-grid-form">
-        <div style={{ position: "relative" }}>
-          <select value={form.city} onChange={e => set("city", e.target.value)}
-            style={{ ...inputStyle, appearance: "none", paddingRight: 36, cursor: "pointer", color: form.city ? navy : textMute }}>
-            <option value="">City / Market</option>
-            {[...CITY_LABELS, "Other"].map(c =>
-              <option key={c} value={c}>{c}</option>
-            )}
-          </select>
-          <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: textMute }}>▾</span>
-        </div>
-        <div style={{ display: "flex", borderRadius: 12, overflow: "hidden", border: `1.5px solid ${border}` }}>
-          {PORTFOLIO_TYPES.map((p, i) => (
-            <button key={p.value} type="button" onClick={() => set("portfolio", p.value)} style={{
-              flex: 1, padding: "12px 4px", border: "none", borderLeft: i > 0 ? `1px solid ${border}` : "none",
-              background: form.portfolio === p.value ? navy : "#fff",
-              color: form.portfolio === p.value ? "#fff" : textMid,
-              fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s",
-            }}>{p.label}</button>
-          ))}
-        </div>
+      <div style={{ position: "relative" }}>
+        <select value={form.city} onChange={e => set("city", e.target.value)}
+          style={{ ...inputStyle, appearance: "none", paddingRight: 36, cursor: "pointer", color: form.city ? navy : textMute }}>
+          <option value="">City / Market</option>
+          {[...CITY_LABELS, "Other"].map(c =>
+            <option key={c} value={c}>{c}</option>
+          )}
+        </select>
+        <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: textMute }}>▾</span>
+      </div>
+
+      {/* Stacked rather than a segmented control: these labels are sentences
+          and would wrap to three illegible lines across four columns. */}
+      <div role="radiogroup" aria-label="Which best describes you?" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {ROLE_TYPES.map(r => {
+          const on = form.role === r.value;
+          return (
+            <button key={r.value} type="button" role="radio" aria-checked={on}
+              onClick={() => set("role", on ? "" : r.value)}
+              style={{
+                display: "flex", alignItems: "center", gap: 10, width: "100%",
+                padding: "13px 16px", borderRadius: 12, cursor: "pointer",
+                border: `1.5px solid ${on ? navy : border}`,
+                background: on ? "rgba(10,31,92,0.04)" : "#fff",
+                color: on ? navy : textMid,
+                fontSize: 13.5, fontWeight: on ? 700 : 600, fontFamily: "inherit",
+                textAlign: "left", transition: "all 0.15s",
+              }}>
+              <span aria-hidden="true" style={{
+                width: 16, height: 16, borderRadius: "50%", flexShrink: 0,
+                border: `1.5px solid ${on ? navy : "#C5CBE0"}`,
+                background: on ? navy : "#fff",
+                boxShadow: on ? "inset 0 0 0 3px #fff" : "none",
+              }} />
+              {r.label}
+            </button>
+          );
+        })}
       </div>
       <textarea placeholder="Tell us about your vacancies (optional)" value={form.message} onChange={e => set("message", e.target.value)}
         onFocus={() => setFocused("msg")} onBlur={() => setFocused(null)}
@@ -475,7 +493,7 @@ export default function LandlordsPage() {
             boxShadow: "0 4px 32px rgba(10,31,92,0.08)", border: `1px solid ${border}`,
           }}>
             <h3 style={{ fontSize: 17, fontWeight: 800, color: navy, margin: "0 0 6px" }}>Get in touch</h3>
-            <p style={{ fontSize: 13, color: textMute, margin: "0 0 24px" }}>We respond within one business day.</p>
+            <p style={{ fontSize: 13, color: textMute, margin: "0 0 24px" }}>Our team will help you understand if we are a fit.</p>
             <PartnershipForm />
           </div>
         </div>

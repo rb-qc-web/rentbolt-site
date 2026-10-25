@@ -60,6 +60,9 @@ function buildRecord(kind, body) {
       ...base,
       company: str(body?.company, 140),
       city: str(body?.city, 60),
+      role: str(body?.role, 60),
+      // Kept so leads captured before the form asked for a role still read
+      // back correctly; nothing sends it any more.
       portfolio: str(body?.portfolio, 40),
       message: str(body?.message, 1500),
     };
