@@ -37,7 +37,7 @@ export function OrganizationLd() {
         name: meta.siteName,
         url: meta.url,
         logo: `${meta.url}/icon.svg`,
-        email: meta.email,
+        email: meta.emailPublic,   // the public address, not the leads one
         telephone: meta.phone,
         areaServed: [
           "Montreal", "Ottawa", "Toronto", "Mississauga",
