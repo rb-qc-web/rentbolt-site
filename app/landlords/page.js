@@ -206,7 +206,7 @@ function PartnershipForm() {
           <select value={form.city} onChange={e => set("city", e.target.value)}
             style={{ ...inputStyle, appearance: "none", paddingRight: 36, cursor: "pointer", color: form.city ? navy : textMute }}>
             <option value="">City / Market</option>
-            {["Montréal", "Gatineau", "Ottawa", "Kitchener-Waterloo", "London", "Hamilton", "Other"].map(c =>
+            {["Montréal", "Gatineau", "Ottawa", "Toronto", "Mississauga", "Ajax / Durham", "Kitchener-Waterloo", "London", "Other"].map(c =>
               <option key={c} value={c}>{c}</option>
             )}
           </select>
@@ -391,13 +391,18 @@ export default function LandlordsPage() {
             <p style={{ fontSize: 12, fontWeight: 700, color: gold, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 20 }}>
               Our markets
             </p>
+            {/* Tags track actual inventory rather than ambition: a market tagged
+                "Expanding" with nothing behind it is a claim someone has to
+                defend on the first call. */}
             {[
               { city: "Montréal", tag: "QC — Flagship" },
               { city: "Gatineau", tag: "QC — Growing" },
               { city: "Ottawa", tag: "ON — Active" },
+              { city: "Toronto", tag: "ON — Active" },
               { city: "Kitchener-Waterloo", tag: "ON — Active" },
               { city: "London", tag: "ON — Active" },
-              { city: "Hamilton", tag: "ON — Expanding" },
+              { city: "Mississauga", tag: "ON — Growing" },
+              { city: "Ajax / Durham", tag: "ON — Growing" },
             ].map(m => (
               <div key={m.city} style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",

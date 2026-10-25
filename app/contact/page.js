@@ -64,7 +64,7 @@ const OFFICES = [
     province: "Ontario",
     flag: "🔴",
     address: meta.addressON,
-    markets: ["Ottawa", "Toronto", "Kitchener-Waterloo", "London", "Hamilton"],
+    markets: ["Ottawa", "Toronto", "Mississauga", "Ajax / Durham", "Kitchener-Waterloo", "London"],
   },
 ];
 
