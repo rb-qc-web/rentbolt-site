@@ -321,7 +321,7 @@ export default function LandlordsPage() {
             {[
               { icon: "⚡", text: "First tenant referred in 11–14 days, on average" },
               { icon: "✅", text: "Pre-qualified files submitted for your approval" },
-              { icon: "🕐", text: "7 days a week — after hours and weekends" },
+              { icon: "🕐", text: "7 days a week — after hours and weekends visits" },
               { icon: "💸", text: "100% results based — zero cost until lease signed" },
               { icon: "📊", text: "12,000+ active rental inquiries per week" },
             ].map(item => (
