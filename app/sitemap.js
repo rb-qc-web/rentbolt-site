@@ -1,5 +1,6 @@
 import { fetchBuildings } from "@/lib/monday";
 import { meta } from "@/lib/brand";
+import { CITY_PAGES } from "@/lib/cityContent";
 
 // robots.txt has pointed crawlers at /sitemap.xml since launch, but no sitemap
 // existed — every crawler that asked got a 404. With ~700 listings, this is the
@@ -24,6 +25,17 @@ export default async function sitemap() {
     { url: `${meta.url}/landlords`,       lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${meta.url}/contact`,         lastModified: now, changeFrequency: "yearly",  priority: 0.4 },
   ];
+
+  // City pages rank for "apartments for rent in <city>", the search that
+  // actually brings tenants, so they sit just below the home page.
+  for (const c of CITY_PAGES) {
+    pages.push({
+      url: `${meta.url}/apartments/${c.slug}`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.95,
+    });
+  }
 
   // /saved and /admin are deliberately absent: one is personal to the visitor
   // and identical for everyone who has saved nothing, the other is private.

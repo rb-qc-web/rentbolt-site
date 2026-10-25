@@ -44,6 +44,15 @@ const STEPS = [
   { icon: "key", detail: "You’re all set! Your property manager takes it from here, but we’re still here if there’s anything we can help you with.", title: "Move in", desc: "Sign your lease, get your keys, settle into your new home." },
 ];
 
+// Every city card used to point at an unfiltered /search, so clicking
+// "Toronto" showed everything. They now land on that city's own page, which is
+// also what gives those pages internal links from the strongest page on the site.
+const CITY_SLUGS = {
+  "Montreal": "montreal", "Ottawa": "ottawa", "Toronto": "toronto",
+  "Mississauga": "mississauga", "Ajax": "ajax", "London": "london",
+  "Kitchener-Waterloo": "kitchener-waterloo",
+};
+
 const CITY_FILTERS = ["All cities", "Montreal", "Toronto", "Mississauga", "Ajax", "Ottawa", "London", "Kitchener-Waterloo"];
 
 // City photos now in lib/cityPhotos.js
@@ -330,7 +339,7 @@ export default function HomeClient({ buildings = [], cities = [] }) {
           </div>
           <div className="rb-cgrid">
             {["Montreal", "Ottawa", "Toronto", "Mississauga", "Ajax", "London", "Kitchener-Waterloo"].map(city => (
-              <a key={city} href="/search" className="rb-city">
+              <a key={city} href={`/apartments/${CITY_SLUGS[city]}`} className="rb-city">
                 <img src={CITY_PHOTO_MAP[city] || CITY_PHOTO_MAP["Montreal"]} alt={city} />
                 <div className="rb-ccontent">
                   <h3>{city === "Montreal" ? "Montréal" : city}</h3>

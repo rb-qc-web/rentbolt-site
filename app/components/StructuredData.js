@@ -1,4 +1,5 @@
 import { meta } from "@/lib/brand";
+import { CITY_PAGES } from "@/lib/cityContent";
 
 // Structured data (schema.org JSON-LD). This is what lets Google show a price,
 // bedroom count and location inside the search result itself rather than a bare
@@ -13,6 +14,8 @@ import { meta } from "@/lib/brand";
 // Coordinates are deliberately absent. The ones we hold are fuzzed by 150–300m
 // on purpose; publishing them as geo data would be asserting a location we know
 // to be wrong.
+
+const citySlug = (city) => CITY_PAGES.find(c => c.city === city)?.slug || null;
 
 function Ld({ data }) {
   return (
@@ -111,7 +114,13 @@ export function BuildingLd({ building }) {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: meta.url },
-      { "@type": "ListItem", position: 2, name: `${building.city} apartments`, item: `${meta.url}/search?city=${encodeURIComponent(building.city)}` },
+      // Points at the city landing page rather than a filtered search URL:
+      // that page is the one meant to rank, and breadcrumbs are an internal
+      // link from all ~700 listings to it.
+      { "@type": "ListItem", position: 2, name: `Apartments in ${building.city}`,
+        item: citySlug(building.city)
+          ? `${meta.url}/apartments/${citySlug(building.city)}`
+          : `${meta.url}/search?city=${encodeURIComponent(building.city)}` },
       { "@type": "ListItem", position: 3, name },
     ],
   };
