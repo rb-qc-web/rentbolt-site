@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { meta } from "@/lib/brand";
 import { submitLead } from "@/lib/submitLead";
-import { CITY_LABELS, MARKETS } from "@/lib/cityContent";
+import { CITY_LABELS } from "@/lib/cityContent";
 import { SiteHeader, SiteFooter } from "@/app/components/SiteChrome";
 
 const navy = "#0A1F5C";
@@ -98,6 +98,17 @@ const FAQS = [
 
 // Who they are, not how many doors they have. Unit count is a question for the
 // first call; this is the one that routes the enquiry to the right person.
+// Listed in the order a partner experiences them, so the panel reads as a
+// process rather than a feature dump.
+const SERVICES = [
+  "Multi-platform lead generation",
+  "Visit pre-qualification",
+  "7 days a week visits",
+  "Application vetting",
+  "Lease generation",
+  "Reporting & dynamic feedback",
+];
+
 const ROLE_TYPES = [
   // "or ownership group" carries the representing case — the person filling
   // this in is often an asset manager or a VP, not the owner personally —
@@ -378,18 +389,23 @@ export default function LandlordsPage() {
 
           <div style={{ background: `linear-gradient(135deg, ${navyDark} 0%, ${navy} 100%)`, borderRadius: 20, padding: "36px 32px", color: "#fff" }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: gold, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 20 }}>
-              Our markets
+              Our service
             </p>
-            {/* Tags track actual inventory rather than ambition: a market tagged
-                "Expanding" with nothing behind it is a claim someone has to
-                defend on the first call. */}
-            {MARKETS.map(m => (
-              <div key={m.city} style={{
-                display: "flex", justifyContent: "space-between", alignItems: "center",
+            {/* What a partner actually gets, in the order it happens. The list
+                of markets that used to sit here told an owner nothing about
+                whether to work with us. */}
+            {SERVICES.map(item => (
+              <div key={item} style={{
+                display: "flex", alignItems: "center", gap: 12,
                 padding: "12px 0", borderBottom: "1px solid rgba(255,255,255,0.08)",
               }}>
-                <span style={{ fontWeight: 700, fontSize: 14 }}>{m.city}</span>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontWeight: 500 }}>{m.tag}</span>
+                <span aria-hidden="true" style={{
+                  width: 18, height: 18, flexShrink: 0, borderRadius: "50%",
+                  background: "rgba(226,200,126,0.14)", color: gold,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 10, fontWeight: 800, lineHeight: 1,
+                }}>✓</span>
+                <span style={{ fontWeight: 600, fontSize: 14 }}>{item}</span>
               </div>
             ))}
           </div>
