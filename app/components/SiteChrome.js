@@ -96,8 +96,8 @@ export function SiteFooter() {
         <div className="rb-fbrand">
           <a href="/" className="rb-logo"><Bolt /> RentBolt</a>
           <p className="rb-fdesc">
-            Apartments, rooms and homes for rent across Quebec and Ontario.
-            Licensed brokerage, and free for renters.
+            Apartments, rooms and homes for rent. RentBolt connects renters from
+            around the world with prime properties in core urban cities.
           </p>
         </div>
         <div className="rb-fcol">
