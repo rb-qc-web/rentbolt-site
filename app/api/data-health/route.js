@@ -2,7 +2,7 @@
 // questions about the inventory that a competitor would also like answered:
 // which buildings exist, what they are really called, where they are, which
 // have no photos. The public site needs none of them.
-import { fetchBuildings } from "@/lib/monday";
+import { fetchAllBuildings } from "@/lib/monday";
 import { hasNeighbourhoods } from "@/lib/neighbourhoods";
 import { checkAuthLimited } from "../admin/_auth";
 
@@ -26,7 +26,7 @@ export async function GET(request) {
   const cityFilter = url.searchParams.get("city");
   const names = url.searchParams.get("names") === "1";
 
-  const all = await fetchBuildings();
+  const all = await fetchAllBuildings();
   const buildings = cityFilter
     ? all.filter(b => b.city.toLowerCase() === cityFilter.toLowerCase())
     : all;

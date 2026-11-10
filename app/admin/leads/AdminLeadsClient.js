@@ -29,6 +29,11 @@ export default function AdminLeadsClient() {
 
   const [leads, setLeads] = useState([]);
   const [total, setTotal] = useState(0);
+  // Leads that saved here but never reached Monday. The whole point of the
+  // banner below: without it, a failed delivery is indistinguishable from a
+  // successful one until someone notices a lead never got worked.
+  const [undelivered, setUndelivered] = useState(0);
+  const [retrying, setRetrying] = useState(false);
   const [kind, setKind] = useState("");
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState(null);
@@ -65,6 +70,7 @@ export default function AdminLeadsClient() {
 
       setLeads(data.leads || []);
       setTotal(data.total || 0);
+      setUndelivered(data.undelivered || 0);
       setAuthed(true);
       setAuthError("");
       return true;
@@ -86,6 +92,24 @@ export default function AdminLeadsClient() {
     e.preventDefault();
     const ok = await load(pw);
     if (ok) sessionStorage.setItem(PW_KEY, pw);
+  }
+
+  // Re-send to Monday. `id` omitted retries everything currently failed, which
+  // is the usual shape of the problem: an outage takes out a run of them.
+  async function retry(id) {
+    setRetrying(true);
+    try {
+      await fetch("/api/admin/leads/retry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-password": pw },
+        body: JSON.stringify(id ? { id } : { all: true }),
+      });
+      await load(pw);   // reload so the badges reflect what actually happened
+    } catch {
+      /* the reload will show whatever state things ended in */
+    } finally {
+      setRetrying(false);
+    }
   }
 
   function downloadCsv() {
@@ -150,7 +174,7 @@ export default function AdminLeadsClient() {
             <h1 style={{ margin: "0 0 4px", fontSize: 24, color: NAVY, letterSpacing: "-0.02em" }}>Leads</h1>
             <p style={{ margin: 0, fontSize: 13, color: "#8B92A5" }}>
               {total} total{visible.length !== leads.length ? ` · ${visible.length} shown` : ""}
-              {" · "}<a href="/admin/photos" style={{ color: NAVY }}>Photo upload</a>
+              {" · "}<a href="/admin" style={{ color: NAVY }}>All tools</a>
             </p>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
@@ -178,6 +202,25 @@ export default function AdminLeadsClient() {
           />
         </div>
 
+        {undelivered > 0 && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap",
+            background: "#FEF2F2", border: "1px solid #FECACA", borderRadius: 12,
+            padding: "13px 16px", marginBottom: 14, color: "#991B1B", fontSize: 14,
+          }}>
+            <strong>
+              {undelivered} lead{undelivered === 1 ? "" : "s"} never reached Monday.
+            </strong>
+            <span style={{ opacity: 0.85 }}>
+              {undelivered === 1 ? "It is" : "They are"} saved here, so nothing is lost — but no one will see
+              {undelivered === 1 ? " it" : " them"} in the Monday workflow until {undelivered === 1 ? "it is" : "they are"} sent.
+            </span>
+            <button type="button" onClick={() => retry()} disabled={retrying} style={{ ...btn(true), marginLeft: "auto" }}>
+              {retrying ? "Sending…" : "Send them all"}
+            </button>
+          </div>
+        )}
+
         {visible.length === 0 ? (
           <div style={{ background: "#fff", borderRadius: 14, padding: "48px 24px", textAlign: "center", color: "#8B92A5", fontSize: 14 }}>
             {leads.length === 0
@@ -189,6 +232,7 @@ export default function AdminLeadsClient() {
             {visible.map(l => {
               const c = KIND_COLORS[l.kind] || { bg: "#F1F5F9", fg: "#334155" };
               const isOpen = openId === l.id;
+              const failed = l.delivery?.state === "failed";
               return (
                 <div key={l.id || l.createdAt} style={{ background: "#fff", borderRadius: 14, boxShadow: "0 1px 3px rgba(10,31,92,0.06)", overflow: "hidden" }}>
                   <button
@@ -208,7 +252,18 @@ export default function AdminLeadsClient() {
                     <span style={{ fontSize: 13, color: "#5A6278", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {l.email}
                     </span>
-                    <span style={{ marginLeft: "auto", fontSize: 12, color: "#8B92A5", flexShrink: 0, whiteSpace: "nowrap" }}>
+                    {failed && (
+                      <span
+                        title={l.delivery?.error || "Did not reach Monday"}
+                        style={{
+                          marginLeft: "auto", flexShrink: 0, padding: "4px 10px", borderRadius: 999,
+                          fontSize: 11, fontWeight: 700, background: "#FEF2F2", color: "#991B1B", whiteSpace: "nowrap",
+                        }}
+                      >
+                        Not in Monday
+                      </span>
+                    )}
+                    <span style={{ marginLeft: failed ? 0 : "auto", fontSize: 12, color: "#8B92A5", flexShrink: 0, whiteSpace: "nowrap" }}>
                       {fmtDate(l.createdAt)}
                     </span>
                     <span style={{ color: "#C5CBE0", flexShrink: 0, transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>▾</span>
@@ -216,7 +271,26 @@ export default function AdminLeadsClient() {
 
                   {isOpen && (
                     <div style={{ padding: "4px 18px 18px", borderTop: "1px solid #F1F3F7" }}>
+                      {failed && (
+                        <div style={{
+                          margin: "14px 0 0", padding: "10px 12px", borderRadius: 9,
+                          background: "#FEF2F2", border: "1px solid #FECACA", color: "#991B1B", fontSize: 13,
+                        }}>
+                          This lead is saved here but never reached Monday.
+                          {l.delivery?.error && (
+                            <span style={{ opacity: 0.8 }}> ({String(l.delivery.error).slice(0, 160)})</span>
+                          )}
+                          {l.delivery?.attempts > 1 && (
+                            <span style={{ opacity: 0.8 }}> · {l.delivery.attempts} attempts</span>
+                          )}
+                        </div>
+                      )}
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "14px 0" }}>
+                        {failed && (
+                          <button type="button" onClick={() => retry(l.id)} disabled={retrying} style={btn(true)}>
+                            {retrying ? "Sending…" : "Send to Monday"}
+                          </button>
+                        )}
                         <a href={`mailto:${l.email}`} style={btn(true)}>Email</a>
                         {l.phone && <a href={`tel:${l.phone}`} style={btn(false)}>Call {l.phone}</a>}
                         {l.building?.slug && (

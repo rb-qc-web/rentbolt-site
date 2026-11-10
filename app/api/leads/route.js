@@ -1,4 +1,4 @@
-import { saveLead, forwardToMonday, leadsConfigured } from "@/lib/leadStore";
+import { saveLead, forwardToMonday, leadsConfigured, recordDelivery } from "@/lib/leadStore";
 import { rateLimit, tooMany } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
@@ -134,9 +134,12 @@ export async function POST(request) {
     );
   }
 
-  // Fire-and-report: the lead is already safe in Redis, so a Monday failure is
-  // logged for us and invisible to the visitor.
+  // The lead is already safe in Redis, so a Monday failure stays invisible to
+  // the visitor — but it is recorded on the lead itself, so it is visible to
+  // us in the admin and can be retried. A log line alone was no good: nobody
+  // reads server logs on a Friday night.
   const fwd = await forwardToMonday(saved);
+  await recordDelivery(saved.id, fwd);
   if (!fwd.forwarded && fwd.reason !== "not configured") {
     console.error("[leads] Monday forward failed:", fwd.reason);
   }

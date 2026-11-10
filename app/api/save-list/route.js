@@ -1,4 +1,4 @@
-import { saveLead, forwardToMonday, leadsConfigured } from "@/lib/leadStore";
+import { saveLead, forwardToMonday, leadsConfigured, recordDelivery } from "@/lib/leadStore";
 import { rateLimit, tooMany } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
@@ -70,6 +70,7 @@ export async function POST(request) {
   }
 
   const fwd = await forwardToMonday(saved);
+  await recordDelivery(saved.id, fwd);
   if (!fwd.forwarded && fwd.reason !== "not configured") {
     console.error("[leads] Monday forward failed:", fwd.reason);
   }

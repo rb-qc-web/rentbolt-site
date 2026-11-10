@@ -2,7 +2,7 @@
 // questions about the inventory that a competitor would also like answered:
 // which buildings exist, what they are really called, where they are, which
 // have no photos. The public site needs none of them.
-import { fetchBuildings } from "@/lib/monday";
+import { fetchAllBuildings } from "@/lib/monday";
 import { pricingConfigured } from "@/lib/pricing";
 import { checkAuthLimited } from "../admin/_auth";
 
@@ -18,7 +18,7 @@ export async function GET(request) {
   const names = new URL(request.url).searchParams.get("names") === "1";
   const configured = pricingConfigured();
 
-  const buildings = await fetchBuildings();
+  const buildings = await fetchAllBuildings();
   const priced = buildings.filter(b => b.startingPrice > 0);
   const unpriced = buildings.filter(b => !(b.startingPrice > 0));
 

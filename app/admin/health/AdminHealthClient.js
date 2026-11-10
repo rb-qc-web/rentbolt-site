@@ -164,6 +164,7 @@ export default function AdminHealthClient() {
           <p style={S.sub}>{TOOLS.length} tools. Signed in for this browser session.</p>
         </div>
         <nav style={S.nav}>
+          <a href="/admin" style={S.link}>← All tools</a>
           <a href="/admin/leads" style={S.link}>Leads</a>
           <a href="/admin/photos" style={S.link}>Photos</a>
           <button

@@ -19,6 +19,12 @@ export async function GET(request) {
 
   try {
     let { total, leads } = await listLeads(500);
+
+    // Counted BEFORE the kind filter: an undelivered landlord lead must still
+    // be reported while you are looking at the tenant tab, or the number
+    // quietly changes meaning depending on which tab you are on.
+    const undelivered = leads.filter(l => l.delivery?.state === "failed").length;
+
     if (kind) leads = leads.filter(l => l.kind === kind);
 
     if (url.searchParams.get("format") === "csv") {
@@ -30,7 +36,7 @@ export async function GET(request) {
       });
     }
 
-    return Response.json({ total, shown: leads.length, leads });
+    return Response.json({ total, shown: leads.length, undelivered, leads });
   } catch (err) {
     return Response.json({ error: err.message }, { status: 500 });
   }
