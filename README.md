@@ -182,11 +182,16 @@ Three deliberate decisions:
 | Route | Purpose |
 |---|---|
 | `/api/cron-refresh` | scheduled rebuild, every 10 min |
-| `/api/cache-refresh` | clear the cache manually |
+| `/api/cache-refresh` | clear the cache manually — admin password, throttled to 6 per 5 min |
 | `/api/photo-status` | photo coverage per city, and who still needs photos |
 | `/api/pricing-status` | whether the pricing feed is on, and price coverage per city |
 
 **Diagnostics** — these exist because each one was written to chase a real bug.
+
+Every one of them requires the `x-admin-password` header, so a browser visit to
+the URL gets a 401. **Use `/admin/health`**: sign in once and each tool is a
+button, with its parameters as dropdowns and the JSON printed below. The
+sign-in is shared with `/admin/leads` and `/admin/photos` for the session.
 
 | Route | Answers |
 |---|---|
@@ -205,6 +210,25 @@ Three deliberate decisions:
 **Public POST**
 
 `/api/leads` (tenant / landlord / visit) · `/api/save-list` (saved homes)
+
+**Rate limits** (`lib/rateLimit.js`, per IP, on the Redis already provisioned)
+
+| Bucket | Limit | Applies to |
+|---|---|---|
+| `leads` | 10 / hour | `/api/leads` |
+| `savelist` | 10 / hour | `/api/save-list` |
+| `adminfail` | 10 / 15 min | **failed** admin auth only — a correct password is never throttled |
+| `cacherefresh` | 6 / 5 min | `/api/cache-refresh` |
+
+It **fails open**: if Redis is unreachable the request is allowed. The thing
+being defended against is flooding, and the cost of erring the other way is a
+real renter unable to contact us.
+
+One gotcha for anyone testing this locally: `@upstash/redis` has
+auto-pipelining on by default, so it POSTs an array of commands to `/pipeline`
+and expects an array back. A stand-in that answers single commands only will
+make the client throw, which the limiter catches and fails open on — so the
+throttle silently never fires and the code looks broken when the harness is.
 
 ---
 
