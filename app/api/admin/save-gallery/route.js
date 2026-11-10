@@ -1,4 +1,4 @@
-import { checkAuth } from "../_auth";
+import { checkAuthLimited } from "../_auth";
 import { saveGallery } from "@/lib/galleryStore";
 
 export const dynamic = "force-dynamic";
@@ -9,8 +9,8 @@ export const maxDuration = 30;
 // silent failures. Nothing in Monday has to be created or configured for photos
 // to work now.
 export async function POST(request) {
-  const auth = checkAuth(request);
-  if (!auth.ok) return Response.json({ error: auth.error }, { status: auth.status });
+  const auth = await checkAuthLimited(request);
+  if (!auth.ok) return auth.response || Response.json({ error: auth.error }, { status: auth.status });
 
   let body;
   try { body = await request.json(); }

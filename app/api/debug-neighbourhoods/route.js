@@ -4,7 +4,7 @@
 // have no photos. The public site needs none of them.
 import { fetchBuildings } from "@/lib/monday";
 import { hasNeighbourhoods } from "@/lib/neighbourhoods";
-import { checkAuth } from "../admin/_auth";
+import { checkAuthLimited } from "../admin/_auth";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -14,8 +14,8 @@ export const maxDuration = 60;
 // nothing. Run before building any UI — a dropdown of 38 boroughs where half
 // return zero results is worse than no filter at all.
 export async function GET(request) {
-  const auth = checkAuth(request);
-  if (!auth.ok) return Response.json({ error: auth.error }, { status: auth.status });
+  const auth = await checkAuthLimited(request);
+  if (!auth.ok) return auth.response || Response.json({ error: auth.error }, { status: auth.status });
 
   const city = new URL(request.url).searchParams.get("city") || "Montreal";
   const buildings = await fetchBuildings();

@@ -3,7 +3,7 @@
 // which buildings exist, what they are really called, where they are, which
 // have no photos. The public site needs none of them.
 import { fetchBuildings } from "@/lib/monday";
-import { checkAuth } from "../admin/_auth";
+import { checkAuthLimited } from "../admin/_auth";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -12,8 +12,8 @@ export const maxDuration = 60;
 // caching — not what Monday holds. That distinction matters: a stale cache
 // and a parsing bug look identical from the search page.
 export async function GET(request) {
-  const auth = checkAuth(request);
-  if (!auth.ok) return Response.json({ error: auth.error }, { status: auth.status });
+  const auth = await checkAuthLimited(request);
+  if (!auth.ok) return auth.response || Response.json({ error: auth.error }, { status: auth.status });
 
   const city = new URL(request.url).searchParams.get("city");
   const buildings = await fetchBuildings();

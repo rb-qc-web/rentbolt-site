@@ -1,4 +1,5 @@
 import { saveLead, forwardToMonday, leadsConfigured } from "@/lib/leadStore";
+import { rateLimit, tooMany } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -84,6 +85,12 @@ function buildRecord(kind, body) {
 }
 
 export async function POST(request) {
+  // Unauthenticated by necessity — it is a public form. Ten an hour per
+  // address is far above what a real person needs and far below what makes
+  // flooding the lead store worthwhile.
+  const rl = await rateLimit(request, { bucket: "leads", max: 10, windowSeconds: 3600 });
+  if (!rl.ok) return tooMany(rl.retryAfter);
+
   let body;
   try { body = await request.json(); }
   catch { return Response.json({ error: "Invalid request." }, { status: 400 }); }

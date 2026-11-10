@@ -1,4 +1,4 @@
-import { checkAuth } from "../_auth";
+import { checkAuthLimited } from "../_auth";
 
 export const dynamic = "force-dynamic";
 
@@ -6,8 +6,8 @@ export const dynamic = "force-dynamic";
 // (keeping the API token secret) and the browser sends the file straight to
 // Cloudflare. This bypasses Vercel's 4.5MB request body limit entirely.
 export async function POST(request) {
-  const auth = checkAuth(request);
-  if (!auth.ok) return Response.json({ error: auth.error }, { status: auth.status });
+  const auth = await checkAuthLimited(request);
+  if (!auth.ok) return auth.response || Response.json({ error: auth.error }, { status: auth.status });
 
   const res = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v2/direct_upload`,

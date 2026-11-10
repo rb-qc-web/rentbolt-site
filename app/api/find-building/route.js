@@ -1,4 +1,4 @@
-import { checkAuth } from "../admin/_auth";
+import { checkAuthLimited } from "../admin/_auth";
 import { BOARDS } from "@/lib/monday";
 
 export const dynamic = "force-dynamic";
@@ -30,8 +30,8 @@ const ALLOWED_BOARDS = Object.fromEntries(
 );
 
 export async function GET(request) {
-  const auth = checkAuth(request);
-  if (!auth.ok) return Response.json({ error: auth.error }, { status: auth.status });
+  const auth = await checkAuthLimited(request);
+  if (!auth.ok) return auth.response || Response.json({ error: auth.error }, { status: auth.status });
 
   const { searchParams } = new URL(request.url);
   const name = searchParams.get("name")?.toLowerCase();

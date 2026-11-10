@@ -4,7 +4,7 @@
 // have no photos. The public site needs none of them.
 import { fetchBuildings } from "@/lib/monday";
 import { pricingConfigured } from "@/lib/pricing";
-import { checkAuth } from "../admin/_auth";
+import { checkAuthLimited } from "../admin/_auth";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -12,8 +12,8 @@ export const maxDuration = 60;
 // Is the pricing feed on, and what is it actually doing to the site?
 // Reads through the same cache the pages use, so it reports what visitors get.
 export async function GET(request) {
-  const auth = checkAuth(request);
-  if (!auth.ok) return Response.json({ error: auth.error }, { status: auth.status });
+  const auth = await checkAuthLimited(request);
+  if (!auth.ok) return auth.response || Response.json({ error: auth.error }, { status: auth.status });
 
   const names = new URL(request.url).searchParams.get("names") === "1";
   const configured = pricingConfigured();

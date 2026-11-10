@@ -2,7 +2,7 @@
 // questions about the inventory that a competitor would also like answered:
 // which buildings exist, what they are really called, where they are, which
 // have no photos. The public site needs none of them.
-import { checkAuth } from "../admin/_auth";
+import { checkAuthLimited } from "../admin/_auth";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
@@ -39,8 +39,8 @@ const EXPECTED = {
 };
 
 export async function GET(request) {
-  const auth = checkAuth(request);
-  if (!auth.ok) return Response.json({ error: auth.error }, { status: auth.status });
+  const auth = await checkAuthLimited(request);
+  if (!auth.ok) return auth.response || Response.json({ error: auth.error }, { status: auth.status });
 
   const { searchParams } = new URL(request.url);
   const full = searchParams.get("full");          // ?full=ottawa lists every column

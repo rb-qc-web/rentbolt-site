@@ -1,4 +1,5 @@
 import { saveLead, forwardToMonday, leadsConfigured } from "@/lib/leadStore";
+import { rateLimit, tooMany } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -10,6 +11,10 @@ export const maxDuration = 30;
 const str = (v, max) => String(v ?? "").trim().slice(0, max);
 
 export async function POST(request) {
+  // Same reasoning as /api/leads: public form, so the only control is volume.
+  const rl = await rateLimit(request, { bucket: "savelist", max: 10, windowSeconds: 3600 });
+  if (!rl.ok) return tooMany(rl.retryAfter);
+
   let body;
   try { body = await request.json(); }
   catch { return Response.json({ error: "Invalid request" }, { status: 400 }); }

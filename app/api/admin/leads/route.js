@@ -1,4 +1,4 @@
-import { checkAuth } from "../_auth";
+import { checkAuthLimited } from "../_auth";
 import { listLeads, leadToText, leadsConfigured } from "@/lib/leadStore";
 
 export const dynamic = "force-dynamic";
@@ -7,8 +7,8 @@ export const maxDuration = 30;
 // Every lead the site has captured, newest first. Same ADMIN_PASSWORD as the
 // photo tool. `?format=csv` gives a file that opens in Excel.
 export async function GET(request) {
-  const auth = checkAuth(request);
-  if (!auth.ok) return Response.json({ error: auth.error }, { status: auth.status });
+  const auth = await checkAuthLimited(request);
+  if (!auth.ok) return auth.response || Response.json({ error: auth.error }, { status: auth.status });
 
   if (!leadsConfigured()) {
     return Response.json({ error: "Lead storage is not configured (UPSTASH_REDIS_REST_* missing)." }, { status: 503 });

@@ -1,4 +1,4 @@
-import { checkAuth, mondayCall } from "../_auth";
+import { checkAuthLimited, mondayCall } from "../_auth";
 import { findPhotoSubitem, parseGallery, GALLERY_COLUMN_ID, PHOTO_BOARDS } from "@/lib/photoConfig";
 import { getPublicName } from "@/lib/publicName";
 import { getGalleries } from "@/lib/galleryStore";
@@ -9,8 +9,8 @@ export const maxDuration = 60;
 const ACTIVE = ["Lease-Up", "Stabilization"];
 
 export async function GET(request) {
-  const auth = checkAuth(request);
-  if (!auth.ok) return Response.json({ error: auth.error }, { status: auth.status });
+  const auth = await checkAuthLimited(request);
+  if (!auth.ok) return auth.response || Response.json({ error: auth.error }, { status: auth.status });
 
   const out = [];
   const boardErrors = [];
