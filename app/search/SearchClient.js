@@ -314,13 +314,27 @@ export default function SearchClient({ buildings, totalCount }) {
   // and skip their reset; from here on a city change clears as it should.
   useEffect(() => { firstRun.current = false; }, []);
 
-  // The map layout needs the page itself not to scroll. Previously a global
-  // CSS rule; set here instead so it cannot leak to any other page, and
-  // restored on unmount.
+  // The desktop layout is a fixed shell: the page itself does not scroll, and
+  // the list and map scroll independently inside it. That needs body scrolling
+  // switched off.
+  //
+  // On a phone the same lock is actively harmful. The filter block can never
+  // scroll away, so it permanently occupies about 380px of an 844px screen;
+  // the browser's address bar never collapses, because it only retracts when
+  // the PAGE scrolls; and the scrolling feels unlike every other page on the
+  // site, with no momentum hand-off. So the lock is desktop-only, and the
+  // media query is watched because a phone rotating is a real resize.
   useEffect(() => {
+    const mq = window.matchMedia("(max-width: 968px)");
     const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = previous; };
+    const apply = () => { document.body.style.overflow = mq.matches ? previous : "hidden"; };
+
+    apply();
+    mq.addEventListener("change", apply);
+    return () => {
+      mq.removeEventListener("change", apply);
+      document.body.style.overflow = previous;
+    };
   }, []);
 
   // Mirror the live filters into the URL. Only non-default values are written,
@@ -908,7 +922,11 @@ export default function SearchClient({ buildings, totalCount }) {
           </div>
         </div>
 
-        <div className="rb-smap" ref={mapRef} style={{ position: "relative" }}>
+        {/* position comes from CSS, not an inline style: on phones the map is
+            taken out of the flow while the list is showing, and an inline
+            style would beat the stylesheet and leave it adding dead space
+            under the last card. .rb-smap already sets position: relative. */}
+        <div className="rb-smap" ref={mapRef}>
           {!mapLoaded && (
             <div className="rb-smap-loading">
               <div className="rb-spinner" />
