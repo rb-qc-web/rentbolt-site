@@ -1,0 +1,63 @@
+/*
+ * Property Partners page — responsive rules.
+ *
+ * This lived in a <style>{`...`}</style> block inside page.js, which broke it
+ * in two ways at once.
+ *
+ * React treats the contents of that tag as a TEXT CHILD, so it HTML-escapes
+ * it: every `>` child combinator was served as `&gt;`. `.lp-grid-4 &gt; div`
+ * is not a valid selector, so the browser threw those rules away and the
+ * mobile layout was partly broken — while the escaping also made the
+ * server-rendered HTML differ from what the client produced, which is where
+ * the six "Text content does not match server-rendered HTML" errors on every
+ * page load came from.
+ *
+ * It is also the same flash-of-unstyled-content problem fixed on the other
+ * pages: CSS inside a component ships with the JavaScript rather than as a
+ * stylesheet, so it arrives after the first paint. This page was missed.
+ *
+ * As a real stylesheet, none of the three applies.
+ */
+
+@media (max-width: 768px) {
+  .lp-grid-2, .lp-grid-3, .lp-grid-footer {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  .lp-grid-4 {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 24px !important;
+  }
+  .lp-grid-4 > div {
+    border-right: none !important;
+    border-bottom: 1px solid #E8EBF0;
+    padding-bottom: 20px !important;
+  }
+  .lp-grid-4 > div:nth-child(odd) {
+    border-right: 1px solid #E8EBF0 !important;
+  }
+  .lp-grid-steps {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 32px !important;
+  }
+  /* The step connector line. Was selected on its inline style attribute,
+     which never matched — see the note in page.js. */
+  .lp-step-line {
+    display: none !important;
+  }
+  .lp-grid-form {
+    grid-template-columns: 1fr !important;
+  }
+  .rb-hamburger { display: flex !important; }
+  nav { display: none !important; }
+  section { padding-left: 20px !important; padding-right: 20px !important; }
+  section[style*='90px'] { padding-top: 60px !important; padding-bottom: 60px !important; }
+}
+@media (max-width: 480px) {
+  .lp-grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+  .lp-grid-steps {
+    grid-template-columns: 1fr !important;
+  }
+}

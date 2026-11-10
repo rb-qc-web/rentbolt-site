@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import "./landlords.css";
 import { meta } from "@/lib/brand";
 import { submitLead } from "@/lib/submitLead";
 import { CITY_LABELS } from "@/lib/cityContent";
@@ -448,8 +449,15 @@ export default function LandlordsPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, position: "relative" }} className="lp-grid-steps">
             {HOW.map((step, i) => (
               <div key={step.step} style={{ textAlign: "center", padding: "0 20px", position: "relative" }}>
+                {/* The line joining one step to the next. It carries a class
+                    rather than being selected on its inline style: the rule
+                    that hides it on phones was written as
+                    [style*="position: absolute"], and React serialises inline
+                    styles without the space after the colon, so it never
+                    matched. The line stayed visible on mobile and pushed the
+                    page 120px wider than the screen. */}
                 {i < HOW.length - 1 && (
-                  <div style={{
+                  <div className="lp-step-line" style={{
                     position: "absolute", top: 28, left: "60%", width: "80%", height: 2,
                     background: `linear-gradient(to right, ${gold}, ${border})`, zIndex: 0,
                   }} />
@@ -524,48 +532,6 @@ export default function LandlordsPage() {
       {/* ── FOOTER ── */}
       <SiteFooter />
     
-      <style>{`
-        @media (max-width: 768px) {
-          .lp-grid-2, .lp-grid-3, .lp-grid-footer {
-            grid-template-columns: 1fr !important;
-            gap: 32px !important;
-          }
-          .lp-grid-4 {
-            grid-template-columns: 1fr 1fr !important;
-            gap: 24px !important;
-          }
-          .lp-grid-4 > div {
-            border-right: none !important;
-            border-bottom: 1px solid #E8EBF0;
-            padding-bottom: 20px !important;
-          }
-          .lp-grid-4 > div:nth-child(odd) {
-            border-right: 1px solid #E8EBF0 !important;
-          }
-          .lp-grid-steps {
-            grid-template-columns: 1fr 1fr !important;
-            gap: 32px !important;
-          }
-          .lp-grid-steps > div > div[style*="position: absolute"] {
-            display: none !important;
-          }
-          .lp-grid-form {
-            grid-template-columns: 1fr !important;
-          }
-          .rb-hamburger { display: flex !important; }
-          nav { display: none !important; }
-          section { padding-left: 20px !important; padding-right: 20px !important; }
-          section[style*='90px'] { padding-top: 60px !important; padding-bottom: 60px !important; }
-        }
-        @media (max-width: 480px) {
-          .lp-grid-4 {
-            grid-template-columns: 1fr !important;
-          }
-          .lp-grid-steps {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </>
   );
 }
