@@ -1132,3 +1132,71 @@ button { font-family: inherit; cursor: pointer; }
   letter-spacing: 0 !important;
   color: rgba(255,255,255,0.8) !important;
 }
+
+/* ====================================================================
+   TOUCH TARGETS AND READABILITY ON PHONES
+
+   An audit at 390px found 20–45 controls per page under the 44px that
+   both Apple and Google give as the minimum for a finger, and body text
+   down at 11px. The worst were the ones people use most: the menu
+   button at 36x28, the save-a-building heart at 34x34, and nav and
+   footer links about 21px tall.
+
+   Height is raised with min-height and padding rather than by changing
+   font sizes, so nothing reflows on desktop.
+   ==================================================================== */
+@media (max-width: 968px) {
+  /* The menu button is the single most-tapped control on the site. */
+  .rb-hamburger {
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Sits on top of a photo, so it stays visually small — the tappable
+     box is grown underneath with padding instead, which a finger finds
+     and the eye does not notice. */
+  .rb-fav {
+    width: 42px;
+    height: 42px;
+    top: 8px;
+    right: 8px;
+  }
+  .rb-fav svg { width: 19px; height: 19px; }
+
+  /* Links in the drawer, the footer and breadcrumbs. Inline links in
+     prose are deliberately excluded: padding there would break the
+     line spacing of the paragraph around them. */
+  .rb-nav a,
+  .rb-drawer a,
+  .rb-footer a,
+  .rb-breadcrumb a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  /* Native selects collapse to about 19px on Android without this. */
+  select {
+    min-height: 44px;
+    font-size: 16px;   /* under 16px, iOS Safari zooms the page on focus */
+  }
+
+  /* The logo is a link home and was 35px tall. */
+  .rb-logo { display: inline-flex; align-items: center; min-height: 44px; }
+  .bd-back { display: inline-flex; align-items: center; min-height: 44px; }
+
+  /* 11px is below comfortable reading size on a phone. These are the
+     listing details people actually squint at — the city and
+     neighbourhood under each card, and the fact labels on a listing. */
+  .rb-scard-city,
+  .rb-scard-beds,
+  .bd-fact-label,
+  .bd-form-tag,
+  .rb-tpoint span,
+  .rb-card-meta,
+  .rb-label { font-size: 12.5px; }
+}

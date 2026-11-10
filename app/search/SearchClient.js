@@ -209,6 +209,19 @@ export default function SearchClient({ buildings, totalCount }) {
   // The extra filters are open by default: they are the useful ones, and a
   // renter who never presses "Filters" never discovers them.
   const [panelOpen, setPanelOpen] = useState(true);
+  // On a phone there is not room for the list and the map at once, so one is
+  // shown at a time. The list is the default: a renter wants to see what is
+  // available and at what price, and only checks where it is once something
+  // interests them. Desktop ignores this entirely and shows both.
+  const [mobileView, setMobileView] = useState("list");
+  // The extra filters stay open on desktop, as asked. On a phone that same
+  // panel costs about 180px of an 844px screen, and combined with the search
+  // box, the city picker and the bed chips it leaves room for roughly one
+  // listing — a renter lands on a screen of controls rather than apartments.
+  // So on narrow screens it starts collapsed and opens on the first press of
+  // Filters. Handled in CSS rather than in the initial state, because reading
+  // the window width during render would not match the server-rendered HTML.
+  const [panelTouched, setPanelTouched] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
   const [search, setSearch] = useState(() => readParams().get("q") || "");
   // Guards the city-change resets below so a restored search survives mount.
@@ -439,6 +452,17 @@ export default function SearchClient({ buildings, totalCount }) {
     };
   }, []);
 
+  // Switching to the map on a phone changes the size of its container, and
+  // Leaflet only measures on its own initiative at init and on window resize.
+  // Without this it draws into the dimensions it had while hidden: grey gaps
+  // where tiles should be, and pins in the wrong places.
+  useEffect(() => {
+    if (mobileView !== "map" || !mapLoaded || !mapInstanceRef.current) return;
+    // One frame, so the CSS change has actually landed before measuring.
+    const id = requestAnimationFrame(() => mapInstanceRef.current?.invalidateSize());
+    return () => cancelAnimationFrame(id);
+  }, [mobileView, mapLoaded]);
+
   // UPDATE MARKERS when filtered changes
   useEffect(() => {
     if (!mapLoaded || !mapInstanceRef.current) return;
@@ -649,7 +673,20 @@ export default function SearchClient({ buildings, totalCount }) {
             <button
               type="button"
               className={`rb-smore${extraCount ? " on" : ""}`}
-              onClick={() => setPanelOpen(o => !o)}
+              onClick={() => {
+                // On a phone the panel is hidden by CSS until it is touched,
+                // so the first press must OPEN it rather than toggle a state
+                // that is already true — otherwise nothing appears to happen.
+                const narrow = typeof window !== "undefined"
+                  && window.matchMedia("(max-width: 968px)").matches;
+                if (narrow && !panelTouched) {
+                  setPanelTouched(true);
+                  setPanelOpen(true);
+                  return;
+                }
+                setPanelTouched(true);
+                setPanelOpen(o => !o);
+              }}
               aria-expanded={panelOpen}
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -673,7 +710,7 @@ export default function SearchClient({ buildings, totalCount }) {
           </div>
 
           {panelOpen && (
-            <div className="rb-srow2">
+            <div className={`rb-srow2${panelTouched ? " rb-srow2-open" : ""}`}>
               {priceBounds && (
                 <div className="rb-sdd">
                   <button
@@ -782,8 +819,9 @@ export default function SearchClient({ buildings, totalCount }) {
         </div>
       </div>
 
-      {/* SPLIT LAYOUT */}
-      <div className="rb-ssplit">
+      {/* SPLIT LAYOUT — both panes side by side on desktop; on a phone the
+          class below decides which of the two is on screen. */}
+      <div className={`rb-ssplit rb-mv-${mobileView}`}>
         <div className="rb-slist" ref={listRef}>
           {/* Tells people the heart does something — without it the control is
               easy to miss and the saved list never gets used. */}
@@ -932,6 +970,34 @@ export default function SearchClient({ buildings, totalCount }) {
             );
           })()}
         </div>
+
+        {/* Phone only (hidden by CSS above 968px). Floats over whichever pane
+            is showing, and names the pane you would GO to, not the one you are
+            on — a button labelled with where you already are is the classic way
+            to make people press it twice. */}
+        <button
+          type="button"
+          className="rb-sview-toggle"
+          onClick={() => setMobileView(v => (v === "list" ? "map" : "list"))}
+        >
+          {mobileView === "list" ? (
+            <>
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                   strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M9 20l-5.4 2.7A1 1 0 0 1 2 21.8V5.6a1 1 0 0 1 .6-.9L9 1.5m0 18.5 6-3m-6 3V1.5m6 15.5 5.4 2.7a1 1 0 0 0 1.6-.9V2.6a1 1 0 0 0-.6-.9L15 -1m0 18V1.5m0 0L9 4.5" />
+              </svg>
+              Map
+            </>
+          ) : (
+            <>
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+                   strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+              </svg>
+              List
+            </>
+          )}
+        </button>
       </div>
 
       <FindAPlaceModal open={modalOpen} onClose={() => setModalOpen(false)} />

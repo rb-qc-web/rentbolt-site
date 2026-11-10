@@ -112,7 +112,7 @@ export default function ContactPage() {
                   textDecoration: "none", transition: "all 0.18s",
                 }}>
                 <span style={{ fontSize: 32, marginBottom: 14 }}>{ch.icon}</span>
-                <span style={{ fontSize: 11, fontWeight: 700, color: gold, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: gold, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>
                   {ch.label}
                 </span>
                 <span style={{ fontSize: 15, fontWeight: 700, color: navy, marginBottom: 6 }}>{ch.value}</span>

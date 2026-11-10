@@ -888,3 +888,9 @@
           .bd-footer { padding: 48px 16px 24px; }
           .bd-footer-inner { grid-template-columns: 1fr; gap: 32px; }
         }
+
+        /* Same reason as search.css: this file loads after globals.css, so
+           the phone-readability override has to live here to win. */
+        @media (max-width: 968px) {
+          .bd-fact-label, .bd-form-tag { font-size: 12.5px; }
+        }

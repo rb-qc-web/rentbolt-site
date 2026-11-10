@@ -649,11 +649,154 @@
         .rb-map-pin { background: transparent !important; border: none !important; }
 
         /* MOBILE */
+        /* ------------------------------------------------------------------
+           NARROW SCREENS
+
+           What this replaces: a rule that set `.rb-slist { display: none }`
+           below 968px. The effect was that a phone got the map and nothing
+           else — no listings, no prices — on a site where most visitors
+           arrive on a phone. The map was also `height: 100%` inside an auto
+           grid row, which resolved to roughly 6400px, so it scrolled for
+           sixteen screens.
+
+           The filter bar had the matching problem. `.rb-sfilter-controls` is
+           a nowrap flex row with `min-width: 300px`, holding about 600px of
+           controls; its ancestor `.rb-search-page` sets `overflow: hidden`,
+           so instead of overflowing visibly the extra was CLIPPED. The search
+           box sat 433px off the right edge and the Filters button 185px off —
+           present in the page, impossible to see or reach.
+           ------------------------------------------------------------------ */
+        /* NOTE: this block must stay ABOVE the media query that shows it.
+           Both rules have the same specificity, so whichever comes last wins —
+           with this below, `display: none` beat the media query and the button
+           was never visible on any screen. */
+        .rb-sview-toggle {
+          display: none;
+          position: fixed;
+          left: 50%;
+          transform: translateX(-50%);
+          /* Clear of the iPhone home indicator. */
+          bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+          z-index: 900;
+          align-items: center;
+          gap: 8px;
+          min-height: 46px;
+          padding: 0 22px;
+          border: none;
+          border-radius: 100px;
+          background: var(--navy);
+          color: #fff;
+          font-family: inherit;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 4px 16px rgba(10, 31, 92, 0.3);
+        }
+        .rb-sview-toggle:active { transform: translateX(-50%) scale(0.97); }
+
         @media (max-width: 968px) {
-          .rb-ssplit { grid-template-columns: 1fr; }
-          .rb-slist { display: none; }
-          .rb-smap { height: 100%; }
           .rb-sfilters { padding: 12px 16px; }
-          .rb-sfilters-inner { gap: 12px; }
+          .rb-sfilters-inner {
+            gap: 10px;
+            /* Stack rather than squeeze: the controls do not fit on one line
+               at any phone width, and a column cannot overflow sideways. */
+            flex-direction: column;
+            align-items: stretch;
+          }
           .rb-sheader { padding: 12px 16px; }
+
+          .rb-scity-wrap { width: 100%; }
+          .rb-scity { width: 100%; min-height: 44px; }
+
+          .rb-sfilter-controls {
+            /* Was 300px, which alone was most of a 390px screen. */
+            min-width: 0;
+            flex-wrap: wrap;
+            gap: 10px;
+          }
+
+          /* The search box is the primary action, so it gets its own full
+             line above the chips rather than competing for the same row. */
+          .rb-ssearch {
+            order: -1;
+            flex: 1 0 100%;
+            max-width: none;
+            min-height: 44px;
+            font-size: 16px;   /* under 16px, iOS Safari zooms on focus */
+          }
+
+          /* The bed chips stay on one line and scroll sideways. Wrapping them
+             would push the Filters button around as the row grows. */
+          .rb-sbed-group {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+          }
+          .rb-sbed-group::-webkit-scrollbar { display: none; }
+          .rb-sbed {
+            flex-shrink: 0;       /* without this they compress to nothing */
+            min-height: 44px;
+            padding: 8px 16px;
+          }
+
+          .rb-smore { flex-shrink: 0; min-height: 44px; }
+
+          /* Collapsed until the renter presses Filters — see the note on
+             panelTouched in SearchClient. Desktop is untouched. */
+          .rb-srow2:not(.rb-srow2-open) { display: none; }
+
+          /* The filter block does not scroll away, so every pixel it takes is
+             a pixel of listings gone for the whole session. */
+          .rb-sfilters { padding: 10px 16px; }
+          .rb-sfilters-inner { gap: 8px; }
+          .rb-shint { margin: 8px 12px 0; padding: 9px 12px; font-size: 12px; }
+
+          /* 11px is too small to read on a phone. Set here rather than in
+             globals.css: this stylesheet loads after it, so a rule there of
+             the same specificity loses. */
+          .rb-scard-city,
+          .rb-scard-beds,
+          /* the size is set on the span, not the wrapper, so match the span */
+          .rb-scard-specs span { font-size: 12.5px; }
+
+          /* One pane at a time, chosen by rb-mv-* on .rb-ssplit. */
+          .rb-ssplit {
+            grid-template-columns: 1fr;
+            grid-template-rows: 1fr;
+            min-height: 0;
+          }
+          .rb-slist, .rb-smap {
+            grid-area: 1 / 1;     /* stack, so switching does not reflow */
+            min-height: 0;
+          }
+          /* The list can be display:none safely — it is plain DOM.
+             The map CANNOT. Leaflet measures its container, and a container
+             with display:none measures zero, which sends it into
+             "Invalid LatLng object: (NaN, NaN)" and takes the whole page down
+             with it. So the map keeps its box and is hidden with visibility,
+             and the list is stacked over it in the same grid cell. */
+          .rb-ssplit.rb-mv-map  .rb-slist { display: none; }
+          .rb-ssplit.rb-mv-list .rb-smap {
+            visibility: hidden;
+            pointer-events: none;
+          }
+          .rb-ssplit.rb-mv-list .rb-slist { z-index: 1; }
+          .rb-slist { border-right: none; background: #fff; }
+          .rb-smap { height: 100%; }
+
+          /* Two columns of cards on a 390px screen leaves each one about
+             170px wide — too narrow for a photo, a price and bed counts. */
+          .rb-slist-items { grid-template-columns: 1fr; padding: 12px 12px 88px; }
+
+          .rb-sview-toggle { display: inline-flex; }
+        }
+
+
+
+        /* Below this the cards themselves get cramped. */
+        @media (max-width: 420px) {
+          .rb-sfilters { padding: 10px 12px; }
+          .rb-sheader { padding: 10px 12px; }
         }

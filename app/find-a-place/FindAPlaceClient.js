@@ -55,6 +55,10 @@ function Toggle({ checked, onChange }) {
 function Pill({ label, active, onClick }) {
   return (
     <button type="button" onClick={onClick} style={{
+      // minHeight, not more padding: these pills sit in a wrapping row, and
+      // padding would push them apart as well as taller. 44px is the finger
+      // minimum both Apple and Google publish; these were 34px.
+      minHeight: 44, display: "inline-flex", alignItems: "center",
       padding: "8px 16px", borderRadius: 100, fontSize: 13, fontWeight: 600,
       cursor: "pointer", transition: "all 0.15s", border: `1.5px solid ${active ? brand.navy : "#E2E5EC"}`,
       background: active ? brand.navy : "#fff", color: active ? "#fff" : "#5A6278",
@@ -68,7 +72,7 @@ function Pill({ label, active, onClick }) {
 function SegmentBtn({ label, active, onClick }) {
   return (
     <button type="button" onClick={onClick} style={{
-      flex: 1, padding: "10px 8px", borderRadius: 10, fontSize: 13, fontWeight: 700,
+      flex: 1, minHeight: 44, padding: "10px 8px", borderRadius: 10, fontSize: 13, fontWeight: 700,
       cursor: "pointer", transition: "all 0.15s", fontFamily: "inherit",
       border: `1.5px solid ${active ? brand.navy : "#E2E5EC"}`,
       background: active ? brand.navy : "#fff", color: active ? "#fff" : "#5A6278",
